@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ИГРИЩЕ — Регистрация</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: auto; }
+        body {
+            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #f9a8d4 100%);
+            font-family: 'Rubik', sans-serif;
+            min-height: 100vh;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 40px 20px; position: relative; overflow-x: auto;
+        }
+        body::before {
+            content: ''; position: fixed; width: 400px; height: 400px;
+            background: rgba(255,255,255,0.3); border-radius: 50%; filter: blur(100px);
+            top: -100px; right: -100px; animation: float1 10s infinite; z-index: 0;
+        }
+        body::after {
+            content: ''; position: fixed; width: 350px; height: 350px;
+            background: rgba(255,255,255,0.25); border-radius: 50%; filter: blur(80px);
+            bottom: -80px; left: -80px; animation: float2 12s infinite; z-index: 0;
+        }
+        .back-logo {
+    width: 12vh;
+    height: 12vh;
+    min-width: 60px;
+    min-height: 60px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    border: 0.5vh solid #e3e3e3;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0.5vh 1.5vh rgba(0,0,0,0.1);
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.back-logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 1vh 3vh rgba(0,0,0,0.2);
+}
+
+.back-logo img {
+    width: 130%;
+    height: 130%;
+    object-fit: contain;
+    margin-top: -3vh;
+}
+        @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-40px,50px) scale(1.2);} }
+        @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(50px,-30px) scale(1.15);} }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 440px; margin: 20px 0; }
+        .glass-card {
+            background: rgba(255,255,255,0.55); backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 2px solid rgba(255,255,255,0.5); border-radius: 32px;
+            padding: 40px 28px; box-shadow: 0 8px 40px rgba(124,58,237,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+            animation: cardIn 0.6s ease;
+        }
+        @keyframes cardIn { from{opacity:0;transform:translateY(40px) scale(0.92);} to{opacity:1;transform:translateY(0) scale(1);} }
+        .logo { font-size: 48px; font-weight: 900; text-align: center; background: linear-gradient(135deg,#7c3aed,#f472b6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:-1px; margin-bottom:8px; }
+        .subtitle { text-align: center; color: #2d1b69; opacity:0.6; font-size:16px; font-weight:500; margin-bottom:28px; }
+        .input-group { margin-bottom: 18px; }
+        .input-label { font-size:13px; font-weight:700; color:#2d1b69; opacity:0.6; margin-bottom:8px; letter-spacing:2px; text-transform:uppercase; }
+        .glass-input {
+            width:100%; padding:16px 20px; font-family:'Rubik',sans-serif; font-weight:600; font-size:18px;
+            background:rgba(255,255,255,0.6); backdrop-filter:blur(10px); border:2px solid rgba(255,255,255,0.6);
+            border-radius:16px; color:#2d1b69; outline:none; transition:all 0.3s;
+        }
+        .glass-input:focus { border-color:#7c3aed; background:rgba(255,255,255,0.9); box-shadow:0 0 0 6px rgba(124,58,237,0.1); }
+        .glass-input::placeholder { color:rgba(45,27,105,0.25); }
+        .btn {
+            width:100%; padding:16px; font-family:'Rubik',sans-serif; font-weight:800; font-size:20px;
+            letter-spacing:2px; border:none; border-radius:50px; cursor:pointer; color:white;
+            background:linear-gradient(135deg,#7c3aed,#a855f7,#f472b6);
+            box-shadow:0 8px 32px rgba(124,58,237,0.5), inset 0 2px 0 rgba(255,255,255,0.4);
+            margin-top:8px; transition:all 0.3s;
+        }
+        .btn:hover { transform:scale(1.03); box-shadow:0 12px 40px rgba(124,58,237,0.6); }
+        .btn:active { transform:scale(0.96); }
+        .btn-outline { background:rgba(255,255,255,0.5); color:#2d1b69; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.5); box-shadow:0 4px 16px rgba(0,0,0,0.05); margin-top:14px; }
+        .btn-outline:hover { background:rgba(255,255,255,0.8); }
+        .error-msg { color:#ef4444; text-align:center; margin-top:12px; font-size:14px; font-weight:600; min-height:20px; }
+        .success-msg { color:#16a34a; text-align:center; margin-top:12px; font-size:14px; font-weight:600; min-height:20px; }
+        .divider { display:flex; align-items:center; gap:12px; margin:20px 0; color:#999; font-size:14px; font-weight:500; }
+        .divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(0,0,0,0.1); }
+        .terms { text-align:center; font-size:12px; color:#888; margin-top:16px; line-height:1.5; }
+        .terms a { color:#7c3aed; text-decoration:none; font-weight:600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="back-logo" onclick="window.location.href='/'" title="На главную">
+    <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='<span style=font-size:5vh>🎮</span>'">
+    </div>
+    <div class="glass-card">
+        <div class="logo">ИГРИЩЕ</div>
+        <div class="subtitle">Создай аккаунт и начни играть!</div>
+        <form id="registerForm" onsubmit="register(event)">
+            <div class="input-group"><div class="input-label">Имя</div><input class="glass-input" type="text" id="username" placeholder="Твоё имя" maxlength="30" autocomplete="off" required></div>
+            <div class="input-group"><div class="input-label">Email</div><input class="glass-input" type="email" id="email" placeholder="email@example.com" autocomplete="email" required></div>
+            <div class="input-group"><div class="input-label">Пароль</div><input class="glass-input" type="password" id="password" placeholder="Минимум 6 символов" minlength="6" autocomplete="new-password" required></div>
+            <div class="input-group"><div class="input-label">Повтори пароль</div><input class="glass-input" type="password" id="password2" placeholder="Повтори пароль" minlength="6" required></div>
+            <button class="btn" type="submit">✨ ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        </form>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
+        <div class="divider">или</div>
+        <button class="btn btn-outline" onclick="window.location.href='/'">🔑 Уже есть аккаунт? Войти</button>
+        <div class="terms">Регистрируясь, ты соглашаешься с<br><a href="#">Условиями использования</a> и <a href="#">Политикой конфиденциальности</a></div>
+    </div>
+</div>
+<script>
+async function register(e){
+    e.preventDefault();
+    const username=document.getElementById('username').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+    const password2=document.getElementById('password2').value;
+    const errEl=document.getElementById('errorMsg');
+    const okEl=document.getElementById('successMsg');
+    errEl.textContent=''; okEl.textContent='';
+    if(!username||!email||!password){errEl.textContent='Заполни все поля';return;}
+    if(username.length<2){errEl.textContent='Имя слишком короткое';return;}
+    if(password.length<6){errEl.textContent='Пароль минимум 6 символов';return;}
+    if(password!==password2){errEl.textContent='Пароли не совпадают';return;}
+    try{
+        const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,email,password})});
+        const d=await r.json();
+        if(d.error){errEl.textContent=d.error;return;}
+        localStorage.setItem('token',d.token);
+        localStorage.setItem('user',JSON.stringify(d.user));
+        localStorage.setItem('wallet',JSON.stringify({coins:d.user.coins||100}));
+        okEl.textContent='✅ Успешно! Сейчас перекинем...';
+        setTimeout(()=>{window.location.href='/';},800);
+    }catch{errEl.textContent='Сервер не отвечает';}
+}
+</script>
+</body>
+</html>

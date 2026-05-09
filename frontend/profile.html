@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ИГРИЩЕ — Профиль</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #ededed;
+            font-family: 'Rubik', sans-serif;
+            overflow-x: hidden;
+            color: #111;
+        }
+
+        .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 20px; }
+
+        /* ШАПКА (как в hello) */
+        .nav {
+            width: 100%; height: 12vh; min-height: 70px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 0 0 3vh 3vh;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5vw; position: sticky; top: 0; z-index: 9999;
+        }
+
+        .nav-logo {
+            width: 10vh; height: 10vh; min-width: 55px; min-height: 55px;
+            border-radius: 50%; background: white;
+            display: flex; align-items: center; justify-content: center;
+            overflow: visible; border: 0.5vh solid #e3e3e3;
+            margin-top: 5vh; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 0.5vh 1.5vh rgba(0,0,0,0.1);
+        }
+
+        .nav-logo:hover { transform: scale(1.1); }
+        .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -3vh; }
+
+        .nav-title {
+            font-size: clamp(3vh, 5vw, 4vh);
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-back {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 3vh;
+            padding: 1.5vh 3vw;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: clamp(1.5vh, 2.5vw, 2vh);
+        }
+
+        .nav-back:hover { background: rgba(255,255,255,0.9); }
+
+        /* КАРТОЧКА ПРОФИЛЯ */
+        .profile-card {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7);
+            border-radius: 3vh;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .avatar-big {
+            width: 15vh; height: 15vh; min-width: 80px; min-height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a53cff, #3fffd2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 6vh; color: white; margin: 0 auto 15px;
+            font-weight: 900;
+        }
+
+        .username-big {
+            font-size: clamp(3vh, 5vw, 4vh);
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .user-level {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff3d2e, #cc39ff);
+            color: white;
+            padding: 1vh 3vw;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* СТАТИСТИКА */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 2vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-icon { font-size: 4vh; margin-bottom: 8px; }
+        .stat-value { font-size: clamp(3vh, 5vw, 4vh); font-weight: 900; }
+        .stat-label { font-size: 12px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* КНОПКИ */
+        .btn {
+            width: 100%; padding: 16px;
+            font-family: 'Rubik', sans-serif; font-weight: 800; font-size: 18px;
+            letter-spacing: 1px; border: none; border-radius: 50px; cursor: pointer;
+            color: white; transition: all 0.3s; margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #f472b6);
+            box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+        }
+        .btn-primary:hover { transform: scale(1.03); }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.5);
+            color: #2d1b69;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+        .btn-danger {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.3);
+            box-shadow: none;
+        }
+
+        /* АЧИВКИ */
+        .section-title {
+            font-size: clamp(2vh, 3.5vw, 3vh);
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .achievement-card {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 2vh;
+            padding: 15px 10px;
+            text-align: center;
+        }
+
+        .achievement-icon { font-size: 4vh; margin-bottom: 5px; }
+        .achievement-name { font-size: 12px; font-weight: 700; }
+        .achievement-card.locked { opacity: 0.4; filter: grayscale(0.5); }
+
+        .footer-space { height: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА -->
+    <nav class="nav">
+        <div class="nav-logo" onclick="window.location.href='/'" title="На главную">
+            <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='<span style=font-size:4vh>🎮</span>'">
+        </div>
+        <div class="nav-title">Профиль</div>
+        <button class="nav-back" onclick="window.location.href='/'">← Назад</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- ПРОФИЛЬ -->
+        <div class="profile-card">
+            <div class="avatar-big" id="avatarBig">?</div>
+            <div class="username-big" id="profileUsername">...</div>
+            <div class="user-email" id="profileEmail">...</div>
+            <div class="user-level" id="profileLevel">Уровень 1</div>
+        </div>
+
+        <!-- СТАТИСТИКА -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🪙</div>
+                <div class="stat-value" id="statCoins">0</div>
+                <div class="stat-label">Монет</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value" id="statGames">0</div>
+                <div class="stat-label">Игр</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="statCorrect">0</div>
+                <div class="stat-label">Верных ответов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="statStreak">0</div>
+                <div class="stat-label">Дней подряд</div>
+            </div>
+        </div>
+
+        <!-- АЧИВКИ -->
+        <div class="section-title">🏅 Достижения</div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+
+        <!-- КНОПКИ -->
+        <button class="btn btn-primary" onclick="window.location.href='/'">🎮 Играть</button>
+        <button class="btn btn-outline" onclick="window.location.href='shop.html'">🛍 Магазин</button>
+        <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
+
+        <div class="footer-space"></div>
+    </div>
+
+<script>
+// Загружаем данные
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const wallet = JSON.parse(localStorage.getItem('wallet') || '{}');
+
+// Профиль
+const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+const avatarEl = document.getElementById('avatarBig');
+
+if (equipped.avatar) {
+    avatarEl.textContent = equipped.avatar;
+} else {
+    avatarEl.textContent = user.username ? user.username.charAt(0).toUpperCase() : '?';
+}
+document.getElementById('profileUsername').textContent = user.username || 'Гость';
+document.getElementById('profileEmail').textContent = user.email || '';
+document.getElementById('profileLevel').textContent = 'Уровень ' + (user.level || 1);
+
+// Статистика
+document.getElementById('statCoins').textContent = wallet.coins || 0;
+document.getElementById('statGames').textContent = user.games_played || 0;
+document.getElementById('statCorrect').textContent = user.correct_answers || 0;
+document.getElementById('statStreak').textContent = user.streak_days || 0;
+
+// Ачивки-заглушки
+const achievements = [
+    { icon: '🎮', name: 'Первая игра', unlocked: true },
+    { icon: '🏆', name: 'Победитель', unlocked: (user.games_played || 0) >= 5 },
+    { icon: '🔥', name: '7 дней', unlocked: (user.streak_days || 0) >= 7 },
+    { icon: '💯', name: '100 очков', unlocked: (wallet.coins || 0) >= 100 },
+    { icon: '👑', name: 'Король', unlocked: false },
+    { icon: '🌟', name: 'Легенда', unlocked: false },
+];
+
+document.getElementById('achievementsGrid').innerHTML = achievements.map(a => `
+    <div class="achievement-card ${a.unlocked ? '' : 'locked'}">
+        <div class="achievement-icon">${a.icon}</div>
+        <div class="achievement-name">${a.name}</div>
+    </div>
+`).join('');
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('wallet');
+    window.location.href = '/';
+}
+</script>
+
+</body>
+</html>
