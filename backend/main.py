@@ -81,7 +81,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             return
                 # ========== АВТОРИЗАЦИЯ ==========
         elif self.path == '/api/auth/register':
-            from backend.storage.database import register_user
+            from storage.database import register_user
             username = body.get('username', '').strip()
             email = body.get('email', '').strip()
             password = body.get('password', '')
@@ -112,7 +112,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             return
         
         elif self.path == '/api/auth/login':
-            from backend.storage.database import login_user
+            from storage.database import login_user
             login = body.get('login', '').strip()
             password = body.get('password', '')
             
@@ -143,7 +143,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             # Отдаём кошелёк (из localStorage будем синхронизировать)
             user_id = self.headers.get('X-User-Id', '')
             if user_id:
-                from backend.storage.database import get_user_by_id
+                from storage.database import get_user_by_id
                 user = get_user_by_id(int(user_id))
                 if user:
                     self._json({'coins': user.get('coins', 0)})
@@ -158,7 +158,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
                 self._json({'error': 'Нет user_id'}, 400)
                 return
             
-            from backend.storage.database import (
+            from storage.database import (
                 save_equipped_avatar, save_user_items, save_game_result,
                 load_user_items, get_user_stats
             )
@@ -176,7 +176,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             # Сохраняем настройки
             settings = body.get('settings', {})
             if settings:
-                from backend.storage.database import save_user_settings
+                from storage.database import save_user_settings
                 save_user_settings(int(user_id), settings)
             
             self._json({'ok': True})
@@ -187,7 +187,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             user_id = body.get('user_id', '')
             coins = body.get('coins', 0)
             if user_id and coins > 0:
-                from backend.storage.database import update_coins
+                from storage.database import update_coins
                 update_coins(int(user_id), coins)
                 self._json({'ok': True})
                 return
@@ -254,7 +254,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 def main():
-    from backend.storage.database import init_db
+    from storage.database import init_db
     init_db()
     add_table_columns()
     print('=' * 60)
