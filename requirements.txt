@@ -1,1 +1,1 @@
-pip install bcrypt
+bcrypt==4.0.1
