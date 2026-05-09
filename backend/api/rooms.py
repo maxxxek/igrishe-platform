@@ -1,12 +1,14 @@
 """API для работы с комнатами"""
 import json
-from ..storage.memory import MemoryStorage
-from ..models.room import Room
-from ..utils.loader import load_games
+import sys
+import os
 
-# Загружаем игры и создаём хранилище
-games = load_games()
-storage = MemoryStorage()
+# Добавляем backend в путь
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from storage.memory import MemoryStorage
+from models.room import Room
+from utils.loader import load_games
 
 
 def handle_create(game_id='quiz'):

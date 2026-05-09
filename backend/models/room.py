@@ -1,8 +1,8 @@
 """Модель игровой комнаты"""
 import random
 import time
-from ..config import MAX_PLAYERS
-from ..utils.helpers import get_timestamp
+from config import MAX_PLAYERS
+from utils.helpers import get_timestamp
 
 
 class Room:

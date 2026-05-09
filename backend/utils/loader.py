@@ -2,7 +2,7 @@
 import json
 import os
 import glob
-from ..config import GAMES_DIR, QUESTIONS_DIR
+from config import GAMES_DIR, QUESTIONS_DIR
 
 
 def load_games():

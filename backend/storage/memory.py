@@ -1,6 +1,6 @@
 """Хранилище комнат в памяти (для разработки)"""
 import time
-from ..utils.helpers import generate_unique_code
+from utils.helpers import generate_unique_code
 
 
 class MemoryStorage:
