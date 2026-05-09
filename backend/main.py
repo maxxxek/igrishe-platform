@@ -10,10 +10,12 @@ import sys
 import os
 
 # Добавляем backend в путь
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from backend.config import PORT, HOST, FRONTEND_DIR, STATIC_DIR, DEBUG
-from backend.api.rooms import (
+from config import PORT, HOST
+from storage.database import init_db, add_table_columns
+from api.rooms import (
     handle_create, handle_join, handle_start, handle_state,
     handle_answer, handle_next, handle_reset, handle_games_list
 )
