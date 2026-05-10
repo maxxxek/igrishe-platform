@@ -33,7 +33,18 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
+    try:
+        cursor.execute('ALTER TABLE users ADD COLUMN equipped_avatar TEXT DEFAULT ""')
+    except: pass
+    try:
+        cursor.execute('ALTER TABLE users ADD COLUMN gems INTEGER DEFAULT 0')
+    except: pass
+    try:
+        cursor.execute('ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0')
+    except: pass
+    try:
+        cursor.execute('ALTER TABLE users ADD COLUMN premium_until TIMESTAMP')
+    except: pass
     conn.commit()
     conn.close()
     print('✅ База данных готова')

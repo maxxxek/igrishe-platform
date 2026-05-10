@@ -140,15 +140,19 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             return
         
         elif self.path == '/api/wallet':
-            # Отдаём кошелёк (из localStorage будем синхронизировать)
             user_id = self.headers.get('X-User-Id', '')
             if user_id:
                 from storage.database import get_user_by_id
                 user = get_user_by_id(int(user_id))
                 if user:
-                    self._json({'coins': user.get('coins', 0)})
+                    self._json({
+                        'coins': user.get('coins', 0),
+                        'gems': user.get('gems', 0),
+                        'premium': user.get('is_premium', 0),
+                        'premium_until': user.get('premium_until', None)
+                    })
                     return
-            self._json({'coins': 0})
+            self._json({'coins': 0, 'gems': 0, 'premium': 0, 'premium_until': None})
             return
         
         elif self.path == '/api/user/sync':

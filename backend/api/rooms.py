@@ -10,6 +10,9 @@ from storage.memory import MemoryStorage
 from models.room import Room
 from utils.loader import load_games
 
+# Загружаем игры при старте
+games = load_games()
+storage = MemoryStorage()
 
 def handle_create(game_id='quiz'):
     """Создание комнаты"""
@@ -128,5 +131,6 @@ def handle_reset(code):
 
 def handle_games_list():
     """Список игр"""
-    from utils.loader import get_games_list
+    from utils.loader import load_games, get_games_list
+    games = load_games()
     return get_games_list(games), 200
