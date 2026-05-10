@@ -18,7 +18,9 @@ def init_db():
     """Создаёт таблицы если их нет"""
     conn = get_db()
     cursor = conn.cursor()
-    
+    try:
+    cursor.execute('ALTER TABLE users ADD COLUMN equipped_avatar TEXT DEFAULT ""')
+    except: pass
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

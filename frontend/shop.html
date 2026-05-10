@@ -10,101 +10,123 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #ededed; font-family: 'Rubik', sans-serif; overflow-x: hidden; color: #111; }
-        .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 20px; }
+        .container { width: 100%; max-width: 700px; margin: 0 auto; padding: 0 15px; }
 
         .nav {
-            width: 100%; height: 12vh; min-height: 70px;
+            width: 100%; height: 10vh; min-height: 60px;
             background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.7);
-            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-            border-radius: 0 0 3vh 3vh; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 5vw;
-            position: sticky; top: 0; z-index: 9999;
+            backdrop-filter: blur(18px); border-radius: 0 0 3vh 3vh;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 3vw; position: sticky; top: 0; z-index: 9999;
         }
         .nav-logo {
-            width: 10vh; height: 10vh; min-width: 55px; min-height: 55px;
+            width: 8vh; height: 8vh; min-width: 45px; min-height: 45px;
             border-radius: 50%; background: white; display: flex; align-items: center;
-            justify-content: center; overflow: visible; border: 0.5vh solid #e3e3e3;
-            margin-top: 5vh; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 0.5vh 1.5vh rgba(0,0,0,0.1);
+            justify-content: center; overflow: visible; border: 3px solid #e3e3e3;
+            margin-top: 4vh; cursor: pointer; transition: 0.3s;
         }
         .nav-logo:hover { transform: scale(1.1); }
-        .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -3vh; }
+        .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -2vh; }
         .nav-title {
-            font-size: clamp(3vh, 5vw, 4vh); font-weight: 800;
+            font-size: clamp(2.5vh, 4vw, 3.5vh); font-weight: 800;
             background: linear-gradient(135deg, #7c3aed, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
         .nav-back {
             background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 3vh; padding: 1.5vh 3vw; font-weight: 700; cursor: pointer;
-            transition: 0.3s; font-size: clamp(1.5vh, 2.5vw, 2vh);
+            border-radius: 3vh; padding: 1vh 3vw; font-weight: 700; cursor: pointer;
         }
         .nav-back:hover { background: rgba(255,255,255,0.9); }
 
-        .profile-badge {
-            display: flex; align-items: center; gap: 1.5vw;
-            background: rgba(255,255,255,0.5); backdrop-filter: blur(18px);
-            border: 2px solid rgba(255,255,255,0.7); border-radius: 5vh;
-            padding: 1.5vh 2.5vw; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 0.5vh 2vh rgba(0,0,0,0.08);
-        }
-        .profile-badge:hover { background: rgba(255,255,255,0.7); transform: scale(1.05); }
-        .profile-avatar {
-            width: 5vh; height: 5vh; min-width: 30px; min-height: 30px;
-            border-radius: 50%; background: linear-gradient(135deg, #a53cff, #3fffd2);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5vh; color: white;
-        }
-        .profile-text {
-            font-size: clamp(1.5vh, 2.5vw, 2vh); font-weight: 600;
-            color: #333; white-space: nowrap;
-        }
-
-        .balance-bar {
+        /* ОСНОВНАЯ СЕТКА */
+        .shop-layout { display: flex; gap: 15px; margin: 20px 0; }
+        
+        /* ЛЕВОЕ МЕНЮ */
+        .side-menu {
+            width: 140px; flex-shrink: 0;
             background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
-            border: 2px solid rgba(255,255,255,0.7); border-radius: 3vh;
-            padding: 20px; margin: 30px 0; display: flex; align-items: center;
-            justify-content: space-between; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 2vh;
+            padding: 15px 10px; position: sticky; top: 15vh; height: fit-content;
         }
-        .balance-value { font-size: clamp(3vh, 5vw, 4vh); font-weight: 900; }
-        .balance-label { font-size: 12px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
-
-        .category-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .category-tab {
-            padding: 1.5vh 3vw; border-radius: 3vh; font-weight: 700; font-size: 14px;
-            cursor: pointer; white-space: nowrap; transition: 0.3s;
-            background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
+        .side-menu-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 10px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 14px; transition: 0.2s; margin-bottom: 5px;
         }
-        .category-tab.active { background: linear-gradient(90deg, #ff3d2e, #cc39ff); color: white; border: none; }
+        .side-menu-item:hover { background: rgba(255,255,255,0.8); }
+        .side-menu-item.active { background: rgba(124,58,237,0.1); color: #7c3aed; }
 
-        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        /* БАЛАНС */
+        .balance-mini {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .balance-mini .coin { font-weight: 800; font-size: 14px; }
+        .balance-mini .gem { font-weight: 800; font-size: 14px; color: #06b6d4; }
+
+        /* ПРАВАЯ ЧАСТЬ */
+        .main-content { flex: 1; }
+
+        /* ПРЕМИУМ-БЛОК */
+        .premium-card {
+            background: linear-gradient(135deg, #1a0533, #2d1b69);
+            color: white; border-radius: 2vh; padding: 20px; margin-bottom: 20px;
+            position: relative; overflow: hidden;
+        }
+        .premium-card::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 100px; height: 100px; background: rgba(255,215,0,0.2); border-radius: 50%;
+        }
+        .premium-badge { font-size: 14px; font-weight: 800; color: #fbbf24; margin-bottom: 8px; }
+        .premium-status { font-size: 20px; font-weight: 900; margin-bottom: 5px; }
+        .premium-date { font-size: 13px; opacity: 0.7; margin-bottom: 12px; }
+        .premium-features { font-size: 13px; opacity: 0.8; line-height: 1.6; }
+        .premium-features span { color: #fbbf24; margin-right: 5px; }
+        .btn-premium {
+            display: inline-block; padding: 10px 25px; background: #fbbf24; color: #1a0533;
+            border-radius: 50px; font-weight: 800; font-size: 14px; cursor: pointer;
+            border: none; margin-top: 10px; transition: 0.3s;
+        }
+        .btn-premium:hover { transform: scale(1.05); }
+
+        /* ТОВАРЫ */
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .shop-card {
-            background: rgba(255,255,255,0.5); backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.6); border-radius: 2vh;
-            padding: 20px 15px; text-align: center; transition: 0.3s; cursor: pointer;
-            position: relative;
+            background: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 16px; padding: 16px 10px; text-align: center;
+            cursor: pointer; transition: 0.3s; position: relative;
         }
-        .shop-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        .shop-card.owned { opacity: 0.7; border-color: #22c55e; background: rgba(34,197,94,0.05); }
-        .shop-icon { font-size: 6vh; margin-bottom: 10px; display: block; }
-        .shop-name { font-weight: 800; font-size: 16px; margin-bottom: 5px; }
+        .shop-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .shop-card.owned { opacity: 0.6; border-color: #22c55e; }
+        .shop-icon { font-size: 5vh; margin-bottom: 8px; display: block; }
+        .shop-name { font-weight: 800; font-size: 14px; margin-bottom: 5px; }
         .shop-price {
-            display: inline-block; padding: 1vh 2vw; border-radius: 3vh;
-            background: rgba(124,58,237,0.1); color: #7c3aed; font-weight: 700; font-size: 14px;
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-weight: 700; font-size: 13px;
         }
+        .shop-price.coins { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .shop-price.gems { background: rgba(6,182,212,0.1); color: #06b6d4; }
         .shop-badge {
-            position: absolute; top: 10px; right: 10px;
-            background: #22c55e; color: white; padding: 0.5vh 1.5vw; border-radius: 2vh;
-            font-size: 11px; font-weight: 700;
+            position: absolute; top: 8px; right: 8px;
+            background: #22c55e; color: white; padding: 3px 10px;
+            border-radius: 12px; font-size: 10px; font-weight: 700;
         }
-        .footer-space { height: 30px; }
+        .shop-badge.equipped { background: #7c3aed; }
+
         .toast {
             position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 1.5vh 4vw;
-            border-radius: 999px; font-weight: 600; font-size: 14px;
+            background: #333; color: white; padding: 12px 24px;
+            border-radius: 50px; font-weight: 600; font-size: 14px;
             z-index: 11000; opacity: 0; transition: 0.4s; pointer-events: none;
         }
         .toast.show { opacity: 1; }
+
+        @media (max-width: 600px) {
+            .shop-layout { flex-direction: column; }
+            .side-menu { width: 100%; display: flex; overflow-x: auto; position: static; padding: 10px; }
+            .side-menu-item { white-space: nowrap; margin-bottom: 0; margin-right: 5px; }
+            .shop-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -113,36 +135,49 @@
     <div class="nav-logo" onclick="window.location.href='/'">
         <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='🎮'">
     </div>
+    <div class="nav-title">Магазин</div>
     <button class="nav-back" onclick="window.location.href='/'">← Назад</button>
 </nav>
 
 <div class="container">
+    <div class="shop-layout">
 
-    <div class="balance-bar">
-        <div class="profile-badge" onclick="window.location.href='/frontend/profile.html'">
-            <div class="profile-avatar" id="profileAvatar2">👤</div>
-            <span class="profile-text" id="profileText2">Профиль</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:1vw;">
-            <span style="font-size:4vh;">🪙</span>
-            <div style="text-align:right;">
-                <div class="balance-value coin-display" id="coinBalance">0</div>
-                <div class="balance-label">монет</div>
+        <!-- ЛЕВОЕ МЕНЮ -->
+        <div class="side-menu">
+            <div class="balance-mini">
+                <span>🪙 <span class="coin coin-display" id="coinBalance">0</span></span>
+                <span style="margin-left:auto;">💎 <span class="gem" id="gemBalance">0</span></span>
             </div>
+            <div class="side-menu-item active" onclick="filterShop('all', this)">🛍 Все</div>
+            <div class="side-menu-item" onclick="filterShop('avatar', this)">👤 Аватары</div>
+            <div class="side-menu-item" onclick="filterShop('frame', this)">🖼 Рамки</div>
+            <div class="side-menu-item" onclick="filterShop('decoration', this)">🌸 Украшения</div>
+            <div class="side-menu-item" onclick="filterShop('boost', this)">⚡ Бустеры</div>
+        </div>
+
+        <!-- ПРАВАЯ ЧАСТЬ -->
+        <div class="main-content">
+
+            <!-- ПРЕМИУМ БЛОК -->
+            <div class="premium-card" id="premiumBlock">
+                <div class="premium-badge">👑 Premium</div>
+                <div class="premium-status" id="premiumStatus">Free</div>
+                <div class="premium-date" id="premiumDate"></div>
+                <div class="premium-features">
+                    <span>✅</span> Все игры<br>
+                    <span>✅</span> До 20 игроков<br>
+                    <span>✅</span> Эксклюзивные аватары<br>
+                    <span>✅</span> Удвоенные монеты<br>
+                    <span>✅</span> Создание своих игр
+                </div>
+                <button class="btn-premium" id="premiumBtn" onclick="togglePremium()">Перейти на Premium ✨</button>
+            </div>
+
+            <!-- ТОВАРЫ -->
+            <div class="shop-grid" id="shopGrid"></div>
+
         </div>
     </div>
-
-    <div class="category-tabs">
-        <div class="category-tab active" onclick="filterShop('all', this)">Все</div>
-        <div class="category-tab" onclick="filterShop('avatar', this)">👤 Аватары</div>
-        <div class="category-tab" onclick="filterShop('skin', this)">🎨 Скины</div>
-        <div class="category-tab" onclick="filterShop('boost', this)">⚡ Бусты</div>
-    </div>
-
-    <div class="shop-grid" id="shopGrid"></div>
-
-    <button class="nav-back" style="width:100%;margin-bottom:20px;text-align:center;" onclick="window.location.href='/'">← На главную</button>
-    <div class="footer-space"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -152,97 +187,125 @@
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
 
-// Плашки профиля
-function updateProfileUI() {
-    const avatar = WALLET.getAvatar() || (user.username ? user.username.charAt(0).toUpperCase() : '👤');
-    document.querySelectorAll('#profileAvatar, #profileAvatar2').forEach(el => el.textContent = avatar);
-    document.querySelectorAll('#profileText, #profileText2').forEach(el => el.textContent = user.username || 'Гость');
-}
-updateProfileUI();
-
 // Баланс
 WALLET.updateAllDisplays();
+document.getElementById('coinBalance').textContent = WALLET.getCoins();
+document.getElementById('gemBalance').textContent = JSON.parse(localStorage.getItem('gems') || '0');
+
+// Премиум
+const premium = JSON.parse(localStorage.getItem('premium') || '{"active":false}');
+if (premium.active) {
+    document.getElementById('premiumStatus').textContent = 'Premium активен';
+    document.getElementById('premiumDate').textContent = 'До ' + (premium.until || '...');
+    document.getElementById('premiumStatus').style.color = '#22c55e';
+    document.getElementById('premiumBtn').textContent = 'Продлить Premium ✨';
+} else {
+    document.getElementById('premiumStatus').textContent = 'Free';
+    document.getElementById('premiumDate').textContent = '';
+}
+
+function togglePremium() {
+    if (premium.active) {
+        showToast('Premium уже активен! 🎉');
+    } else {
+        if (WALLET.getCoins() >= 500) {
+            WALLET.spendCoins(500);
+            premium.active = true;
+            premium.until = new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('ru-RU');
+            localStorage.setItem('premium', JSON.stringify(premium));
+            showToast('Premium активирован! 🎉');
+            location.reload();
+        } else {
+            showToast('Недостаточно монет (нужно 500 🪙)');
+        }
+    }
+}
 
 // Товары
 const shopItems = [
-    { id: 1, icon: '🦊', name: 'Аватар Лиса', category: 'avatar', price: 50 },
-    { id: 2, icon: '🐼', name: 'Аватар Панда', category: 'avatar', price: 50 },
-    { id: 3, icon: '🦁', name: 'Аватар Лев', category: 'avatar', price: 80 },
-    { id: 4, icon: '🐸', name: 'Аватар Лягушка', category: 'avatar', price: 50 },
-    { id: 5, icon: '🦄', name: 'Аватар Единорог', category: 'avatar', price: 100 },
-    { id: 6, icon: '🎨', name: 'Скин Радуга', category: 'skin', price: 150 },
-    { id: 7, icon: '🌙', name: 'Скин Ночь', category: 'skin', price: 120 },
-    { id: 8, icon: '🔥', name: 'Скин Огонь', category: 'skin', price: 200 },
-    { id: 9, icon: '⚡', name: 'Буст x2', category: 'boost', price: 30 },
-    { id: 10, icon: '⏱', name: '+10 сек', category: 'boost', price: 20 },
+    { id: 1, icon: '🦊', name: 'Аватар Лиса', category: 'avatar', price_coins: 50, price_gems: 0 },
+    { id: 2, icon: '🐼', name: 'Аватар Панда', category: 'avatar', price_coins: 50, price_gems: 0 },
+    { id: 3, icon: '🦁', name: 'Аватар Лев', category: 'avatar', price_coins: 80, price_gems: 0 },
+    { id: 4, icon: '🦄', name: 'Аватар Единорог', category: 'avatar', price_coins: 100, price_gems: 5 },
+    { id: 5, icon: '🖼', name: 'Рамка Золото', category: 'frame', price_coins: 0, price_gems: 10 },
+    { id: 6, icon: '🖼', name: 'Рамка Неон', category: 'frame', price_coins: 0, price_gems: 8 },
+    { id: 7, icon: '🌸', name: 'Цветочек', category: 'decoration', price_coins: 30, price_gems: 0 },
+    { id: 8, icon: '❓', name: 'Знак вопроса', category: 'decoration', price_coins: 30, price_gems: 0 },
+    { id: 9, icon: '⚡', name: 'Буст x2', category: 'boost', price_coins: 30, price_gems: 0 },
+    { id: 10, icon: '⏱', name: '+10 сек', category: 'boost', price_coins: 20, price_gems: 0 },
 ];
+
+const ownedItems = JSON.parse(localStorage.getItem('ownedItems') || '[]');
 
 function renderShop(items) {
     const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-    const ownedItems = WALLET.getOwnedItems();
-    
     document.getElementById('shopGrid').innerHTML = items.map(item => {
         const owned = ownedItems.includes(item.id);
-        const isEquipped = equipped.avatar === item.icon || equipped.skin === item.icon;
-        
-        let badge = '';
-        if (isEquipped) badge = '<div class="shop-badge" style="background:#7c3aed;">Надето</div>';
-        else if (owned) badge = '<div class="shop-badge">Куплено</div>';
+        const isEquipped = (equipped.avatar === item.icon) || (equipped.frame === item.icon) || (equipped.decoration === item.icon);
+        const priceHTML = item.price_gems > 0 
+            ? `<span class="shop-price gems">💎 ${item.price_gems}</span>`
+            : `<span class="shop-price coins">🪙 ${item.price_coins}</span>`;
         
         return `
             <div class="shop-card ${owned ? 'owned' : ''}" onclick="buyItem(${item.id})">
-                ${badge}
+                ${isEquipped ? '<div class="shop-badge equipped">Надето</div>' : (owned ? '<div class="shop-badge">Куплено</div>' : '')}
                 <span class="shop-icon">${item.icon}</span>
                 <div class="shop-name">${item.name}</div>
-                <div class="shop-price">${owned ? (isEquipped ? 'Надето' : 'Надеть') : '🪙 ' + item.price}</div>
+                ${owned ? (isEquipped ? '<div style="color:#7c3aed;font-weight:700;">Надето</div>' : '<div style="color:#22c55e;font-weight:700;">Надеть</div>') : priceHTML}
             </div>`;
     }).join('');
 }
 
 function filterShop(cat, tab) {
-    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.side-menu-item').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     renderShop(cat === 'all' ? shopItems : shopItems.filter(i => i.category === cat));
 }
 
 function buyItem(itemId) {
-    if (WALLET.hasItem(itemId)) {
+    if (ownedItems.includes(itemId)) {
         equipItem(itemId);
         return;
     }
-    
     const item = shopItems.find(i => i.id === itemId);
     if (!item) return;
     
-    if (!WALLET.spendCoins(item.price)) {
-        showToast('Недостаточно монет! 😢');
+    if (item.price_gems > 0) {
+        showToast('Нужны алмазы 💎');
+        return;
+    }
+    
+    if (!WALLET.spendCoins(item.price_coins)) {
+        showToast('Недостаточно монет 😢');
         return;
     }
     
     WALLET.addOwnedItem(itemId);
     renderShop(shopItems);
-    showToast(`Куплено: ${item.name}! 🎉`);
+    showToast(`Куплено: ${item.name}!`);
 }
 
 function equipItem(itemId) {
     const item = shopItems.find(i => i.id === itemId);
     if (!item) return;
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
     
-    WALLET.setAvatar(item.icon);
-    updateProfileUI();
-    showToast(`${item.icon} надет!`);
+    if (item.category === 'avatar') equipped.avatar = item.icon;
+    else if (item.category === 'frame') equipped.frame = item.icon;
+    else if (item.category === 'decoration') equipped.decoration = item.icon;
+    
+    localStorage.setItem('equipped', JSON.stringify(equipped));
     renderShop(shopItems);
+    showToast(`${item.icon} надето!`);
 }
 
 function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 renderShop(shopItems);
 </script>
-
 </body>
 </html>

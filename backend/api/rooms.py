@@ -128,5 +128,5 @@ def handle_reset(code):
 
 def handle_games_list():
     """Список игр"""
-    from ..utils.loader import get_games_list
+    from utils.loader import get_games_list
     return get_games_list(games), 200
