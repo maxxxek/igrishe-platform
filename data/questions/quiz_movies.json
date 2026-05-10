@@ -1,0 +1,48 @@
+{
+    "id": "movies_quiz",
+    "name": "🎬 Киномания",
+    "description": "Угадай фильм по кадру, музыке или описанию!",
+    "category": "quiz",
+    "subcategory": "themed",
+    "tier": "free",
+    "color": "#ff6600",
+    "icon": "🎬",
+    "rounds": 7,
+    "points_per_question": 100,
+    "time_per_question": 20,
+    "voiceover": {
+        "start": null,
+        "correct": null,
+        "wrong": null
+    },
+    "questions": [
+        {
+            "type": "text",
+            "question": "Кто снял «Криминальное чтиво»?",
+            "answers": ["Тарантино", "Нолан", "Спилберг", "Скорсезе"],
+            "correct": 0
+        },
+        {
+            "type": "image",
+            "question": "Из какого фильма этот кадр?",
+            "image": "/static/questions/movies/poster1.jpg",
+            "answers": ["Матрица", "Начало", "Бойцовский клуб", "Интерстеллар"],
+            "correct": 1
+        },
+        {
+            "type": "video",
+            "question": "Угадай фильм по сцене:",
+            "video": "/static/questions/movies/scene1.mp4",
+            "answers": ["Гарри Поттер", "Властелин колец", "Звёздные войны", "Хроники Нарнии"],
+            "correct": 0
+        },
+        {
+            "type": "audio",
+            "question": "Из какого фильма эта музыка?",
+            "audio": "/static/questions/movies/theme1.mp3",
+            "play_seconds": 10,
+            "answers": ["Пираты Карибского моря", "Гладиатор", "Аватар", "Титаник"],
+            "correct": 3
+        }
+    ]
+}

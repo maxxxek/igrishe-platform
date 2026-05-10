@@ -213,16 +213,16 @@
 
 
         /* КНОПКА НАЗАД */
-        btn-back {
+        .btn-back {
            display: inline-flex; align-items: center; gap: 6px;
            padding: 8px 16px; border-radius: 30px;
            background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
            cursor: pointer; font-weight: 700; font-size: 14px;
            margin-bottom: 15px; transition: 0.3s;
         }
-        btn-back:hover { background: rgba(255,255,255,0.8); }
+        .btn-back:hover { background: rgba(255,255,255,0.8); }
 
-        * УРОВНИ */
+        /* УРОВНИ */
         level-screen { animation: slideIn 0.3s ease; }
         keyframes slideIn {
            from { opacity: 0; transform: translateX(20px); }
@@ -413,7 +413,7 @@ function playCorrect(){playSound('approve',0.5);}
 function playAutoNext(){playSound('vibor',0.6);}
 function playWinner(){if(!winnerPlayed){winnerPlayed=true;playSound('winner',0.7);}}
 function playGameStart(){stopLobbyMusic();winnerPlayed=false;playSound('fon',0.6);}
-let currentCategory = 'all';
+
 let currentTier = 'free';
 let currentLevel = 0;
 let navigationStack = [0];
@@ -435,15 +435,25 @@ function renderCategories() {
     document.getElementById('level-0').classList.remove('hidden');
     document.getElementById('level-1').classList.add('hidden');
     document.getElementById('level-2').classList.add('hidden');
+    document.getElementById('level-3').classList.add('hidden');
     
     const categories = currentTier === 'free' 
-        ? ['🧠 Квизы', '🏃 Подвижные', '🃏 За столом']
-        : ['🕶 Виртуальные', '👥 Командные', '🔌 Интегрированные'];
+        ? [
+            { icon: '🃏', name: 'За столом', desc: 'Угадай мелодию, Мафия, Имаджинариум' },
+            { icon: '🌐', name: 'Онлайн', desc: 'Рандом, Учёба, По паролю' },
+            { icon: '🙈', name: 'Без экрана', desc: 'Крокодил, Кто я, Данетки' }
+          ]
+        : [
+            { icon: '🕶', name: 'Виртуальные', desc: 'VR-игры и симуляции' },
+            { icon: '👥', name: 'Командные', desc: 'Игры на большие компании' },
+            { icon: '🔌', name: 'Интегрированные', desc: 'Соцсети и стримы' }
+          ];
     
     document.getElementById('categoriesGrid').innerHTML = categories.map(cat => `
-        <div class="game-card" onclick="openCategory('${cat}')">
-            <span style="font-size:40px;display:block;margin-bottom:10px;">${cat.slice(0,2)}</span>
-            <div class="game-name">${cat}</div>
+        <div class="game-card" onclick="openCategory('${cat.name}')">
+            <span style="font-size:44px;display:block;margin-bottom:8px;">${cat.icon}</span>
+            <div class="game-name">${cat.name}</div>
+            <div class="game-desc">${cat.desc}</div>
         </div>`).join('');
 }
 
@@ -454,30 +464,72 @@ function openCategory(cat) {
     document.getElementById('level-0').classList.add('hidden');
     document.getElementById('level-1').classList.remove('hidden');
     document.getElementById('level-2').classList.add('hidden');
+    document.getElementById('level-3').classList.add('hidden');
     document.getElementById('level1Title').textContent = cat;
     
     let subs = [];
-    if (cat.includes('Квизы')) subs = ['🎲 Рандомный', '📚 Тематический', '🔐 По паролю'];
-    else if (cat.includes('Подвижные')) subs = ['🎪 Активные', '💃 Танцевальные'];
-    else if (cat.includes('За столом')) subs = ['🃏 Карточные', '🎲 Настольные'];
-    else subs = ['🔒 Закрыто (Premium)'];
     
-    document.getElementById('subGrid').innerHTML = subs.map(sub => `
-        <div class="game-card ${sub.includes('Закрыто') ? 'locked' : ''}" 
-            onclick="${sub.includes('Закрыто') ? '' : `openGames('${sub}')`}">
-            <span style="font-size:40px;display:block;">${sub.includes('🔐') ? '🔐' : '📦'}</span>
-            <div class="game-name">${sub}</div>
-        </div>`).join('');
+    if (currentTier === 'free') {
+        if (cat === 'За столом') {
+            subs = ['🎵 Угадай мелодию', '🕵️ Мафия', '🎨 Имаджинариум', '🎬 Угадай фильм', '💥 Попадос'];
+        } else if (cat === 'Онлайн') {
+            subs = ['🎲 Рандом', '📚 Учёба', '🔐 По паролю', '🎯 Квиз-Шоу', '🔥 Правда или Действие'];
+        } else if (cat === 'Без экрана') {
+            subs = ['🐊 Крокодил', '🤔 Кто я?', '❓ Данетки', '🎭 Правда или действие', '🕵️ Шпион'];
+        }
+    } else {
+        subs = ['🔒 Игра 1 (Premium)', '🔒 Игра 2 (Premium)', '🔒 Игра 3 (Premium)'];
+    }
+    
+    document.getElementById('subGrid').innerHTML = subs.map(sub => {
+        const isLocked = sub.includes('🔒');
+        return `
+            <div class="game-card ${isLocked ? 'locked' : ''}" 
+                onclick="${isLocked ? '' : `openSubCategory('${sub}')`}">
+                <span style="font-size:36px;display:block;">${isLocked ? '🔒' : '📦'}</span>
+                <div class="game-name">${sub}</div>
+            </div>`;
+    }).join('');
 }
 
-// LEVEL 2 → Игры
+// LEVEL 2 → Детали (Учёба → предметы, По паролю → ввод)
+function openSubCategory(sub) {
+    if (sub.includes('Учёба')) {
+        currentLevel = 2;
+        navigationStack = [0, 1, 2];
+        document.getElementById('level-1').classList.add('hidden');
+        document.getElementById('level-2').classList.remove('hidden');
+        document.getElementById('level2Title').textContent = '📚 Учёба';
+        
+        const subjects = ['🌿 Естествознание', '📐 Математика', '💻 IT квиз', '⚡ Физика'];
+        document.getElementById('detailGrid').innerHTML = subjects.map(s => `
+            <div class="game-card" onclick="openGames('${s}')">
+                <span style="font-size:40px;">${s.slice(0,2)}</span>
+                <div class="game-name">${s}</div>
+            </div>`).join('');
+        
+    } else if (sub.includes('По паролю')) {
+        const pwd = prompt('🔐 Введите пароль категории:');
+        if (pwd === '1234') {  // потом заменим на проверку с сервера
+            openGames('Защищённые квизы');
+        } else if (pwd) {
+            alert('Неверный пароль!');
+        }
+        
+    } else {
+        openGames(sub);
+    }
+}
+
+// LEVEL 3 → Список игр
 function openGames(sub) {
-    currentLevel = 2;
-    navigationStack = [0, 1, 2];
+    currentLevel = 3;
+    navigationStack = [0, 1, 2, 3];
     document.getElementById('level-0').classList.add('hidden');
     document.getElementById('level-1').classList.add('hidden');
-    document.getElementById('level-2').classList.remove('hidden');
-    document.getElementById('level2Title').textContent = sub;
+    document.getElementById('level-2').classList.add('hidden');
+    document.getElementById('level-3').classList.remove('hidden');
+    document.getElementById('level3Title').textContent = sub;
     
     fetch('/api/games').then(r => r.json()).then(games => {
         const grid = document.getElementById('gamesList');
@@ -485,23 +537,45 @@ function openGames(sub) {
             if (currentTier === 'premium' && !isPremium()) return false;
             return true;
         });
+        
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="empty-state">Нет доступных игр</div>';
+            document.getElementById('createRoomBtn').disabled = true;
+            return;
+        }
+        
         grid.innerHTML = filtered.map(([id, game]) => `
             <div class="game-card" data-game="${id}" onclick="selectGame('${id}')">
                 <span class="game-icon-emoji">${game.icon || '🎮'}</span>
                 <div class="game-name">${game.name}</div>
                 <div class="game-desc">${game.description}</div>
+                <div class="game-badge">${game.questions_count} вопросов</div>
             </div>`).join('');
     });
+}
+
+function selectGame(id) {
+    selectedGame = id;
+    document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`[data-game="${id}"]`)?.classList.add('selected');
+    document.getElementById('createRoomBtn').disabled = false;
 }
 
 function goBack() {
     navigationStack.pop();
     const prev = navigationStack[navigationStack.length - 1] || 0;
-    if (prev === 0) renderCategories();
-    else if (prev === 1) {
-        document.getElementById('level-0').classList.add('hidden');
+    
+    document.getElementById('level-0').classList.add('hidden');
+    document.getElementById('level-1').classList.add('hidden');
+    document.getElementById('level-2').classList.add('hidden');
+    document.getElementById('level-3').classList.add('hidden');
+    
+    if (prev === 0) {
+        document.getElementById('level-0').classList.remove('hidden');
+    } else if (prev === 1) {
         document.getElementById('level-1').classList.remove('hidden');
-        document.getElementById('level-2').classList.add('hidden');
+    } else if (prev === 2) {
+        document.getElementById('level-2').classList.remove('hidden');
     }
 }
 
