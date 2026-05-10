@@ -1,0 +1,12 @@
+{
+    "id": "pari_sport",
+    "name": "⚽ Спорт",
+    "description": "Вопросы о спорте",
+    "questions": [
+        {"id": "spt_001", "question": "Рекорд по бегу на 100 м? (секунд)", "answer": 9, "unit": "секунд", "hint": "От 9 до 10", "difficulty": "easy"},
+        {"id": "spt_002", "question": "Сколько весит футбольный мяч? (грамм)", "answer": 430, "unit": "грамм", "hint": "От 400 до 450", "difficulty": "medium"},
+        {"id": "spt_003", "question": "Сколько игроков в баскетбольной команде на площадке?", "answer": 5, "unit": "игроков", "hint": "От 4 до 6", "difficulty": "easy"},
+        {"id": "spt_004", "question": "Длина марафонской дистанции? (км)", "answer": 42, "unit": "км", "hint": "От 40 до 45", "difficulty": "easy"},
+        {"id": "spt_005", "question": "Сколько золотых медалей у Майкла Фелпса?", "answer": 23, "unit": "медалей", "hint": "От 20 до 30", "difficulty": "medium"}
+    ]
+}

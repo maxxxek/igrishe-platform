@@ -351,7 +351,9 @@
         </div>
         <div id="finalRanking" style="max-width:450px;margin:0 auto;"></div>
         <div class="center" style="margin-top:20px;">
-            <button class="btn btn-primary" onclick="resetToMenu()">🔄 ИГРАТЬ ЕЩЁ</button>
+            <button class="btn btn-primary" onclick="playAgain()">🔄 Сыграть ещё (тот же состав)</button>
+            <br>
+            <button class="btn btn-secondary" onclick="resetToMenu()">🚪 Выйти в меню</button>
         </div>
     </div>
 
@@ -480,9 +482,9 @@ function openCategory(cat) {
     
     if (currentTier === 'free') {
         if (cat === 'За столом') {
-            subs = ['🎵 Угадай мелодию', '🕵️ Мафия', '🎨 Имаджинариум', '🎬 Угадай фильм', '💥 Попадос'];
+            subs = ['🎵 Угадай песню', '🕵️ Мафия', '🎨 Чья картина?', '🎬 Фильмознай', '💥 Кто ближе?', '👻 Мемасо битва'];
         } else if (cat === 'Онлайн') {
-            subs = ['🎲 Рандом', '📚 Учёба', '🔐 По паролю', '🎯 Квиз-Шоу', '🔥 Правда или Действие'];
+            subs = ['🎲 Рандом', '📚 Учёба', '🔥 Правда или Действие', '🎯 Квиз-Шоу', '🔐 По паролю'];
         } else if (cat === 'Без экрана') {
             subs = ['🐊 Крокодил', '🤔 Кто я?', '❓ Данетки', '🎭 Правда или действие', '🕵️ Шпион'];
         }
@@ -542,13 +544,38 @@ function openGames(sub) {
     
     fetch('/api/games').then(r => r.json()).then(games => {
         const grid = document.getElementById('gamesList');
-        const filtered = Object.entries(games).filter(([id, g]) => {
-            if (currentTier === 'premium' && !isPremium()) return false;
+        
+        // Фильтруем по категории и подкатегории
+        let filtered = Object.entries(games).filter(([id, game]) => {
+            // Премиум-игры только для премиум-пользователей
+            if (game.tier === 'premium' && !isPremium()) return false;
+            
+            // Фильтр по категории (из navigationStack)
+            const category = getCategoryFromStack();
+            if (category && game.category !== category) return false;
+            
+            // Фильтр по подкатегории
+            if (sub && game.subcategory) {
+                const subLower = sub.toLowerCase();
+                if (subLower.includes('рандом') && game.subcategory !== 'random') return false;
+                if (subLower.includes('учёба') && game.subcategory !== 'study') return false;
+                if (subLower.includes('паролю') && game.subcategory !== 'password') return false;
+                if (subLower.includes('мелодию') && game.subcategory !== 'melody') return false;
+                if (subLower.includes('мафия') && game.subcategory !== 'mafia') return false;
+                if (subLower.includes('имаджинариум') && game.subcategory !== 'imaginarium') return false;
+                if (subLower.includes('фильм') && game.subcategory !== 'movie') return false;
+                if (subLower.includes('попадос') && game.subcategory !== 'popados') return false;
+                if (subLower.includes('крокодил') && game.subcategory !== 'crocodile') return false;
+                if (subLower.includes('кто я') && game.subcategory !== 'whoami') return false;
+                if (subLower.includes('данетки') && game.subcategory !== 'danetki') return false;
+                if (subLower.includes('шпион') && game.subcategory !== 'spy') return false;
+            }
+            
             return true;
         });
         
         if (filtered.length === 0) {
-            grid.innerHTML = '<div class="empty-state">Нет доступных игр</div>';
+            grid.innerHTML = '<div class="empty-state">Нет доступных игр в этой категории</div>';
             document.getElementById('createRoomBtn').disabled = true;
             return;
         }
@@ -561,6 +588,15 @@ function openGames(sub) {
                 <div class="game-badge">${game.questions_count} вопросов</div>
             </div>`).join('');
     });
+}
+
+function getCategoryFromStack() {
+    // Берём категорию первого уровня из navigationStack
+    const level1Title = document.getElementById('level1Title')?.textContent || '';
+    if (level1Title.includes('За столом')) return 'table';
+    if (level1Title.includes('Онлайн')) return 'online';
+    if (level1Title.includes('Без экрана')) return 'offline';
+    return null;
 }
 
 function selectGame(id) {
@@ -591,6 +627,29 @@ function goBack() {
 function isPremium() {
     return JSON.parse(localStorage.getItem('premium') || '{"active":false}').active;
 }
+
+function playAgain() {
+    // Сбрасываем комнату на сервере
+    fetch('/api/reset', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    })
+    .then(() => {
+        // Скрываем финал, показываем лобби
+        document.getElementById('finish-screen').classList.add('hidden');
+        document.getElementById('lobby').classList.remove('hidden');
+        
+        // Обновляем лобби
+        updateLobby();
+        lobbyInterval = setInterval(updateLobby, 2000);
+        
+        // Запускаем музыку лобби
+        preloadLobbyMusic();
+        playLobbyMusic();
+    });
+}
+
 
 // Запуск
 renderCategories();

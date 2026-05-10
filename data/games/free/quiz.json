@@ -3,40 +3,55 @@
     "name": "🎯 Квиз-Шоу",
     "description": "Отвечай на вопросы быстрее всех!",
     "color": "#7c3aed",
-    "icon": "🧠",
+    "icon": "🎯",
     "icon_image": "/static/icons/quiz.png",
-    "points_per_question": 100,
-    "questions": [
-        {
-            "text": "Почему влажная разделочная доска меньше скользит по столу?",
-            "answers": ["Увеличивается сила трения", "Уменьшается масса доски", "Вода выступает как клей",
-             "Изменяется температура доски"],
-            "correct": 0,
-            "time": 15
-        },
-        {
-            "text": "Какой океан самый большой?",
-            "answers": ["Атлантический", "Тихий", "Мокрый", "Под раковиной на кухне"],
-            "correct": 1,
-            "time": 15
-        },
-        {
-            "text": "Сколько 2 + 2 на языке информатики?",
-            "answers": ["22", "4", "8", "Спросите у Вики"],
-            "correct": 0,
-            "time": 12
-        },
-        {
-            "text": "Сколько лет Валерику?",
-            "answers": ["Спрошу у Валеры", "Гипофиз", "Зернадцать", "12"],
-            "correct": 3,
-            "time": 10
-        },
-        {
-            "text": "Когда закончится квиз?",
-            "answers": ["сейчас", "послезавтра", "не закончится", "Нет."],
-            "correct": 0,
-            "time": 15
+    "type": "quiz",
+    "tier": "free",
+    "category": "online",
+    "subcategory": "random",
+    
+    "rules": {
+        "min_players": 1,
+        "max_players": 8,
+        "points_per_question": 100,
+        "bonus_fast_answer": 50,
+        "time_per_question": 15,
+        "rounds": 7,
+        "show_correct_after": true,
+        "allow_skip": false
+    },
+    
+    "display": {
+        "show_timer": true,
+        "show_scores": true,
+        "show_player_status": true,
+        "question_animation": "fade",
+        "answer_reveal": "highlight"
+    },
+    
+    "sources": {
+        "default": "data/questions/online/random/",
+        "fallback": "data/questions/online/random/general.json"
+    },
+    
+    "media": {
+        "intro_video": null,
+        "outro_video": null,
+        "background_music": null,
+        "voiceover": {
+            "question_start": null,
+            "correct_answer": null,
+            "wrong_answer": null,
+            "time_warning": null,
+            "game_over": null
         }
-    ]
+    },
+    
+    "scoring": {
+        "correct_answer": 100,
+        "fast_bonus": 50,
+        "streak_bonus": 25,
+        "streak_threshold": 3,
+        "all_correct_bonus": 200
+    }
 }

@@ -3,27 +3,18 @@
     "name": "🎨 Рисовач",
     "description": "Объясни слово рисунком!",
     "color": "#f472b6",
-    "icon": "✏️",
+    "icon": "🎨",
     "icon_image": "/static/icons/draw.png",
-    "points_per_question": 200,
-    "questions": [
-        {
-            "text": "🎨 Нарисуй: КОСМИЧЕСКИЙ КОРАБЛЬ",
-            "answers": ["✅ Нарисовал!", "❌ Не умею", "👥 Другой", "⏭ Пропустить"],
-            "correct": 0,
-            "time": 45
-        },
-        {
-            "text": "🎨 Нарисуй: СЧАСТЛИВЫЙ КАКТУС",
-            "answers": ["✅ Готово!", "❌ Сложно", "👥 Другой", "⏭ Пропустить"],
-            "correct": 0,
-            "time": 45
-        },
-        {
-            "text": "🎨 Нарисуй: КОТ-ДИДЖЕЙ",
-            "answers": ["✅ Есть!", "❌ Трудно", "👥 Другой", "⏭ Пропустить"],
-            "correct": 0,
-            "time": 45
-        }
-    ]
+    "type": "draw",
+    "tier": "free",
+    "category": "offline",
+    "subcategory": "draw",
+    
+    "rules": {
+        "min_players": 2,
+        "max_players": 8,
+        "rounds": 3,
+        "draw_time": 60,
+        "guess_time": 30
+    }
 }

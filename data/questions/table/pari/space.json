@@ -1,0 +1,12 @@
+{
+    "id": "pari_space",
+    "name": "🚀 Космос",
+    "description": "Вопросы о космосе",
+    "questions": [
+        {"id": "spc_001", "question": "Сколько звёзд в Млечном пути? (миллиардов)", "answer": 200, "unit": "миллиардов", "hint": "От 100 до 400", "difficulty": "hard"},
+        {"id": "spc_002", "question": "Температура на поверхности Солнца? (°C)", "answer": 5500, "unit": "°C", "hint": "От 5 000 до 6 000", "difficulty": "medium"},
+        {"id": "spc_003", "question": "Сколько лет Вселенной? (миллиардов)", "answer": 13, "unit": "миллиардов", "hint": "От 10 до 15", "difficulty": "hard"},
+        {"id": "spc_004", "question": "Сколько спутников у Юпитера?", "answer": 95, "unit": "спутников", "hint": "От 80 до 100", "difficulty": "medium"},
+        {"id": "spc_005", "question": "Сколько дней длится год на Меркурии?", "answer": 88, "unit": "дней", "hint": "От 80 до 100", "difficulty": "easy"}
+    ]
+}

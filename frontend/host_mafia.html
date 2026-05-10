@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙 Ведущий Мафии</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e; font-family: 'Rubik', sans-serif; color: white;
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 400px; margin: 0 auto; }
+        .card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 20px; margin: 15px 0;
+        }
+        .phase-title { font-size: 20px; font-weight: 900; margin-bottom: 15px; }
+        .btn {
+            width: 100%; padding: 12px; font-family: 'Rubik', sans-serif;
+            font-weight: 700; font-size: 16px; border: none; border-radius: 30px;
+            cursor: pointer; margin: 6px 0; transition: 0.3s; color: white;
+        }
+        .btn-night { background: linear-gradient(135deg, #1a1a40, #2d2d6b); }
+        .btn-mafia { background: linear-gradient(135deg, #e94560, #c23152); }
+        .btn-sheriff { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-doctor { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .btn-vote { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+        .btn-end { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .hidden { display: none !important; }
+        .player-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .player-btn {
+            padding: 10px 16px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 25px;
+            cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s;
+        }
+        .player-btn.selected { background: #e94560; border-color: #e94560; }
+        .player-btn.dead { opacity: 0.3; text-decoration: line-through; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ФАЗЫ -->
+    <div id="phaseNight" class="card hidden">
+        <div class="phase-title">🌙 Ночь</div>
+        <div class="player-list" id="nightPlayers"></div>
+        <button class="btn btn-mafia" onclick="mafiaAction()">🔫 Выбор мафии</button>
+        <button class="btn btn-sheriff" onclick="sheriffAction()">⭐ Проверка шерифа</button>
+        <button class="btn btn-doctor" onclick="doctorAction()">💊 Лечение доктора</button>
+        <button class="btn btn-night" onclick="nextPhase('day')">☀️ Наступил день</button>
+    </div>
+    
+    <div id="phaseDay" class="card hidden">
+        <div class="phase-title">☀️ День</div>
+        <div id="nightResult" style="margin-bottom:15px;"></div>
+        <button class="btn btn-vote" onclick="nextPhase('voting')">🗳 Начать голосование</button>
+    </div>
+    
+    <div id="phaseVoting" class="card hidden">
+        <div class="phase-title">🗳 Голосование</div>
+        <div class="player-list" id="votePlayers"></div>
+        <button class="btn btn-end" onclick="executePlayer()">⚡ Казнить</button>
+    </div>
+    
+    <!-- УПРАВЛЕНИЕ -->
+    <div class="card">
+        <div class="phase-title">🎙 Управление игрой</div>
+        <button class="btn" onclick="startMafiaGame()">▶️ Начать игру</button>
+        <button class="btn btn-end" onclick="endMafiaGame()">🏁 Закончить игру</button>
+    </div>
+    
+    <!-- ЛОГ -->
+    <div class="card" id="gameLog" style="font-size:13px;opacity:0.7;"></div>
+
+</div>
+
+<script>
+let roomCode = 'XXXX';
+let hostId = null;
+let selectedPlayer = null;
+
+function startMafiaGame() {
+    fetch('/api/mafia/start', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    })
+    .then(() => {
+        document.getElementById('phaseNight').classList.remove('hidden');
+        loadPlayers();
+    });
+}
+
+function loadPlayers() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            const players = data.players || {};
+            const html = Object.entries(players).map(([id, p]) => 
+                `<div class="player-btn ${p.dead ? 'dead' : ''}" onclick="selectPlayer('${id}', this)">${p.name}</div>`
+            ).join('');
+            document.getElementById('nightPlayers').innerHTML = html;
+            document.getElementById('votePlayers').innerHTML = html;
+        });
+}
+
+function selectPlayer(id, el) {
+    document.querySelectorAll('.player-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPlayer = id;
+}
+
+function mafiaAction() {
+    if (!selectedPlayer) return alert('Выбери игрока');
+    fetch('/api/mafia/action', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, action: 'kill', target: selectedPlayer})
+    }).then(() => log('🔫 Мафия сделала выбор'));
+}
+
+function sheriffAction() {
+    if (!selectedPlayer) return;
+    fetch('/api/mafia/action', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, action: 'check', target: selectedPlayer})
+    })
+    .then(r => r.json())
+    .then(data => log('⭐ Шериф проверил: ' + (data.mafia ? 'МАФИЯ' : 'Мирный')));
+}
+
+function doctorAction() {
+    if (!selectedPlayer) return;
+    fetch('/api/mafia/action', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, action: 'heal', target: selectedPlayer})
+    }).then(() => log('💊 Доктор вылечил игрока'));
+}
+
+function nextPhase(phase) {
+    fetch('/api/mafia/phase', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, phase: phase})
+    }).then(() => {
+        if (phase === 'day') {
+            document.getElementById('phaseNight').classList.add('hidden');
+            document.getElementById('phaseDay').classList.remove('hidden');
+        } else if (phase === 'voting') {
+            document.getElementById('phaseDay').classList.add('hidden');
+            document.getElementById('phaseVoting').classList.remove('hidden');
+        }
+        loadPlayers();
+    });
+}
+
+function executePlayer() {
+    if (!selectedPlayer) return;
+    fetch('/api/mafia/execute', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, target: selectedPlayer})
+    }).then(() => {
+        log('⚡ Игрок казнён');
+        loadPlayers();
+    });
+}
+
+function endMafiaGame() {
+    fetch('/api/mafia/end', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(r => r.json()).then(data => {
+        alert(data.winner + ' победили!');
+    });
+}
+
+function log(msg) {
+    const logEl = document.getElementById('gameLog');
+    logEl.innerHTML = msg + '<br>' + logEl.innerHTML;
+}
+</script>
+
+</body>
+</html>

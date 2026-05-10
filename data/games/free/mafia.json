@@ -1,0 +1,54 @@
+{
+    "id": "mafia",
+    "name": "🕵️ Мафия",
+    "description": "Классическая игра на дедукцию и блеф",
+    "color": "#1a1a2e",
+    "icon": "🕵️",
+    "icon_image": "/static/icons/mafia.png",
+    "type": "mafia",
+    "tier": "free",
+    "category": "table",
+    "subcategory": "mafia",
+    
+    "rules": {
+        "min_players": 5,
+        "max_players": 12,
+        "roles": {
+            "mafia": {"name": "🔫 Мафия", "count": "auto", "description": "Убивает мирных жителей ночью"},
+            "don": {"name": "👑 Дон мафии", "count": "auto", "description": "Глава мафии, просыпается отдельно"},
+            "sheriff": {"name": "⭐ Шериф", "count": 1, "description": "Проверяет игроков ночью"},
+            "doctor": {"name": "💊 Доктор", "count": 1, "description": "Лечит одного игрока ночью"},
+            "civilian": {"name": "👤 Мирный житель", "count": "auto", "description": "Голосует днём"}
+        },
+        "auto_roles": {
+            "5_players": {"mafia": 1, "don": 0, "sheriff": 1, "doctor": 0, "civilian": 3},
+            "6_players": {"mafia": 1, "don": 1, "sheriff": 1, "doctor": 0, "civilian": 3},
+            "7_players": {"mafia": 2, "don": 0, "sheriff": 1, "doctor": 1, "civilian": 3},
+            "8_players": {"mafia": 2, "don": 1, "sheriff": 1, "doctor": 1, "civilian": 3},
+            "9_players": {"mafia": 2, "don": 1, "sheriff": 1, "doctor": 1, "civilian": 4},
+            "10_players": {"mafia": 3, "don": 0, "sheriff": 1, "doctor": 1, "civilian": 5},
+            "11_players": {"mafia": 3, "don": 1, "sheriff": 1, "doctor": 1, "civilian": 5},
+            "12_players": {"mafia": 3, "don": 1, "sheriff": 1, "doctor": 1, "civilian": 6}
+        },
+        "phases": {
+            "night": {"name": "🌙 Ночь", "duration": 30},
+            "day": {"name": "☀️ День", "duration": 60},
+            "voting": {"name": "🗳 Голосование", "duration": 45}
+        }
+    },
+    
+    "host_controls": {
+        "start_game": "Ведущий запускает игру",
+        "night_phase": "Мафия просыпается → Шериф → Доктор",
+        "day_phase": "Объявление убитого → Обсуждение",
+        "voting": "Голосование → Казнь",
+        "end_game": "Объявление победителя"
+    },
+    
+    "display": {
+        "show_roles_on_tv": false,
+        "show_votes_on_tv": true,
+        "show_statistics": true,
+        "reveal_roles_at_end": true
+    }
+}

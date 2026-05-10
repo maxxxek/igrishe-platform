@@ -7,6 +7,27 @@ import glob
 QUIZZES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'questions')
 GAMES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'games')
 
+def load_pari_questions():
+    """Загружает все вопросы для «Кто ближе?»"""
+    questions = []
+    pari_dir = os.path.join(QUESTIONS_DIR, 'table', 'pari')
+    
+    if os.path.exists(pari_dir):
+        for filename in os.listdir(pari_dir):
+            if filename.endswith('.json'):
+                filepath = os.path.join(pari_dir, filename)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        for q in data.get('questions', []):
+                            q['source'] = filename.replace('.json', '')
+                            questions.append(q)
+                except:
+                    pass
+    
+    # Перемешиваем
+    random.shuffle(questions)
+    return questions
 
 def load_all_quizzes():
     """Загружает ВСЕ квизы из папки data/questions/"""

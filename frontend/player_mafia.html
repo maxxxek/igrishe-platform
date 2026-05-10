@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🕵️ Мафия — Игрок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e; font-family: 'Rubik', sans-serif; color: white;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 30px 20px; max-width: 380px; width: 100%;
+            text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .role-icon { font-size: 80px; display: block; margin-bottom: 15px; }
+        .role-name { font-size: 28px; font-weight: 900; margin-bottom: 5px; }
+        .role-desc { font-size: 14px; opacity: 0.6; margin-bottom: 20px; }
+        .btn {
+            width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
+            font-weight: 800; font-size: 18px; border: none; border-radius: 50px;
+            cursor: pointer; margin: 8px 0; transition: 0.3s; color: white;
+            background: linear-gradient(135deg, #e94560, #c23152);
+        }
+        .btn:active { transform: scale(0.96); }
+        .hidden { display: none !important; }
+        .log { text-align: left; font-size: 13px; opacity: 0.7; margin-top: 20px; line-height: 1.6; }
+        .stat-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="card" id="screen">
+    <!-- ПОЛУЧЕНИЕ РОЛИ -->
+    <div id="roleScreen" class="hidden">
+        <span class="role-icon" id="roleIcon"></span>
+        <div class="role-name" id="roleName"></div>
+        <div class="role-desc" id="roleDesc"></div>
+        <div style="opacity:0.5;font-size:12px;">Никому не показывай экран!</div>
+        <button class="btn" onclick="hideRole()">👁 Спрятать</button>
+    </div>
+    
+    <!-- СКРЫТЫЙ ЭКРАН -->
+    <div id="hiddenScreen">
+        <div style="font-size:60px;">🤫</div>
+        <div style="margin:10px 0;">Твоя роль скрыта<br>Покажи когда спросят</div>
+        <button class="btn" onclick="showRoleAgain()">👁 Показать роль</button>
+    </div>
+    
+    <!-- ФИНАЛ -->
+    <div id="endScreen" class="hidden">
+        <div style="font-size:48px;">🏁</div>
+        <div id="endTitle" style="font-size:24px;font-weight:900;margin:10px 0;"></div>
+        <div id="endStats" class="log"></div>
+    </div>
+</div>
+
+<script>
+let myRole = null;
+let playerId = null;
+let roomCode = null;
+
+// Получаем роль с сервера
+function loadRole() {
+    fetch('/api/mafia/role?code=' + roomCode + '&player=' + playerId)
+        .then(r => r.json())
+        .then(data => {
+            myRole = data.role;
+            document.getElementById('roleIcon').textContent = data.icon;
+            document.getElementById('roleName').textContent = data.name;
+            document.getElementById('roleDesc').textContent = data.description;
+            document.getElementById('roleScreen').classList.remove('hidden');
+            document.getElementById('hiddenScreen').classList.add('hidden');
+        });
+}
+
+function hideRole() {
+    document.getElementById('roleScreen').classList.add('hidden');
+    document.getElementById('hiddenScreen').classList.remove('hidden');
+}
+
+function showRoleAgain() {
+    document.getElementById('roleScreen').classList.remove('hidden');
+    document.getElementById('hiddenScreen').classList.add('hidden');
+}
+
+setTimeout(hideRole, 10000); // Авто-скрытие через 10 секунд
+</script>
+
+</body>
+</html>

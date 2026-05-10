@@ -1,0 +1,21 @@
+{
+    "id": "team_quiz",
+    "name": "👥 Командный Квиз",
+    "description": "Сражайтесь командами!",
+    "color": "#a855f7",
+    "icon": "👥",
+    "icon_image": "/static/icons/team_quiz.png",
+    "type": "team_quiz",
+    "tier": "premium",
+    "category": "team",
+    "subcategory": "team",
+    
+    "rules": {
+        "min_players": 4,
+        "max_players": 20,
+        "team_size": 2,
+        "rounds": 10,
+        "points_per_question": 200,
+        "steal_points": 100
+    }
+}

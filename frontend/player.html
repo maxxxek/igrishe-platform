@@ -198,12 +198,36 @@ function joinGame() {
 }
 
 function checkGameState() {
-    if(!roomCode)return;
-    fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{
-        if(data.error)return;
-        if(data.scores&&data.scores[playerId]!==undefined) document.getElementById('scoreDisplay').textContent=data.scores[playerId];
-        if(data.game_type==='truth_dare') handleTruthDareState(data);
-        else if(data.game_type==='quiz') handleQuizState(data);
+    if (!roomCode) return;
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        if (data.error) return;
+        
+        // Обновляем очки
+        if (data.scores && data.scores[playerId] !== undefined) {
+            document.getElementById('scoreDisplay').textContent = data.scores[playerId];
+        }
+        
+        // Если игра сброшена — возвращаемся в лобби
+        if (data.state === 'lobby') {
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('taskArea').classList.add('hidden');
+            document.getElementById('votingArea').classList.add('hidden');
+            document.getElementById('tdWaitingArea').classList.remove('hidden');
+            document.getElementById('tdWaitingText').textContent = '🔄 Ожидаем новую игру...';
+            document.getElementById('waitingArea').classList.remove('hidden');
+            document.getElementById('waitingArea').innerHTML = 
+                '<div style="text-align:center;padding:20px;">🔄 Ожидаем новую игру...</div>';
+            document.getElementById('scoreDisplay').textContent = '0';
+            hasAnswered = false;
+            return;
+        }
+        
+        // Выбор режима
+        if (data.game_type === 'truth_dare') {
+            handleTruthDareState(data);
+        } else if (data.game_type === 'quiz') {
+            handleQuizState(data);
+        }
     });
 }
 
@@ -237,16 +261,40 @@ function handleTruthDareState(data) {
 function handleQuizState(data) {
     document.getElementById('truthDareArea').classList.add('hidden');
     document.getElementById('quizArea').classList.remove('hidden');
-    if(data.state==='playing'&&data.current_question) showQuestion(data.current_question);
-    else if(data.state==='finished'){
-        document.getElementById('questionArea').classList.add('hidden');document.getElementById('waitingArea').classList.remove('hidden');
-        fetch('/api/game/reward',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode,player_id:playerId})})
-        .then(r=>r.json()).then(reward=>{
-            if(reward.coins_earned){WALLET.addCoins(reward.coins_earned);document.getElementById('waitingArea').innerHTML='<div style="text-align:center;padding:20px;">🏁 +'+reward.coins_earned+'🪙</div>';}
+    
+    if (data.state === 'playing' && data.current_question) {
+        showQuestion(data.current_question);
+    } else if (data.state === 'finished') {
+        document.getElementById('questionArea').classList.add('hidden');
+        document.getElementById('waitingArea').classList.remove('hidden');
+        
+        // Запрашиваем награду
+        fetch('/api/game/reward', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code: roomCode, player_id: playerId})
+        })
+        .then(r => r.json())
+        .then(reward => {
+            if (reward.coins_earned) {
+                WALLET.addCoins(reward.coins_earned);
+                document.getElementById('waitingArea').innerHTML = 
+                    `<div style="text-align:center;padding:20px;">🏁 Игра окончена! +${reward.coins_earned}🪙</div>`;
+            }
         });
+        
         clearInterval(gameInterval);
+    } else if (data.state === 'lobby') {
+        document.getElementById('questionArea').classList.add('hidden');
+        document.getElementById('waitingArea').classList.remove('hidden');
+        document.getElementById('waitingArea').innerHTML = 
+            '<div style="text-align:center;padding:20px;">🔄 Ожидаем новую игру...</div>';
+        document.getElementById('scoreDisplay').textContent = '0';
+        hasAnswered = false;
+    } else {
+        document.getElementById('questionArea').classList.add('hidden');
+        document.getElementById('waitingArea').classList.remove('hidden');
     }
-    else { document.getElementById('questionArea').classList.add('hidden'); document.getElementById('waitingArea').classList.remove('hidden'); }
 }
 
 function showQuestion(question) {

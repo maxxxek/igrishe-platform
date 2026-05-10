@@ -1,0 +1,12 @@
+{
+    "id": "pari_animals",
+    "name": "🐾 Животные",
+    "description": "Вопросы о животных",
+    "questions": [
+        {"id": "ani_001", "question": "Сколько весит синий кит? (в тоннах)", "answer": 150, "unit": "тонн", "hint": "От 100 до 200", "difficulty": "medium"},
+        {"id": "ani_002", "question": "Сколько лет живёт черепаха?", "answer": 150, "unit": "лет", "hint": "От 100 до 200", "difficulty": "easy"},
+        {"id": "ani_003", "question": "Сколько зубов у акулы за всю жизнь?", "answer": 30000, "unit": "зубов", "hint": "От 20 000 до 50 000", "difficulty": "hard"},
+        {"id": "ani_004", "question": "Сколько кг еды съедает слон в день?", "answer": 150, "unit": "кг", "hint": "От 100 до 300", "difficulty": "medium"},
+        {"id": "ani_005", "question": "С какой скоростью бегает гепард? (км/ч)", "answer": 120, "unit": "км/ч", "hint": "От 100 до 130", "difficulty": "easy"}
+    ]
+}
