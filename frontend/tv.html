@@ -162,6 +162,43 @@
         .ranking-item { display: flex; justify-content: space-between; padding: 12px 20px; background: rgba(255,255,255,0.5); border-radius: 12px; margin: 6px 0; font-weight: 700; font-size: 16px; }
         .ranking-score { color: var(--accent); font-weight: 900; }
         .empty-state { text-align: center; opacity: 0.4; padding: 20px; }
+
+        /* СЛАЙДЕР ПРЕМИУМ/БЕСПЛАТНЫЕ */
+        .tier-slider {
+            display: flex; justify-content: center; gap: 0;
+            background: rgba(255,255,255,0.4); border-radius: 40px;
+            padding: 5px; margin: 20px auto; max-width: 400px;
+        }
+        .tier-tab {
+            flex: 1; text-align: center; padding: 12px 20px;
+            border-radius: 35px; cursor: pointer; font-weight: 800;
+            font-size: 16px; transition: 0.3s;
+        }
+        .tier-tab.active {
+            background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .tier-tab:not(.active) { opacity: 0.6; }
+        .tier-tab:hover:not(.active) { opacity: 0.9; }
+
+        /* КАТЕГОРИИ */
+        .categories-row {
+            display: flex; gap: 10px; justify-content: center;
+            flex-wrap: wrap; margin-bottom: 20px;
+        }
+        .category-card {
+            padding: 10px 18px; border-radius: 25px;
+            background: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.5);
+            cursor: pointer; font-weight: 700; font-size: 14px;
+            transition: 0.3s; white-space: nowrap;
+        }
+        .category-card:hover { background: rgba(255,255,255,0.8); }
+        .category-card.active {
+            background: rgba(124,58,237,0.1); border-color: #7c3aed;
+            color: #7c3aed;
+        }
+        .category-card.locked {
+            opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5);
+        }
     </style>
 </head>
 <body>
@@ -183,9 +220,42 @@
     </div>
 
     <!-- ВЫБОР ИГРЫ -->
-    <div id="game-select" class="glass-card">
-        <div class="logo-title">ИГРИЩЕ</div>
-        <div class="subtitle">игра для компании</div>
+<div id="game-select" class="glass-card">
+    <div class="logo-title">ИГРИЩЕ</div>
+    <div class="subtitle">игра для компании</div>
+    
+    <!-- СЛАЙДЕР ПРЕМИУМ/БЕСПЛАТНЫЕ -->
+    <div class="tier-slider">
+        <div class="tier-tab active" onclick="switchTier('free', this)">
+            <span style="color:#22c55e;">●</span> Бесплатные
+        </div>
+        <div class="tier-tab" onclick="switchTier('premium', this)">
+            <span style="color:#a855f7;">●</span> Премиум
+        </div>
+    </div>
+    
+    <!-- КАТЕГОРИИ -->
+    <div id="categories-free" class="categories-row">
+        <div class="category-card active" onclick="filterCategory('all', this)">🎲 Все</div>
+            <div class="category-card" onclick="filterCategory('quiz', this)">🧠 Квизы</div>
+            <div class="category-card" onclick="filterCategory('active', this)">🏃 Подвижные</div>
+            <div class="category-card" onclick="filterCategory('table', this)">🃏 За столом</div>
+        </div>
+
+        <div id="categories-premium" class="categories-row hidden">
+            <div class="category-card active" onclick="filterCategory('all', this)">🎲 Все</div>
+            <div class="category-card" onclick="filterCategory('virtual', this)">🕶 Виртуальные</div>
+            <div class="category-card" onclick="filterCategory('team', this)">👥 Командные</div>
+            <div class="category-card" onclick="filterCategory('integrated', this)">🔌 Интегрированные</div>
+        </div>
+
+        <!-- ПОДКАТЕГОРИИ КВИЗОВ -->
+        <div id="sub-quiz" class="categories-row hidden">
+            <div class="category-card" onclick="selectSubCategory('random')">🎲 Рандомный</div>
+            <div class="category-card" onclick="selectSubCategory('themed')">📚 Тематический</div>
+            <div class="category-card" onclick="promptPassword()">🔐 По паролю</div>
+        </div>
+
         <div class="section-title">Выбери игру:</div>
         <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка игр...</div></div>
         <div class="center"><button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button></div>
@@ -303,6 +373,63 @@ function playCorrect(){playSound('approve',0.5);}
 function playAutoNext(){playSound('vibor',0.6);}
 function playWinner(){if(!winnerPlayed){winnerPlayed=true;playSound('winner',0.7);}}
 function playGameStart(){stopLobbyMusic();winnerPlayed=false;playSound('fon',0.6);}
+let currentTier = 'free';
+let currentCategory = 'all';
+
+function switchTier(tier, tab) {
+    currentTier = tier;
+    document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    document.getElementById('categories-free').classList.toggle('hidden', tier !== 'free');
+    document.getElementById('categories-premium').classList.toggle('hidden', tier !== 'premium');
+    
+    filterCategory('all', document.querySelector(`#categories-${tier} .category-card`));
+}
+
+function filterCategory(cat, tab) {
+    currentCategory = cat;
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+    if (tab) tab.classList.add('active');
+    
+    // Показываем/скрываем подкатегории квизов
+    document.getElementById('sub-quiz').classList.toggle('hidden', cat !== 'quiz');
+    
+    renderFilteredGames();
+}
+
+function selectSubCategory(sub) {
+    renderFilteredGames(sub);
+}
+
+function promptPassword() {
+    const pwd = prompt('Введите пароль категории:');
+    if (pwd) renderFilteredGames('password');
+}
+
+function renderFilteredGames(sub) {
+    // Фильтруем игры по категориям
+    fetch('/api/games').then(r => r.json()).then(games => {
+        const grid = document.getElementById('gamesList');
+        let filtered = Object.entries(games);
+        
+        // Сейчас показываем все игры (позже добавим фильтрацию)
+        grid.innerHTML = filtered.map(([id, game]) => {
+            const locked = currentTier === 'premium' && !isPremium();
+            return `<div class="game-card ${locked ? 'locked' : ''}" data-game="${id}" 
+                ${!locked ? `onclick="selectGame('${id}')"` : ''}>
+                <span class="game-icon">🔒</span>
+                <div class="game-name">${game.name}</div>
+                <div class="game-desc">${locked ? 'Premium' : game.description}</div>
+            </div>`;
+        }).join('');
+    });
+}
+
+function isPremium() {
+    const prem = JSON.parse(localStorage.getItem('premium') || '{"active":false}');
+    return prem.active;
+}
 </script>
 
 </body>
