@@ -278,7 +278,7 @@
     <div id="level-0">
         <div class="tier-slider" id="tierSlider">
             <div class="tier-slider-bg"></div>
-            <div class="tier-tab active" onclick="switchTier('free')">🆓 Бесплатные</div>
+            <div class="tier-tab active" onclick="switchTier('free')">Бесплатные</div>
             <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
         </div>
         <div class="section-title">Выбери категорию:</div>
@@ -292,14 +292,20 @@
         <div class="games-grid" id="subGrid"></div>
     </div>
     
-    <!-- LEVEL 2: ИГРЫ -->
+        <!-- LEVEL 2: ДЕТАЛИ (Учёба) -->
     <div id="level-2" class="level-screen hidden">
         <div class="btn-back" onclick="goBack()">← Назад</div>
-        <div class="section-title" id="level2Title">Игры</div>
+        <div class="section-title" id="level2Title">Детали</div>
+        <div class="games-grid" id="detailGrid"></div>
+    </div>
+    
+    <!-- LEVEL 3: ИГРЫ -->
+    <div id="level-3" class="level-screen hidden">
+        <div class="btn-back" onclick="goBack()">← Назад</div>
+        <div class="section-title" id="level3Title">Игры</div>
         <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка...</div></div>
         <div class="center"><button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button></div>
     </div>
-</div>
 
     <!-- ЛОББИ -->
     <div id="lobby" class="glass-card hidden">
