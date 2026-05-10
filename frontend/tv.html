@@ -164,21 +164,48 @@
         .empty-state { text-align: center; opacity: 0.4; padding: 20px; }
 
         /* СЛАЙДЕР ПРЕМИУМ/БЕСПЛАТНЫЕ */
-        .tier-slider {
-            display: flex; justify-content: center; gap: 0;
-            background: rgba(255,255,255,0.4); border-radius: 40px;
-            padding: 5px; margin: 20px auto; max-width: 400px;
+        tier-slider {
+           display: flex; justify-content: center; gap: 0;
+           background: rgba(255,255,255,0.3); border-radius: 50px;
+           padding: 6px; margin: 20px auto; max-width: 360px;
+           position: relative;
         }
-        .tier-tab {
-            flex: 1; text-align: center; padding: 12px 20px;
-            border-radius: 35px; cursor: pointer; font-weight: 800;
-            font-size: 16px; transition: 0.3s;
+        tier-slider-bg {
+           position: absolute; top: 6px; left: 6px;
+           width: calc(50% - 6px); height: calc(100% - 12px);
+           background: white; border-radius: 45px;
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           z-index: 0;
         }
-        .tier-tab.active {
-            background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        tier-slider.premium .tier-slider-bg {
+           left: 50%;
+           background: linear-gradient(135deg, #7c3aed, #a855f7);
         }
-        .tier-tab:not(.active) { opacity: 0.6; }
-        .tier-tab:hover:not(.active) { opacity: 0.9; }
+        tier-tab {
+           flex: 1; text-align: center; padding: 14px 20px;
+           border-radius: 45px; cursor: pointer; font-weight: 700;
+           font-size: 16px; transition: all 0.4s; position: relative; z-index: 1;
+           color: #666;
+        }
+        tier-tab.active { color: #111; font-weight: 900; }
+        tier-slider.premium .tier-tab.active { color: white; }
+
+        * КНОПКА НАЗАД */
+        btn-back {
+           display: inline-flex; align-items: center; gap: 6px;
+           padding: 8px 16px; border-radius: 30px;
+           background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
+           cursor: pointer; font-weight: 700; font-size: 14px;
+           margin-bottom: 15px; transition: 0.3s;
+        }
+        btn-back:hover { background: rgba(255,255,255,0.8); }
+
+        * УРОВНИ */
+        level-screen { animation: slideIn 0.3s ease; }
+        keyframes slideIn {
+           from { opacity: 0; transform: translateX(20px); }
+           to { opacity: 1; transform: translateX(0); }
+        }
 
         /* КАТЕГОРИИ */
         .categories-row {
@@ -220,46 +247,37 @@
     </div>
 
     <!-- ВЫБОР ИГРЫ -->
+<!-- ВЫБОР ИГРЫ -->
 <div id="game-select" class="glass-card">
     <div class="logo-title">ИГРИЩЕ</div>
     <div class="subtitle">игра для компании</div>
     
-    <!-- СЛАЙДЕР ПРЕМИУМ/БЕСПЛАТНЫЕ -->
-    <div class="tier-slider">
-        <div class="tier-tab active" onclick="switchTier('free', this)">
-            <span style="color:#22c55e;">●</span> Бесплатные
+    <!-- LEVEL 0: СЛАЙДЕР -->
+    <div id="level-0">
+        <div class="tier-slider" id="tierSlider">
+            <div class="tier-slider-bg"></div>
+            <div class="tier-tab active" onclick="switchTier('free')">🆓 Бесплатные</div>
+            <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
         </div>
-        <div class="tier-tab" onclick="switchTier('premium', this)">
-            <span style="color:#a855f7;">●</span> Премиум
-        </div>
+        <div class="section-title">Выбери категорию:</div>
+        <div class="games-grid" id="categoriesGrid"></div>
     </div>
     
-    <!-- КАТЕГОРИИ -->
-    <div id="categories-free" class="categories-row">
-        <div class="category-card active" onclick="filterCategory('all', this)">🎲 Все</div>
-            <div class="category-card" onclick="filterCategory('quiz', this)">🧠 Квизы</div>
-            <div class="category-card" onclick="filterCategory('active', this)">🏃 Подвижные</div>
-            <div class="category-card" onclick="filterCategory('table', this)">🃏 За столом</div>
-        </div>
-
-        <div id="categories-premium" class="categories-row hidden">
-            <div class="category-card active" onclick="filterCategory('all', this)">🎲 Все</div>
-            <div class="category-card" onclick="filterCategory('virtual', this)">🕶 Виртуальные</div>
-            <div class="category-card" onclick="filterCategory('team', this)">👥 Командные</div>
-            <div class="category-card" onclick="filterCategory('integrated', this)">🔌 Интегрированные</div>
-        </div>
-
-        <!-- ПОДКАТЕГОРИИ КВИЗОВ -->
-        <div id="sub-quiz" class="categories-row hidden">
-            <div class="category-card" onclick="selectSubCategory('random')">🎲 Рандомный</div>
-            <div class="category-card" onclick="selectSubCategory('themed')">📚 Тематический</div>
-            <div class="category-card" onclick="promptPassword()">🔐 По паролю</div>
-        </div>
-
-        <div class="section-title">Выбери игру:</div>
-        <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка игр...</div></div>
+    <!-- LEVEL 1: ПОДКАТЕГОРИИ -->
+    <div id="level-1" class="level-screen hidden">
+        <div class="btn-back" onclick="goBack()">← Назад</div>
+        <div class="section-title" id="level1Title">Подкатегории</div>
+        <div class="games-grid" id="subGrid"></div>
+    </div>
+    
+    <!-- LEVEL 2: ИГРЫ -->
+    <div id="level-2" class="level-screen hidden">
+        <div class="btn-back" onclick="goBack()">← Назад</div>
+        <div class="section-title" id="level2Title">Игры</div>
+        <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка...</div></div>
         <div class="center"><button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button></div>
     </div>
+</div>
 
     <!-- ЛОББИ -->
     <div id="lobby" class="glass-card hidden">
@@ -373,63 +391,104 @@ function playCorrect(){playSound('approve',0.5);}
 function playAutoNext(){playSound('vibor',0.6);}
 function playWinner(){if(!winnerPlayed){winnerPlayed=true;playSound('winner',0.7);}}
 function playGameStart(){stopLobbyMusic();winnerPlayed=false;playSound('fon',0.6);}
-let currentTier = 'free';
 let currentCategory = 'all';
+let currentTier = 'free';
+let currentLevel = 0;
+let navigationStack = [0];
 
-function switchTier(tier, tab) {
+// Слайдер
+function switchTier(tier) {
     currentTier = tier;
+    const slider = document.getElementById('tierSlider');
+    slider.classList.toggle('premium', tier === 'premium');
     document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    document.getElementById('categories-free').classList.toggle('hidden', tier !== 'free');
-    document.getElementById('categories-premium').classList.toggle('hidden', tier !== 'premium');
-    
-    filterCategory('all', document.querySelector(`#categories-${tier} .category-card`));
+    document.querySelector(`.tier-tab:${tier === 'premium' ? 'last-child' : 'first-child'}`).classList.add('active');
+    renderCategories();
 }
 
-function filterCategory(cat, tab) {
-    currentCategory = cat;
-    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
-    if (tab) tab.classList.add('active');
+// LEVEL 0 → Категории
+function renderCategories() {
+    currentLevel = 0;
+    navigationStack = [0];
+    document.getElementById('level-0').classList.remove('hidden');
+    document.getElementById('level-1').classList.add('hidden');
+    document.getElementById('level-2').classList.add('hidden');
     
-    // Показываем/скрываем подкатегории квизов
-    document.getElementById('sub-quiz').classList.toggle('hidden', cat !== 'quiz');
+    const categories = currentTier === 'free' 
+        ? ['🧠 Квизы', '🏃 Подвижные', '🃏 За столом']
+        : ['🕶 Виртуальные', '👥 Командные', '🔌 Интегрированные'];
     
-    renderFilteredGames();
+    document.getElementById('categoriesGrid').innerHTML = categories.map(cat => `
+        <div class="game-card" onclick="openCategory('${cat}')">
+            <span style="font-size:40px;display:block;margin-bottom:10px;">${cat.slice(0,2)}</span>
+            <div class="game-name">${cat}</div>
+        </div>`).join('');
 }
 
-function selectSubCategory(sub) {
-    renderFilteredGames(sub);
+// LEVEL 1 → Подкатегории
+function openCategory(cat) {
+    currentLevel = 1;
+    navigationStack = [0, 1];
+    document.getElementById('level-0').classList.add('hidden');
+    document.getElementById('level-1').classList.remove('hidden');
+    document.getElementById('level-2').classList.add('hidden');
+    document.getElementById('level1Title').textContent = cat;
+    
+    let subs = [];
+    if (cat.includes('Квизы')) subs = ['🎲 Рандомный', '📚 Тематический', '🔐 По паролю'];
+    else if (cat.includes('Подвижные')) subs = ['🎪 Активные', '💃 Танцевальные'];
+    else if (cat.includes('За столом')) subs = ['🃏 Карточные', '🎲 Настольные'];
+    else subs = ['🔒 Закрыто (Premium)'];
+    
+    document.getElementById('subGrid').innerHTML = subs.map(sub => `
+        <div class="game-card ${sub.includes('Закрыто') ? 'locked' : ''}" 
+            onclick="${sub.includes('Закрыто') ? '' : `openGames('${sub}')`}">
+            <span style="font-size:40px;display:block;">${sub.includes('🔐') ? '🔐' : '📦'}</span>
+            <div class="game-name">${sub}</div>
+        </div>`).join('');
 }
 
-function promptPassword() {
-    const pwd = prompt('Введите пароль категории:');
-    if (pwd) renderFilteredGames('password');
-}
-
-function renderFilteredGames(sub) {
-    // Фильтруем игры по категориям
+// LEVEL 2 → Игры
+function openGames(sub) {
+    currentLevel = 2;
+    navigationStack = [0, 1, 2];
+    document.getElementById('level-0').classList.add('hidden');
+    document.getElementById('level-1').classList.add('hidden');
+    document.getElementById('level-2').classList.remove('hidden');
+    document.getElementById('level2Title').textContent = sub;
+    
     fetch('/api/games').then(r => r.json()).then(games => {
         const grid = document.getElementById('gamesList');
-        let filtered = Object.entries(games);
-        
-        // Сейчас показываем все игры (позже добавим фильтрацию)
-        grid.innerHTML = filtered.map(([id, game]) => {
-            const locked = currentTier === 'premium' && !isPremium();
-            return `<div class="game-card ${locked ? 'locked' : ''}" data-game="${id}" 
-                ${!locked ? `onclick="selectGame('${id}')"` : ''}>
-                <span class="game-icon">🔒</span>
+        const filtered = Object.entries(games).filter(([id, g]) => {
+            if (currentTier === 'premium' && !isPremium()) return false;
+            return true;
+        });
+        grid.innerHTML = filtered.map(([id, game]) => `
+            <div class="game-card" data-game="${id}" onclick="selectGame('${id}')">
+                <span class="game-icon-emoji">${game.icon || '🎮'}</span>
                 <div class="game-name">${game.name}</div>
-                <div class="game-desc">${locked ? 'Premium' : game.description}</div>
-            </div>`;
-        }).join('');
+                <div class="game-desc">${game.description}</div>
+            </div>`).join('');
     });
 }
 
-function isPremium() {
-    const prem = JSON.parse(localStorage.getItem('premium') || '{"active":false}');
-    return prem.active;
+function goBack() {
+    navigationStack.pop();
+    const prev = navigationStack[navigationStack.length - 1] || 0;
+    if (prev === 0) renderCategories();
+    else if (prev === 1) {
+        document.getElementById('level-0').classList.add('hidden');
+        document.getElementById('level-1').classList.remove('hidden');
+        document.getElementById('level-2').classList.add('hidden');
+    }
 }
+
+function isPremium() {
+    return JSON.parse(localStorage.getItem('premium') || '{"active":false}').active;
+}
+
+// Запуск
+renderCategories();
 </script>
 
 </body>
