@@ -19,7 +19,7 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
     try:
-    cursor.execute('ALTER TABLE users ADD COLUMN equipped_avatar TEXT DEFAULT ""')
+        cursor.execute('ALTER TABLE users ADD COLUMN equipped_avatar TEXT DEFAULT ""')
     except: pass
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
