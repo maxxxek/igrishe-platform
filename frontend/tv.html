@@ -339,6 +339,46 @@
             </div>
             <div class="scores-list" id="tdScoresDisplay"></div>
         </div>
+        <!-- МАФИЯ -->
+        <div id="mafiaArea" class="hidden">
+            <div id="mafiaRoleScreen" class="hidden">
+                <div style="text-align:center;font-size:50px;" id="mafiaRoleIcon"></div>
+                <div style="text-align:center;font-size:24px;font-weight:900;margin:10px 0;" id="mafiaRoleName"></div>
+                <div style="text-align:center;opacity:0.6;font-size:14px;" id="mafiaRoleDesc"></div>
+                <button class="btn" onclick="hideMafiaRole()">👁 Спрятать</button>
+            </div>
+            <div id="mafiaHiddenScreen">
+                <div style="text-align:center;font-size:60px;">🤫</div>
+                <div style="text-align:center;margin:10px 0;">Роль скрыта</div>
+                <button class="btn" onclick="showMafiaRole()">👁 Показать</button>
+            </div>
+        </div>
+
+        <!-- КТО БЛИЖЕ -->
+        <div id="pariArea" class="hidden">
+            <div id="pariBetScreen" class="hidden">
+                <div style="text-align:center;font-size:40px;">💰</div>
+                <div style="text-align:center;font-size:18px;font-weight:800;margin:10px 0;">Твоя ставка</div>
+                <div style="display:flex;gap:10px;justify-content:center;align-items:center;margin:15px 0;">
+                    <button class="btn" onclick="changeBet(-50)" style="width:50px;">-50</button>
+                    <span id="betAmount" style="font-size:36px;font-weight:900;">100</span>
+                    <button class="btn" onclick="changeBet(+50)" style="width:50px;">+50</button>
+                </div>
+                <button class="btn" onclick="placeBet()">✅ Подтвердить ставку</button>
+            </div>
+            <div id="pariAnswerScreen" class="hidden">
+                <div style="text-align:center;font-size:18px;font-weight:800;margin:10px 0;">Твой ответ</div>
+                <input type="number" id="pariAnswer" class="glass-input" placeholder="Введи число" style="font-size:28px;">
+                <button class="btn" onclick="submitPariAnswer()">📝 Отправить</button>
+            </div>
+            <div id="pariResultScreen" class="hidden">
+                <div style="text-align:center;font-size:40px;" id="pariResultEmoji"></div>
+                <div style="text-align:center;font-size:20px;font-weight:800;" id="pariResultText"></div>
+            </div>
+            <div id="pariWaiting">
+                <div style="text-align:center;padding:20px;">Ожидай вопрос на ТВ 📺</div>
+            </div>
+        </div>
     </div>
 
     <!-- ФИНАЛ -->
@@ -650,6 +690,61 @@ function playAgain() {
     });
 }
 
+
+// ========== МАФИЯ ==========
+function loadMafiaRole() {
+    fetch('/api/mafia/role?code=' + roomCode + '&player=' + playerId)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('mafiaRoleIcon').textContent = data.icon;
+            document.getElementById('mafiaRoleName').textContent = data.name;
+            document.getElementById('mafiaRoleDesc').textContent = data.description;
+            document.getElementById('mafiaRoleScreen').classList.remove('hidden');
+            document.getElementById('mafiaHiddenScreen').classList.add('hidden');
+        });
+}
+function hideMafiaRole() {
+    document.getElementById('mafiaRoleScreen').classList.add('hidden');
+    document.getElementById('mafiaHiddenScreen').classList.remove('hidden');
+}
+function showMafiaRole() {
+    document.getElementById('mafiaRoleScreen').classList.remove('hidden');
+    document.getElementById('mafiaHiddenScreen').classList.add('hidden');
+}
+
+// ========== КТО БЛИЖЕ ==========
+let currentBet = 100;
+function changeBet(amount) {
+    currentBet = Math.max(50, Math.min(500, currentBet + amount));
+    document.getElementById('betAmount').textContent = currentBet;
+}
+function placeBet() {
+    fetch('/api/pari/bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, player_id: playerId, bet: currentBet})
+    })
+    .then(() => {
+        document.getElementById('pariBetScreen').classList.add('hidden');
+        document.getElementById('pariWaiting').classList.remove('hidden');
+    });
+}
+function submitPariAnswer() {
+    const answer = parseInt(document.getElementById('pariAnswer').value);
+    if (!answer) return;
+    fetch('/api/pari/answer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, player_id: playerId, answer: answer})
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('pariAnswerScreen').classList.add('hidden');
+        document.getElementById('pariResultScreen').classList.remove('hidden');
+        document.getElementById('pariResultEmoji').textContent = data.won ? '🏆' : '😢';
+        document.getElementById('pariResultText').textContent = data.won ? 'Ты победил!' : 'Не повезло...';
+    });
+}
 
 // Запуск
 renderCategories();
