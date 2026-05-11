@@ -393,6 +393,74 @@ function showGameInterface(type) {
     }
 }
 
+function handleTruthDareState(data) {
+    document.getElementById('quizArea').classList.add('hidden');
+    document.getElementById('truthDareArea').classList.remove('hidden');
+    if (data.state === 'lobby') {
+        document.getElementById('votingArea').classList.add('hidden');
+        document.getElementById('taskArea').classList.add('hidden');
+        document.getElementById('tdWaitingArea').classList.remove('hidden');
+        document.getElementById('tdWaitingText').textContent = 'Ожидаем начала...';
+        return;
+    }
+    const isMyTurn = data.current_player_id === playerId;
+    if (data.state === 'voting') {
+        document.getElementById('taskArea').classList.add('hidden');
+        if (isMyTurn) {
+            document.getElementById('votingArea').classList.add('hidden');
+            document.getElementById('tdWaitingArea').classList.remove('hidden');
+            document.getElementById('tdWaitingText').textContent = 'Ты выбран! Жди решения...';
+        } else {
+            document.getElementById('votingArea').classList.remove('hidden');
+            document.getElementById('tdWaitingArea').classList.add('hidden');
+            document.getElementById('voteTargetName').textContent = data.current_player_name || 'игрока';
+        }
+    } else if (data.state === 'task' && data.show_task) {
+        document.getElementById('votingArea').classList.add('hidden');
+        if (isMyTurn) {
+            document.getElementById('taskArea').classList.remove('hidden');
+            document.getElementById('tdWaitingArea').classList.add('hidden');
+            document.getElementById('taskDisplay').textContent = (data.task_type === 'truth' ? '🗣 ПРАВДА: ' : '💥 ДЕЙСТВИЕ: ') + data.current_task;
+        } else {
+            document.getElementById('taskArea').classList.add('hidden');
+            document.getElementById('tdWaitingArea').classList.remove('hidden');
+            document.getElementById('tdWaitingText').textContent = data.current_player_name + ' выполняет задание...';
+        }
+    } else if (data.state === 'finished') {
+        document.getElementById('votingArea').classList.add('hidden');
+        document.getElementById('taskArea').classList.add('hidden');
+        document.getElementById('tdWaitingArea').classList.remove('hidden');
+        document.getElementById('tdWaitingText').textContent = 'Игра окончена!';
+        clearInterval(gameInterval);
+    }
+}
+
+function submitVote(vote) {
+    fetch('/api/vote', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode, player_id:playerId, vote})
+    })
+    .then(() => {
+        document.getElementById('votingArea').classList.add('hidden');
+        document.getElementById('tdWaitingText').textContent = 'Твой голос учтён!';
+        document.getElementById('tdWaitingArea').classList.remove('hidden');
+    });
+}
+
+function taskDone() {
+    fetch('/api/task_done', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode, player_id:playerId})
+    })
+    .then(() => {
+        document.getElementById('taskArea').classList.add('hidden');
+        document.getElementById('tdWaitingArea').classList.remove('hidden');
+        document.getElementById('tdWaitingText').textContent = 'Задание выполнено!';
+    });
+}
+
 document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')joinGame();});
 document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('codeInput').focus();});
 document.getElementById('nameInput').focus();
