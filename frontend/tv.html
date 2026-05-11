@@ -210,8 +210,8 @@
         .btn-back:hover { background: rgba(255,255,255,0.8); }
 
         /* УРОВНИ */
-        level-screen { animation: slideIn 0.3s ease; }
-        keyframes slideIn {
+        .level-screen { animation: slideIn 0.3s ease; }
+        @keyframes slideIn {
            from { opacity: 0; transform: translateX(20px); }
            to { opacity: 1; transform: translateX(0); }
         }
@@ -420,7 +420,7 @@ fetch('/api/games').then(r => r.json()).then(games => {
     }).join('');
 });
 
-function selectGame(id) { selectedGame=id; document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('selected')); document.querySelector(`[data-game="${id}"]`).classList.add('selected'); document.getElementById('createRoomBtn').disabled=false; }
+
 function createRoom() { if(!selectedGame)return; fetch(`/api/create?game=${selectedGame}`).then(r=>r.json()).then(data=>{ roomCode=data.code; document.getElementById('game-select').classList.add('hidden'); document.getElementById('lobby').classList.remove('hidden'); document.getElementById('lobbyGameName').textContent=data.game.name; document.getElementById('roomCode').textContent=roomCode; document.getElementById('serverUrl').textContent=window.location.host+'/player'; preloadLobbyMusic(); playLobbyMusic(); lastPlayerCount=0; updateLobby(); lobbyInterval=setInterval(updateLobby,2000); }); }
 function updateLobby() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; const players=data.players||{}; const count=Object.keys(players).length; if(count>lastPlayerCount&&lastPlayerCount>0)playPlayerJoin(); lastPlayerCount=count; const emojis=['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋']; document.getElementById('playersList').innerHTML=count===0?'<div class="empty-state">Ожидаем игроков...</div>':Object.entries(players).map(([id,p],i)=>`<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`).join(''); document.getElementById('startBtn').disabled=count===0; if(data.state==='playing'){clearInterval(lobbyInterval);showGameScreen(data);} }); }
 function startGame() { playGameStart(); fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); }
