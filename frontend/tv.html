@@ -67,11 +67,13 @@
         transition: 0.3s;
         position: relative;
         }
-        
+
         .profile-badge:hover {
-            background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.8);
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        
+
         .profile-avatar {
             width: 36px;
             height: 36px;
@@ -85,14 +87,14 @@
             font-weight: 700;
             flex-shrink: 0;
         }
-        
+
         .profile-text {
             font-weight: 700;
             color: var(--text);
             font-size: 15px;
             white-space: nowrap;
         }
-        
+
         .profile-arrow {
             font-size: 11px;
             transition: 0.3s;
@@ -552,7 +554,40 @@ function createRoom() {
         alert('Не удалось создать комнату');
     });
 
-}function updateLobby() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; const players=data.players||{}; const count=Object.keys(players).length; if(count>lastPlayerCount&&lastPlayerCount>0)playPlayerJoin(); lastPlayerCount=count; const emojis=['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋']; document.getElementById('playersList').innerHTML=count===0?'<div class="empty-state">Ожидаем игроков...</div>':Object.entries(players).map(([id,p],i)=>`<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`).join(''); document.getElementById('startBtn').disabled=count===0; if(data.state==='playing'){clearInterval(lobbyInterval);showGameScreen(data);} }); }
+}
+function updateLobby() {
+    if (!roomCode) return;
+    fetch('/api/state/' + roomCode)
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) return;
+        
+        const players = data.players || {};
+        const count = Object.keys(players).length;
+        
+        if (count > lastPlayerCount && lastPlayerCount > 0) playPlayerJoin();
+        lastPlayerCount = count;
+        
+        const emojis = ['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋'];
+        document.getElementById('playersList').innerHTML = count === 0 
+            ? '<div class="empty-state">Ожидаем игроков...</div>'
+            : Object.entries(players).map(([id,p],i) => 
+                `<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`
+              ).join('');
+        
+        document.getElementById('startBtn').disabled = count === 0;
+        
+        if (data.state === 'playing') {
+            clearInterval(lobbyInterval);
+            // Запрашиваем ПОЛНОЕ состояние комнаты
+            fetch('/api/state/' + roomCode)
+                .then(r => r.json())
+                .then(fullData => {
+                    showGameScreen(fullData);
+                });
+        }
+    });
+}
 function startGame() { playGameStart(); fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); }
 function showGameScreen(data) { document.getElementById('lobby').classList.add('hidden'); document.getElementById('game-screen').classList.remove('hidden'); if(data.game_icon_image){document.getElementById('gameIconImg').src=data.game_icon_image;document.getElementById('gameIconImg').style.display='inline-block';document.getElementById('gameIconEmoji').style.display='none';}else{document.getElementById('gameIconImg').style.display='none';document.getElementById('gameIconEmoji').textContent=data.game_icon||'🎮';document.getElementById('gameIconEmoji').style.display='inline';} document.getElementById('gameTitle').textContent=data.game_name||''; if(data.game_type==='truth_dare'){document.getElementById('quiz-area').classList.add('hidden');document.getElementById('truthdare-area').classList.remove('hidden');}else{document.getElementById('truthdare-area').classList.add('hidden');document.getElementById('quiz-area').classList.remove('hidden');showQuestion();} lastAnswerCount=0; updateInterval=setInterval(updateGameState,1000); }
 function updateGameState() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; if(data.state==='finished'){clearInterval(updateInterval);showFinalScreen(data);return;} if(data.game_type==='truth_dare'){updateTruthDareScreen(data);}else if(data.game_type==='quiz'){updatePlayerStatus(data);updateScores(data);const total=Object.keys(data.players||{}).length;const answered=data.answers_count||0;if(!autoNextLocked&&total>0&&answered>0&&answered>=total){clearInterval(currentTimer);clearTimeout(autoNextTimer);autoNext();}} }); }
