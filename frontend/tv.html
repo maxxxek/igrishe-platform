@@ -421,8 +421,50 @@ fetch('/api/games').then(r => r.json()).then(games => {
 });
 
 
-function createRoom() { if(!selectedGame)return; fetch(`/api/create?game=${selectedGame}`).then(r=>r.json()).then(data=>{ roomCode=data.code; document.getElementById('game-select').classList.add('hidden'); document.getElementById('lobby').classList.remove('hidden'); document.getElementById('lobbyGameName').textContent=data.game.name; document.getElementById('roomCode').textContent=roomCode; document.getElementById('serverUrl').textContent=window.location.host+'/player'; preloadLobbyMusic(); playLobbyMusic(); lastPlayerCount=0; updateLobby(); lobbyInterval=setInterval(updateLobby,2000); }); }
-function updateLobby() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; const players=data.players||{}; const count=Object.keys(players).length; if(count>lastPlayerCount&&lastPlayerCount>0)playPlayerJoin(); lastPlayerCount=count; const emojis=['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋']; document.getElementById('playersList').innerHTML=count===0?'<div class="empty-state">Ожидаем игроков...</div>':Object.entries(players).map(([id,p],i)=>`<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`).join(''); document.getElementById('startBtn').disabled=count===0; if(data.state==='playing'){clearInterval(lobbyInterval);showGameScreen(data);} }); }
+function createRoom() {
+    if (!selectedGame) {
+        alert('Выбери игру!');
+        return;
+    }
+    
+    fetch('/api/create?game=' + selectedGame)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        
+        roomCode = data.code;
+        
+        // Скрываем выбор игры
+        document.getElementById('game-select').classList.add('hidden');
+        
+        // Показываем лобби
+        document.getElementById('lobby').classList.remove('hidden');
+        
+        // Заполняем данные
+        document.getElementById('lobbyGameName').textContent = data.game.name;
+        document.getElementById('roomCode').textContent = roomCode;
+        document.getElementById('serverUrl').textContent = window.location.host + '/player';
+        
+        // Запускаем музыку
+        preloadLobbyMusic();
+        playLobbyMusic();
+        
+        // Обновляем лобби
+        lastPlayerCount = 0;
+        updateLobby();
+        lobbyInterval = setInterval(updateLobby, 2000);
+    })
+    .catch(function(err) {
+        console.error('Ошибка:', err);
+        alert('Не удалось создать комнату');
+    });
+    
+}function updateLobby() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; const players=data.players||{}; const count=Object.keys(players).length; if(count>lastPlayerCount&&lastPlayerCount>0)playPlayerJoin(); lastPlayerCount=count; const emojis=['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋']; document.getElementById('playersList').innerHTML=count===0?'<div class="empty-state">Ожидаем игроков...</div>':Object.entries(players).map(([id,p],i)=>`<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`).join(''); document.getElementById('startBtn').disabled=count===0; if(data.state==='playing'){clearInterval(lobbyInterval);showGameScreen(data);} }); }
 function startGame() { playGameStart(); fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); }
 function showGameScreen(data) { document.getElementById('lobby').classList.add('hidden'); document.getElementById('game-screen').classList.remove('hidden'); if(data.game_icon_image){document.getElementById('gameIconImg').src=data.game_icon_image;document.getElementById('gameIconImg').style.display='inline-block';document.getElementById('gameIconEmoji').style.display='none';}else{document.getElementById('gameIconImg').style.display='none';document.getElementById('gameIconEmoji').textContent=data.game_icon||'🎮';document.getElementById('gameIconEmoji').style.display='inline';} document.getElementById('gameTitle').textContent=data.game_name||''; if(data.game_type==='truth_dare'){document.getElementById('quiz-area').classList.add('hidden');document.getElementById('truthdare-area').classList.remove('hidden');}else{document.getElementById('truthdare-area').classList.add('hidden');document.getElementById('quiz-area').classList.remove('hidden');showQuestion();} lastAnswerCount=0; updateInterval=setInterval(updateGameState,1000); }
 function updateGameState() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; if(data.state==='finished'){clearInterval(updateInterval);showFinalScreen(data);return;} if(data.game_type==='truth_dare'){updateTruthDareScreen(data);}else if(data.game_type==='quiz'){updatePlayerStatus(data);updateScores(data);const total=Object.keys(data.players||{}).length;const answered=data.answers_count||0;if(!autoNextLocked&&total>0&&answered>0&&answered>=total){clearInterval(currentTimer);clearTimeout(autoNextTimer);autoNext();}} }); }
