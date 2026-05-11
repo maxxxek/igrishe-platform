@@ -4,6 +4,9 @@ import os
 import bcrypt
 import json
 
+#ПОСЛЕДНИЙ ДО РАЗДЕЛЕНИЯ НА ENGINE
+
+
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'igrishe.db')
 
 
@@ -33,6 +36,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
     try:
         cursor.execute('ALTER TABLE users ADD COLUMN equipped_avatar TEXT DEFAULT ""')
     except: pass
