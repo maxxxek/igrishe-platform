@@ -170,7 +170,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             # Сохраняем аватар
             equipped = body.get('equipped', {})
             if equipped.get('avatar'):
-                save_equipped_avatar(int(user_id), equipped['avatar'])
+                save_equipped_avatar(int(user_id), equipped.get('avatar', ''))
             
             # Сохраняем купленные предметы
             owned_items = body.get('owned_items', [])
