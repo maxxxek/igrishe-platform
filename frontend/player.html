@@ -184,17 +184,49 @@ let playerId = null, roomCode = null, gameType = null, isCurrentPlayer = false, 
 function joinGame() {
     const name = document.getElementById('nameInput').value.trim() || 'Игрок';
     const code = document.getElementById('codeInput').value.toUpperCase();
-    const errorEl = document.getElementById('errorMsg'); errorEl.textContent = '';
-    if (code.length !== 4) { errorEl.textContent = 'Нужен 4-буквенный код'; return; }
-    fetch('/api/join', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,code})})
-    .then(r=>r.json()).then(data=>{
-        if(data.error){errorEl.textContent=data.error;return;}
-        playerId=data.player_id; roomCode=code; gameType=data.game_type||'quiz';
+    const errorEl = document.getElementById('errorMsg'); 
+    errorEl.textContent = '';
+    
+    if (code.length !== 4) { 
+        errorEl.textContent = 'Нужен 4-буквенный код'; 
+        return; 
+    }
+    
+    fetch('/api/join', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name, code})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            errorEl.textContent = data.error;
+            return;
+        }
+        playerId = data.player_id;
+        roomCode = code;
+        gameType = data.game_type || 'quiz';
+        
         document.getElementById('joinScreen').classList.add('hidden');
         document.getElementById('gameScreen').classList.remove('hidden');
-        document.getElementById('playerName').textContent=data.name;
-        checkGameState(); gameInterval=setInterval(checkGameState,1500);
-    }).catch(()=>{errorEl.textContent='Сервер не отвечает';});
+        document.getElementById('playerName').textContent = data.name;
+        
+        // Редирект для спец-игр
+        if (gameType === 'kto_blizhe') {
+            window.location.href = '/frontend/player_kto_blizhe.html?code=' + roomCode + '&player=' + playerId;
+            return;
+        }
+        if (gameType === 'mafia') {
+            window.location.href = '/frontend/player_mafia.html?code=' + roomCode + '&player=' + playerId;
+            return;
+        }
+        
+        checkGameState();
+        gameInterval = setInterval(checkGameState, 1500);
+    })
+    .catch(() => {
+        errorEl.textContent = 'Сервер не отвечает';
+    });
 }
 
 function checkGameState() {
@@ -336,6 +368,29 @@ function submitAnswer(answerIndex, button) {
             try{new Audio('/static/sounds/wrong.mp3').play().catch(()=>{});}catch(e){}}
     }).catch(()=>{});
     clearInterval(currentTimer); document.getElementById('timer').textContent='✅ Отправлен';
+}
+
+function showGameInterface(type) {
+    // Скрываем все области
+    document.getElementById('quizArea').classList.add('hidden');
+    if (document.getElementById('truthDareArea')) {
+        document.getElementById('truthDareArea').classList.add('hidden');
+    }
+    
+    // Показываем нужную в зависимости от типа игры
+    if (type === 'quiz') {
+        document.getElementById('quizArea').classList.remove('hidden');
+    } else if (type === 'truth_dare') {
+        if (document.getElementById('truthDareArea')) {
+            document.getElementById('truthDareArea').classList.remove('hidden');
+        }
+    } else if (type === 'kto_blizhe') {
+        // Редирект на страницу для "Кто ближе?"
+        window.location.href = '/frontend/player_kto_blizhe.html?code=' + roomCode + '&player=' + playerId;
+    } else if (type === 'mafia') {
+        // Для мафии пока остаёмся на этом же экране
+        document.getElementById('quizArea').classList.remove('hidden');
+    }
 }
 
 document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')joinGame();});
