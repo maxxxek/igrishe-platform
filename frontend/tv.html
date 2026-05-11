@@ -588,7 +588,32 @@ function updateLobby() {
         }
     });
 }
-function startGame() { playGameStart(); fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); }
+function startGame() {
+    playGameStart();
+    
+    fetch('/api/start', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    })
+    .then(r => r.json())
+    .then(data => {
+        console.log('Ответ start:', data);
+        if (data.error) { alert(data.error); return; }
+        
+        // Ждём полсекунды и запрашиваем состояние
+        setTimeout(() => {
+            fetch('/api/state/' + roomCode)
+                .then(r => r.json())
+                .then(fullData => {
+                    console.log('Состояние после старта:', fullData);
+                    clearInterval(lobbyInterval);
+                    showGameScreen(fullData);
+                });
+        }, 500);
+    })
+    .catch(err => console.error('Ошибка:', err));
+}
 function showGameScreen(data) { document.getElementById('lobby').classList.add('hidden'); document.getElementById('game-screen').classList.remove('hidden'); if(data.game_icon_image){document.getElementById('gameIconImg').src=data.game_icon_image;document.getElementById('gameIconImg').style.display='inline-block';document.getElementById('gameIconEmoji').style.display='none';}else{document.getElementById('gameIconImg').style.display='none';document.getElementById('gameIconEmoji').textContent=data.game_icon||'🎮';document.getElementById('gameIconEmoji').style.display='inline';} document.getElementById('gameTitle').textContent=data.game_name||''; if(data.game_type==='truth_dare'){document.getElementById('quiz-area').classList.add('hidden');document.getElementById('truthdare-area').classList.remove('hidden');}else{document.getElementById('truthdare-area').classList.add('hidden');document.getElementById('quiz-area').classList.remove('hidden');showQuestion();} lastAnswerCount=0; updateInterval=setInterval(updateGameState,1000); }
 function updateGameState() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; if(data.state==='finished'){clearInterval(updateInterval);showFinalScreen(data);return;} if(data.game_type==='truth_dare'){updateTruthDareScreen(data);}else if(data.game_type==='quiz'){updatePlayerStatus(data);updateScores(data);const total=Object.keys(data.players||{}).length;const answered=data.answers_count||0;if(!autoNextLocked&&total>0&&answered>0&&answered>=total){clearInterval(currentTimer);clearTimeout(autoNextTimer);autoNext();}} }); }
 function updateTruthDareScreen(data) { document.getElementById('quiz-area').classList.add('hidden'); document.getElementById('truthdare-area').classList.remove('hidden'); document.getElementById('gameTitle').textContent=data.game_name+' — Раунд '+(data.round+1)+'/'+data.total_rounds; if(data.state==='voting'){document.getElementById('voting-screen').classList.remove('hidden');document.getElementById('task-screen').classList.add('hidden');document.getElementById('currentPlayerName').textContent=data.current_player_name||'...';const v=data.votes||{};document.getElementById('truthVotes').textContent=Object.values(v).filter(x=>x==='truth').length;document.getElementById('dareVotes').textContent=Object.values(v).filter(x=>x==='dare').length;}else if(data.state==='task'&&data.show_task){document.getElementById('voting-screen').classList.add('hidden');document.getElementById('task-screen').classList.remove('hidden');document.getElementById('taskPlayerName').textContent=data.current_player_name||'';document.getElementById('taskText').textContent=(data.task_type==='truth'?'🗣 ПРАВДА: ':'💥 ДЕЙСТВИЕ: ')+data.current_task;} const players=data.players||{}; const votes=data.votes||{}; document.getElementById('tdPlayersStatus').innerHTML=Object.entries(players).map(([id,p])=>{const cur=id===data.current_player_id;const vd=votes[id]!==undefined;return`<div class="player-status-card ${vd||cur?'answered':'not-answered'}"><div class="status-dot ${vd||cur?'done':'waiting'}"></div><span>${p.name}</span><span style="font-size:12px;opacity:0.6;margin-left:8px;">${cur?'🎯 Выбран':vd?'✅ Проголосовал':'⏳ Думает...'}</span></div>`;}).join(''); const scores=data.scores||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('tdScoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
