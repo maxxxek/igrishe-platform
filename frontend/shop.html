@@ -127,6 +127,28 @@
             .side-menu-item { white-space: nowrap; margin-bottom: 0; margin-right: 5px; }
             .shop-grid { grid-template-columns: repeat(2, 1fr); }
         }
+        .layout { display: flex; gap: 15px; margin: 20px 0; }
+        .side-menu {
+            width: 160px; flex-shrink: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 2vh;
+            padding: 15px 10px; position: sticky; top: 15vh; height: fit-content;
+        }
+        .side-menu-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 10px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 14px; transition: 0.2s; margin-bottom: 5px;
+            color: #333;
+        }
+        .side-menu-item:hover { background: rgba(255,255,255,0.8); }
+        .side-menu-item.active { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .main-content { flex: 1; }
+        
+        @media (max-width: 600px) {
+            .layout { flex-direction: column; }
+            .side-menu { width: 100%; display: flex; overflow-x: auto; position: static; padding: 10px; gap: 5px; }
+            .side-menu-item { white-space: nowrap; margin-bottom: 0; }
+        }
     </style>
 </head>
 <body>
@@ -142,18 +164,25 @@
 <div class="container">
     <div class="shop-layout">
 
-        <!-- ЛЕВОЕ МЕНЮ -->
         <div class="side-menu">
             <div class="balance-mini">
                 <span>🪙 <span class="coin coin-display" id="coinBalance">0</span></span>
-                <span style="margin-left:auto;">💎 <span class="gem" id="gemBalance">0</span></span>
             </div>
-            <div class="side-menu-item active" onclick="filterShop('all', this)">🛍 Все</div>
-            <div class="side-menu-item" onclick="filterShop('avatar', this)">👤 Аватары</div>
-            <div class="side-menu-item" onclick="filterShop('frame', this)">🖼 Рамки</div>
-            <div class="side-menu-item" onclick="filterShop('decoration', this)">🌸 Украшения</div>
-            <div class="side-menu-item" onclick="filterShop('boost', this)">⚡ Бустеры</div>
-        </div>
+            <div class="side-menu-item" onclick="window.location.href='/frontend/profile.html'">👤 Профиль</div>
+            <div class="side-menu-item active">🛍 Магазин</div>
+            <div class="side-menu-item" onclick="window.location.href='/frontend/wallet.html'">💰 Кошелёк</div>
+            <div class="side-menu-item" onclick="logout()" style="color:#ef4444;margin-top:10px;">🚪 Выйти</div>
+            
+            <!-- Разделитель -->
+            <div style="border-top:1px solid rgba(0,0,0,0.1);margin:10px 0;"></div>
+            
+            <!-- Категории товаров -->
+            <div class="side-menu-item cat-item active" onclick="filterShop('all', this)">🛍 Все</div>
+            <div class="side-menu-item cat-item" onclick="filterShop('avatar', this)">👤 Аватары</div>
+            <div class="side-menu-item cat-item" onclick="filterShop('frame', this)">🖼 Рамки</div>
+            <div class="side-menu-item cat-item" onclick="filterShop('decoration', this)">🌸 Украшения</div>
+            <div class="side-menu-item cat-item" onclick="filterShop('boost', this)">⚡ Бустеры</div>
+    </div>
 
         <!-- ПРАВАЯ ЧАСТЬ -->
         <div class="main-content">

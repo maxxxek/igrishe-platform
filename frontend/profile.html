@@ -111,6 +111,29 @@
             z-index: 11000; opacity: 0; transition: 0.4s; pointer-events: none;
         }
         .toast.show { opacity: 1; }
+        .layout { display: flex; gap: 15px; margin: 20px 0; }
+        .side-menu {
+            width: 160px; flex-shrink: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 2vh;
+            padding: 15px 10px; position: sticky; top: 15vh; height: fit-content;
+        }
+        .side-menu-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 10px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 14px; transition: 0.2s; margin-bottom: 5px;
+            color: #333;
+        }
+        .side-menu-item:hover { background: rgba(255,255,255,0.8); }
+        .side-menu-item.active { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .main-content { flex: 1; }
+
+        @media (max-width: 600px) {
+            .layout { flex-direction: column; }
+            .side-menu { width: 100%; display: flex; overflow-x: auto; position: static; padding: 10px; gap: 5px; }
+            .side-menu-item { white-space: nowrap; margin-bottom: 0; }
+        }
+
     </style>
 </head>
 <body>
@@ -124,34 +147,49 @@
     </nav>
 
     <div class="container">
+        <div class="layout">
 
-        <div class="profile-card">
-            <div class="avatar-big" id="avatarBig">?</div>
+            <!-- ЛЕВОЕ МЕНЮ -->
+            <div class="side-menu">
+                <div class="side-menu-item active">👤 Профиль</div>
+                <div class="side-menu-item" onclick="window.location.href='/frontend/shop.html'">🛍 Магазин</div>
+                <div class="side-menu-item" onclick="window.location.href='/frontend/wallet.html'">💰 Кошелёк</div>
+                <div class="side-menu-item" onclick="logout()" style="color:#ef4444;">🚪 Выйти</div>
+            </div>
 
-            <label for="avatarFile" class="upload-btn">
-                <span>📷</span> Изменить фото
-                <input type="file" id="avatarFile" accept="image/*" style="display:none;" onchange="uploadAvatar()">
-            </label>
+            <!-- ПРАВАЯ ЧАСТЬ -->
+            <div class="main-content">
 
-            <div class="username-big" id="profileUsername">...</div>
-            <div class="user-email" id="profileEmail"></div>
-            <div class="user-level" id="profileLevel">Уровень 1</div>
+                <div class="profile-card">
+                    <div class="avatar-big" id="avatarBig">?</div>
+
+                    <label for="avatarFile" class="upload-btn">
+                        <span>📷</span> Изменить фото
+                        <input type="file" id="avatarFile" accept="image/*" style="display:none;" onchange="uploadAvatar()">
+                    </label>
+
+                    <div class="username-big" id="profileUsername">...</div>
+                    <div class="user-email" id="profileEmail"></div>
+                    <div class="user-level" id="profileLevel">Уровень 1</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">🪙</div><div class="stat-value" id="statCoins">0</div><div class="stat-label">Монет</div></div>
+                    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="statGames">0</div><div class="stat-label">Игр</div></div>
+                    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="statCorrect">0</div><div class="stat-label">Верных ответов</div></div>
+                    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">Дней подряд</div></div>
+                </div>
+
+                <div class="section-title">🏅 Достижения</div>
+                <div class="achievements-grid" id="achievementsGrid"></div>
+
+                <button class="btn btn-primary" onclick="window.location.href='/'">🎮 Играть</button>
+                <button class="btn btn-outline" onclick="window.location.href='shop.html'">🛍 Магазин</button>
+                <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
+                <div class="footer-space"></div>
+
+            </div>
         </div>
-
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-icon">🪙</div><div class="stat-value" id="statCoins">0</div><div class="stat-label">Монет</div></div>
-            <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="statGames">0</div><div class="stat-label">Игр</div></div>
-            <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="statCorrect">0</div><div class="stat-label">Верных ответов</div></div>
-            <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">Дней подряд</div></div>
-        </div>
-
-        <div class="section-title">🏅 Достижения</div>
-        <div class="achievements-grid" id="achievementsGrid"></div>
-
-        <button class="btn btn-primary" onclick="window.location.href='/'">🎮 Играть</button>
-        <button class="btn btn-outline" onclick="window.location.href='shop.html'">🛍 Магазин</button>
-        <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
-        <div class="footer-space"></div>
     </div>
 
     <div class="toast" id="toast"></div>

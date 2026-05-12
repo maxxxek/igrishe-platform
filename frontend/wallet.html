@@ -10,7 +10,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #ededed; font-family: 'Rubik', sans-serif; overflow-x: hidden; color: #111; }
-        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px; }
+        .container { width: 100%; max-width: 700px; margin: 0 auto; padding: 0 15px; }
 
         .nav {
             width: 100%; height: 10vh; min-height: 60px;
@@ -24,7 +24,6 @@
             border-radius: 50%; background: white; display: flex; align-items: center;
             justify-content: center; overflow: visible; border: 3px solid #e3e3e3;
             margin-top: 4vh; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         .nav-logo:hover { transform: scale(1.1); }
         .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -2vh; }
@@ -36,14 +35,35 @@
         .nav-back {
             background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.5);
             border-radius: 3vh; padding: 1vh 3vw; font-weight: 700; cursor: pointer;
-            font-size: clamp(1.5vh, 2vw, 2vh); transition: 0.3s;
         }
         .nav-back:hover { background: rgba(255,255,255,0.9); }
+
+        /* ОСНОВНАЯ СЕТКА */
+        .layout { display: flex; gap: 15px; margin: 20px 0; }
+
+        /* ЛЕВОЕ МЕНЮ */
+        .side-menu {
+            width: 160px; flex-shrink: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 2vh;
+            padding: 15px 10px; position: sticky; top: 15vh; height: fit-content;
+        }
+        .side-menu-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 10px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 14px; transition: 0.2s; margin-bottom: 5px;
+            color: #333; text-decoration: none;
+        }
+        .side-menu-item:hover { background: rgba(255,255,255,0.8); }
+        .side-menu-item.active { background: rgba(124,58,237,0.1); color: #7c3aed; }
+
+        /* ПРАВАЯ ЧАСТЬ */
+        .main-content { flex: 1; }
 
         .card {
             background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
             border: 2px solid rgba(255,255,255,0.7); border-radius: 3vh;
-            padding: 25px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
 
         .balance-big { text-align: center; }
@@ -76,6 +96,12 @@
         .history-amount.minus { color: #ef4444; }
 
         .section-title { font-weight: 800; font-size: 20px; margin: 20px 0 10px; }
+
+        @media (max-width: 600px) {
+            .layout { flex-direction: column; }
+            .side-menu { width: 100%; display: flex; overflow-x: auto; position: static; padding: 10px; gap: 5px; }
+            .side-menu-item { white-space: nowrap; margin-bottom: 0; }
+        }
     </style>
 </head>
 <body>
@@ -89,31 +115,43 @@
     </nav>
 
     <div class="container">
+        <div class="layout">
 
-        <div class="card balance-big">
-            <div class="balance-icon">🪙</div>
-            <div class="balance-amount" id="coinBalance">0</div>
-            <div class="balance-label">монет на счету</div>
+            <!-- ЛЕВОЕ МЕНЮ -->
+            <div class="side-menu">
+                <div class="side-menu-item" onclick="window.location.href='/frontend/profile.html'">👤 Профиль</div>
+                <div class="side-menu-item" onclick="window.location.href='/frontend/shop.html'">🛍 Магазин</div>
+                <div class="side-menu-item active">💰 Кошелёк</div>
+                <div class="side-menu-item" onclick="logout()" style="color:#ef4444;margin-top:auto;">🚪 Выйти</div>
+            </div>
+
+            <!-- ПРАВАЯ ЧАСТЬ -->
+            <div class="main-content">
+
+                <div class="card balance-big">
+                    <div class="balance-icon">🪙</div>
+                    <div class="balance-amount coin-display" id="coinBalance">0</div>
+                    <div class="balance-label">монет на счету</div>
+                </div>
+
+                <button class="btn" onclick="window.location.href='/frontend/shop.html'">🛍 В магазин</button>
+                <button class="btn btn-outline" onclick="window.location.href='/frontend/profile.html'">👤 Профиль</button>
+
+                <div class="section-title">📋 История операций</div>
+                <div class="card" id="historyList">
+                    <div style="text-align:center;opacity:0.5;padding:20px;">Загрузка...</div>
+                </div>
+
+            </div>
         </div>
-
-        <button class="btn" onclick="window.location.href='/frontend/shop.html'">🛍 В магазин</button>
-        <button class="btn btn-outline" onclick="window.location.href='/frontend/profile.html'">👤 Профиль</button>
-
-        <div class="section-title">📋 История операций</div>
-        <div class="card" id="historyList">
-            <div style="text-align:center;opacity:0.5;padding:20px;">Загрузка...</div>
-        </div>
-
     </div>
 
 <script src="/frontend/js/wallet.js"></script>
 <script>
-// Загружаем баланс из WALLET
 WALLET.updateAllDisplays();
 document.getElementById('coinBalance').classList.add('coin-display');
 WALLET.updateAllDisplays();
 
-// История (заглушка)
 const history = [
     { icon: '🎮', title: 'Победа в Квиз-Шоу', date: 'Сегодня', amount: '+50', plus: true },
     { icon: '🎯', title: 'Участие в игре', date: 'Вчера', amount: '+10', plus: true },
@@ -132,6 +170,14 @@ document.getElementById('historyList').innerHTML = history.length > 0
             <div class="history-amount ${h.plus ? 'plus' : 'minus'}">${h.amount} 🪙</div>
         </div>`).join('')
     : '<div style="text-align:center;opacity:0.5;padding:20px;">Нет операций</div>';
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('wallet');
+    localStorage.removeItem('equipped');
+    window.location.href = '/';
+}
 </script>
 
 </body>
