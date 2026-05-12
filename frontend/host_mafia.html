@@ -184,6 +184,22 @@ function log(msg) {
     const logEl = document.getElementById('gameLog');
     logEl.innerHTML = msg + '<br>' + logEl.innerHTML;
 }
+
+function updateProfileUI() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+    const avatarEl = document.getElementById('profileAvatar');
+    if (!avatarEl) return;
+    
+    if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
+        avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else if (equipped.avatar && equipped.avatar.length <= 4) {
+        avatarEl.textContent = equipped.avatar;
+    } else {
+        avatarEl.textContent = user.username ? user.username[0].toUpperCase() : '👤';
+    }
+}
+
 </script>
 <script src="/frontend/js/avatar.js"></script>
 </body>
