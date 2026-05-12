@@ -192,10 +192,23 @@ function joinGame() {
         return; 
     }
     
+    // Собираем аватарку
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+    let avatarUrl = '';
+    
+    if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
+        avatarUrl = equipped.avatar;  // загруженный на сервер
+    }
+    
     fetch('/api/join', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name, code})
+        body:JSON.stringify({
+            name: name,
+            code: code,
+            avatar_url: avatarUrl
+        })
     })
     .then(r => r.json())
     .then(data => {

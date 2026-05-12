@@ -653,7 +653,52 @@ function updateGameState() { if(!roomCode)return; fetch('/api/state/'+roomCode).
 function updateTruthDareScreen(data) { document.getElementById('quiz-area').classList.add('hidden'); document.getElementById('truthdare-area').classList.remove('hidden'); document.getElementById('gameTitle').textContent=data.game_name+' — Раунд '+(data.round+1)+'/'+data.total_rounds; if(data.state==='voting'){document.getElementById('voting-screen').classList.remove('hidden');document.getElementById('task-screen').classList.add('hidden');document.getElementById('currentPlayerName').textContent=data.current_player_name||'...';const v=data.votes||{};document.getElementById('truthVotes').textContent=Object.values(v).filter(x=>x==='truth').length;document.getElementById('dareVotes').textContent=Object.values(v).filter(x=>x==='dare').length;}else if(data.state==='task'&&data.show_task){document.getElementById('voting-screen').classList.add('hidden');document.getElementById('task-screen').classList.remove('hidden');document.getElementById('taskPlayerName').textContent=data.current_player_name||'';document.getElementById('taskText').textContent=(data.task_type==='truth'?'🗣 ПРАВДА: ':'💥 ДЕЙСТВИЕ: ')+data.current_task;} const players=data.players||{}; const votes=data.votes||{}; document.getElementById('tdPlayersStatus').innerHTML=Object.entries(players).map(([id,p])=>{const cur=id===data.current_player_id;const vd=votes[id]!==undefined;return`<div class="player-status-card ${vd||cur?'answered':'not-answered'}"><div class="status-dot ${vd||cur?'done':'waiting'}"></div><span>${p.name}</span><span style="font-size:12px;opacity:0.6;margin-left:8px;">${cur?'🎯 Выбран':vd?'✅ Проголосовал':'⏳ Думает...'}</span></div>`;}).join(''); const scores=data.scores||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('tdScoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
 function showQuestion() { fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.state==='finished'){showFinalScreen(data);return;} const q=data.current_question; if(!q)return; document.getElementById('questionCounter').textContent=`Вопрос ${data.question_index+1} из ${data.total_questions}`; document.getElementById('questionText').textContent=q.text; document.getElementById('answersDisplay').innerHTML=q.answers.map(a=>`<div class="answer-display">${a}</div>`).join(''); const timeLeft=data.question_time_left||q.time||30; const timerEl=document.getElementById('timer'); timerEl.classList.remove('warning','auto-next'); clearInterval(currentTimer); clearTimeout(autoNextTimer); let rem=timeLeft; timerEl.textContent='⏱ '+rem; currentTimer=setInterval(()=>{rem--;timerEl.textContent='⏱ '+rem;if(rem<=5)timerEl.classList.add('warning');if(rem<=0){clearInterval(currentTimer);timerEl.textContent='⏰ 0';autoNext();}},1000); autoNextTimer=setTimeout(autoNext,(timeLeft+3)*1000); updatePlayerStatus(data); updateScores(data); }); }
 function autoNext() { if(autoNextLocked)return; autoNextLocked=true; playAutoNext(); clearInterval(currentTimer); clearTimeout(autoNextTimer); lastAnswerCount=0; const timerEl=document.getElementById('timer'); timerEl.textContent='→ Дальше...'; timerEl.classList.add('auto-next'); setTimeout(()=>{fetch('/api/next',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}).then(()=>{timerEl.classList.remove('auto-next');autoNextLocked=false;showQuestion();});},1500); }
-function updatePlayerStatus(data) { const players=data.players||{}; const answered=data.answered_players||[]; document.getElementById('answeredCount').textContent=`Ответили: ${answered.length} из ${Object.keys(players).length}`; document.getElementById('playersStatus').innerHTML=Object.entries(players).map(([id,p])=>{const a=answered.includes(id);return`<div class="player-status-card ${a?'answered':'not-answered'}"><div class="status-dot ${a?'done':'waiting'}"></div><span>${p.name}</span></div>`;}).join(''); }
+
+function updateLobby() {
+    if (!roomCode) return;
+    fetch('/api/state/' + roomCode)
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) return;
+        const players = data.players || {};
+        const count = Object.keys(players).length;
+        
+        if (count > lastPlayerCount && lastPlayerCount > 0) playPlayerJoin();
+        lastPlayerCount = count;
+        
+        // Загружаем аватарки
+        fetch('/api/avatars/' + roomCode)
+            .then(r => r.json())
+            .then(avatars => {
+                document.getElementById('playersList').innerHTML = count === 0 
+                    ? '<div class="empty-state">Ожидаем игроков...</div>'
+                    : Object.entries(players).map(([id, p]) => {
+                        const avatar = avatars[id] || p.avatar_url || '';
+                        const avatarHTML = avatar
+                            ? `<img src="${avatar}" style="width:28px;height:28px;object-fit:cover;border-radius:50%;">`
+                            : p.name[0];
+                        return `<div class="player-card">
+                            <span class="player-emoji" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#a53cff,#3fffd2);color:white;font-weight:700;font-size:14px;">${avatarHTML}</span>
+                            ${p.name}
+                        </div>`;
+                    }).join('');
+            })
+            .catch(() => {
+                // Без аватарок
+                const emojis = ['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋'];
+                document.getElementById('playersList').innerHTML = count === 0 
+                    ? '<div class="empty-state">Ожидаем игроков...</div>'
+                    : Object.entries(players).map(([id, p], i) => 
+                        `<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`
+                    ).join('');
+            });
+        
+        document.getElementById('startBtn').disabled = count === 0;
+        if (data.state === 'playing') { clearInterval(lobbyInterval); showGameScreen(data); }
+    });
+}
+
+
 function updateScores(data) { const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('scoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
 function showFinalScreen(data) { playWinner(); clearInterval(currentTimer); clearTimeout(autoNextTimer); clearInterval(updateInterval); document.getElementById('game-screen').classList.add('hidden'); document.getElementById('finish-screen').classList.remove('hidden'); const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); if(sorted.length>0){document.getElementById('winnerName').textContent=players[sorted[0][0]]?.name||'Игрок';document.getElementById('winnerScore').textContent=sorted[0][1]+' очков';} const medals=['🥇','🥈','🥉']; document.getElementById('finalRanking').innerHTML=sorted.map(([id,s],i)=>{const p=players[id];const coins=s>=100?50:s>=50?30:10;return`<div class="ranking-item"><span>${medals[i]||'🏅'} ${p?p.name:'Игрок'}</span><span class="ranking-score">${s} очков <span style="font-size:14px;">+${coins}🪙</span></span></div>`;}).join(''); }
 function resetToMenu() { stopLobbyMusic(); clearInterval(currentTimer); clearTimeout(autoNextTimer); clearInterval(lobbyInterval); clearInterval(updateInterval); if(roomCode)fetch('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); document.querySelectorAll('#lobby,#game-screen,#finish-screen').forEach(e=>e.classList.add('hidden')); document.getElementById('game-select').classList.remove('hidden'); document.getElementById('createRoomBtn').disabled=true; document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('selected')); roomCode=null;selectedGame=null; }

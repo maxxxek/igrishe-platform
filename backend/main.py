@@ -62,7 +62,8 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
         if self.path == '/api/join':
             code = body.get('code', '').upper()
             name = body.get('name', 'Игрок').strip() or 'Игрок'
-            data, status = handle_join(code, name)
+            avatar_url = body.get('avatar_url', '')
+            data, status = handle_join(code, name, avatar_url)
             self._json(data, status)
             return
         
@@ -83,26 +84,26 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
         elif self.path == '/api/upload-avatar':
             import cgi
             from pathlib import Path
-            
+
             form = cgi.FieldStorage(
                 fp=self.rfile,
                 headers=self.headers,
                 environ={'REQUEST_METHOD': 'POST'}
             )
-            
+
             file_item = form['avatar']
             if file_item.filename:
                 # Сохраняем в static/avatars/
                 avatars_dir = os.path.join(STATIC_DIR, 'avatars')
                 os.makedirs(avatars_dir, exist_ok=True)
-                
+
                 ext = Path(file_item.filename).suffix or '.png'
                 filename = f"user_{body.get('user_id', 'unknown')}{ext}"
                 filepath = os.path.join(avatars_dir, filename)
-                
+
                 with open(filepath, 'wb') as f:
                     f.write(file_item.file.read())
-                
+
                 # Обновляем базу
                 from storage.database import get_db
                 conn = get_db()
@@ -112,10 +113,10 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
                                (avatar_url, body.get('user_id')))
                 conn.commit()
                 conn.close()
-                
+
                 self._json({'ok': True, 'avatar_url': avatar_url})
                 return
-            
+
             self._json({'error': 'Файл не загружен'}, 400)
             return
 
@@ -152,6 +153,31 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             })
             return
         
+        elif self.path.startswith('/api/avatars/'):
+            # /api/avatars/ABCD — все аватарки игроков комнаты
+            code = self.path.split('/')[-1].upper()
+            if code in rooms:
+                room = rooms[code]
+                players = room.get('players', {})
+                avatars = {}
+                from storage.database import get_user_by_id
+                for pid in players:
+                    # Ищем в базе по ID игрока (если есть)
+                    avatar_url = players[pid].get('avatar_url', '')
+                    if not avatar_url:
+                        # Пробуем найти в базе
+                        try:
+                            user = get_user_by_id(int(pid))
+                            if user and user.get('avatar_url'):
+                                avatar_url = user['avatar_url']
+                        except:
+                            pass
+                    avatars[pid] = avatar_url or ''
+                self._json(avatars)
+            else:
+                self._json({})
+            return
+
         elif self.path == '/api/auth/login':
             from storage.database import login_user
             login = body.get('login', '').strip()

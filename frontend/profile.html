@@ -187,6 +187,39 @@
         .achievement-card.locked { opacity: 0.4; filter: grayscale(0.5); }
 
         .footer-space { height: 20px; }
+
+        .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: rgba(255,255,255,0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(255,255,255,0.7);
+        border-radius: 40px;
+        cursor: pointer;
+        font-family: 'Rubik', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        color: #333;
+        transition: all 0.3s ease;
+        margin: 15px 0;
+        }
+        
+        .upload-btn:hover {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(124,58,237,0.2);
+        }
+        
+        .upload-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .upload-btn span {
+            font-size: 22px;
+        }
     </style>
 </head>
 <body>
@@ -207,13 +240,11 @@
             <div class="avatar-big" id="avatarBig">?</div>
 
             <!-- ЗАГРУЗКА ФОТО -->
-            <form id="avatarForm" enctype="multipart/form-data" style="margin:15px 0;">
-                <label style="cursor:pointer; font-size:13px; opacity:0.7;">
-                    📷 Изменить фото
-                    <input type="file" id="avatarFile" accept="image/*" 
-                           style="display:none;" onchange="uploadAvatar()">
-                </label>
-            </form>
+            <label for="avatarFile" class="upload-btn">
+                <span>📷</span> Изменить фото
+                <input type="file" id="avatarFile" accept="image/*" 
+                       style="display:none;" onchange="uploadAvatar()">
+            </label>
 
             <div class="username-big" id="profileUsername">...</div>
             <!-- остальное -->

@@ -37,7 +37,7 @@ def handle_create(game_id='quiz'):
     }, 200
 
 
-def handle_join(code, name):
+def handle_join(code, name, avatar_url=''):
     """Подключение к комнате"""
     room = storage.get(code)
     if not room:
@@ -52,8 +52,16 @@ def handle_join(code, name):
     if not room.add_player(player_id, name):
         return {'error': 'Комната заполнена'}, 400
     
+    # Сохраняем аватарку
+    if avatar_url:
+        room.players[player_id]['avatar_url'] = avatar_url
+    
     print(f'👤 {name} → {code}')
-    return {'player_id': player_id, 'name': name}, 200
+    return {
+        'player_id': player_id,
+        'name': name,
+        'game_type': room.type
+    }, 200
 
 
 def handle_start(code):
@@ -134,3 +142,4 @@ def handle_games_list():
     from utils.loader import load_games, get_games_list
     games = load_games()
     return get_games_list(games), 200
+
