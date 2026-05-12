@@ -629,39 +629,6 @@ function goToPage(page) {
     }
 }
 
-//  Профиль
-function updateProfileUI() {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const wallet = JSON.parse(localStorage.getItem('wallet') || '{}');
-    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-    const avatar = document.getElementById('profileAvatar');
-    const text = document.getElementById('profileText');
-    const logoutBtn = document.getElementById('logoutButton');
-    const logoutDivider = document.getElementById('logoutDivider');
-    const loginItem = document.querySelector('.profile-dropdown-item[onclick*="login"]');
-    const registerItem = document.querySelector('.profile-dropdown-item[onclick*="register"]');
-    
-    if (token && user.username) {
-        text.textContent = user.username;
-        
-        // Используем купленный аватар или первую букву
-        avatar.innerHTML = equipped.avatar || user.username.charAt(0).toUpperCase();
-        avatar.style.background = equipped.avatar ? 'rgba(255,255,255,0.3)' : 'linear-gradient(135deg, #a53cff, #3fffd2)';
-        
-        if (logoutBtn) logoutBtn.style.display = 'flex';
-        if (logoutDivider) logoutDivider.style.display = 'block';
-        if (loginItem) loginItem.style.display = 'none';
-        if (registerItem) registerItem.style.display = 'none';
-    } else {
-        text.textContent = 'Войти';
-        avatar.innerHTML = '👤';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (logoutDivider) logoutDivider.style.display = 'none';
-        if (loginItem) loginItem.style.display = 'flex';
-        if (registerItem) registerItem.style.display = 'flex';
-    }
-}
 
 function logout() {
     localStorage.removeItem('token');
@@ -690,7 +657,6 @@ async function updateProfileUI() {
     const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
     const avatarEl = document.getElementById('profileAvatar');
     
-    // Пробуем загрузить из кэша
     if (equipped.avatar === 'local') {
         const cached = await AvatarCache.load(user.id || 'guest');
         if (cached) {
@@ -699,7 +665,6 @@ async function updateProfileUI() {
         }
     }
     
-    // Если нет в кэше — стандартное отображение
     if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
         avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
     } else if (equipped.avatar) {

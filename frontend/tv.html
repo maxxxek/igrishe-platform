@@ -392,39 +392,21 @@
     <div class="logo-title">ИГРИЩЕ</div>
     <div class="subtitle">игра для компании</div>
     
-    <!-- LEVEL 0: СЛАЙДЕР -->
-    <div id="level-0">
-        <div class="tier-slider" id="tierSlider">
-            <div class="tier-slider-bg"></div>
-            <div class="tier-tab active" onclick="switchTier('free')">Бесплатные</div>
-            <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
-        </div>
-        <div class="section-title">Выбери категорию:</div>
-        <div class="games-grid" id="categoriesGrid"></div>
+    <!-- СЛАЙДЕР БЕСПЛАТНЫЕ / ПРЕМИУМ -->
+    <div class="tier-slider" id="tierSlider">
+        <div class="tier-slider-bg"></div>
+        <div class="tier-tab active" onclick="switchTier('free')">Бесплатные</div>
+        <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
     </div>
     
-    <!-- LEVEL 1: ПОДКАТЕГОРИИ -->
-    <div id="level-1" class="level-screen hidden">
-        <div class="btn-back" onclick="goBack()">← Назад</div>
-        <div class="section-title" id="level1Title">Подкатегории</div>
-        <div class="games-grid" id="subGrid"></div>
-    </div>
-    
-    <!-- LEVEL 2: ДЕТАЛИ (Учёба) -->
-    <div id="level-2" class="level-screen hidden">
-        <div class="btn-back" onclick="goBack()">← Назад</div>
-        <div class="section-title" id="level2Title">Детали</div>
-        <div class="games-grid" id="detailGrid"></div>
-    </div>
-    
-    <!-- LEVEL 3: ИГРЫ -->
-    <div id="level-3" class="level-screen hidden">
-        <div class="btn-back" onclick="goBack()">← Назад</div>
-        <div class="section-title" id="level3Title">Игры</div>
-        <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка...</div></div>
-        <div class="center"><button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button></div>
+    <!-- ИГРЫ -->
+    <div class="section-title">Выбери игру:</div>
+    <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка игр...</div></div>
+    <div class="center" style="margin-top:20px;">
+        <button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button>
     </div>
 </div>
+
 
 <!-- ЛОББИ (снаружи!) -->
 <div id="lobby" class="glass-card hidden">
@@ -555,39 +537,7 @@ function createRoom() {
     });
 
 }
-function updateLobby() {
-    if (!roomCode) return;
-    fetch('/api/state/' + roomCode)
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) return;
-        
-        const players = data.players || {};
-        const count = Object.keys(players).length;
-        
-        if (count > lastPlayerCount && lastPlayerCount > 0) playPlayerJoin();
-        lastPlayerCount = count;
-        
-        const emojis = ['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋'];
-        document.getElementById('playersList').innerHTML = count === 0 
-            ? '<div class="empty-state">Ожидаем игроков...</div>'
-            : Object.entries(players).map(([id,p],i) => 
-                `<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`
-              ).join('');
-        
-        document.getElementById('startBtn').disabled = count === 0;
-        
-        if (data.state === 'playing') {
-            clearInterval(lobbyInterval);
-            // Запрашиваем ПОЛНОЕ состояние комнаты
-            fetch('/api/state/' + roomCode)
-                .then(r => r.json())
-                .then(fullData => {
-                    showGameScreen(fullData);
-                });
-        }
-    });
-}
+
 function startGame() {
     playGameStart();
     
@@ -698,6 +648,41 @@ function updateLobby() {
     });
 }
 
+
+function updatePlayerStatus(data) {
+    const players = data.players || {};
+    const answered = data.answered_players || [];
+    document.getElementById('answeredCount').textContent = 
+        `Ответили: ${answered.length} из ${Object.keys(players).length}`;
+    
+    fetch('/api/avatars/' + roomCode)
+        .then(r => r.json())
+        .then(avatars => {
+            document.getElementById('playersStatus').innerHTML = Object.entries(players)
+                .map(([id, p]) => {
+                    const a = answered.includes(id);
+                    const avatar = avatars[id] || p.avatar_url || '';
+                    const avatarHTML = avatar
+                        ? `<img src="${avatar}" style="width:28px;height:28px;border-radius:50%;">`
+                        : p.name[0];
+                    return `<div class="player-status-card ${a ? 'answered' : 'not-answered'}">
+                        <div class="status-dot ${a ? 'done' : 'waiting'}"></div>
+                        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;">${avatarHTML}</div>
+                        <span>${p.name}</span>
+                    </div>`;
+                }).join('');
+        })
+        .catch(() => {
+            document.getElementById('playersStatus').innerHTML = Object.entries(players)
+                .map(([id, p]) => {
+                    const a = answered.includes(id);
+                    return `<div class="player-status-card ${a ? 'answered' : 'not-answered'}">
+                        <div class="status-dot ${a ? 'done' : 'waiting'}"></div>
+                        <span>${p.name}</span>
+                    </div>`;
+                }).join('');
+        });
+}
 
 function updateScores(data) { const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('scoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
 function showFinalScreen(data) { playWinner(); clearInterval(currentTimer); clearTimeout(autoNextTimer); clearInterval(updateInterval); document.getElementById('game-screen').classList.add('hidden'); document.getElementById('finish-screen').classList.remove('hidden'); const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); if(sorted.length>0){document.getElementById('winnerName').textContent=players[sorted[0][0]]?.name||'Игрок';document.getElementById('winnerScore').textContent=sorted[0][1]+' очков';} const medals=['🥇','🥈','🥉']; document.getElementById('finalRanking').innerHTML=sorted.map(([id,s],i)=>{const p=players[id];const coins=s>=100?50:s>=50?30:10;return`<div class="ranking-item"><span>${medals[i]||'🏅'} ${p?p.name:'Игрок'}</span><span class="ranking-score">${s} очков <span style="font-size:14px;">+${coins}🪙</span></span></div>`;}).join(''); }
