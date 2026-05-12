@@ -79,6 +79,47 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
             data, status = handle_answer(code, player_id, answer)
             self._json(data, status)
             return
+        
+        elif self.path == '/api/upload-avatar':
+            import cgi
+            from pathlib import Path
+            
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'}
+            )
+            
+            file_item = form['avatar']
+            if file_item.filename:
+                # Сохраняем в static/avatars/
+                avatars_dir = os.path.join(STATIC_DIR, 'avatars')
+                os.makedirs(avatars_dir, exist_ok=True)
+                
+                ext = Path(file_item.filename).suffix or '.png'
+                filename = f"user_{body.get('user_id', 'unknown')}{ext}"
+                filepath = os.path.join(avatars_dir, filename)
+                
+                with open(filepath, 'wb') as f:
+                    f.write(file_item.file.read())
+                
+                # Обновляем базу
+                from storage.database import get_db
+                conn = get_db()
+                cursor = conn.cursor()
+                avatar_url = f'/static/avatars/{filename}'
+                cursor.execute('UPDATE users SET avatar_url = ? WHERE id = ?', 
+                               (avatar_url, body.get('user_id')))
+                conn.commit()
+                conn.close()
+                
+                self._json({'ok': True, 'avatar_url': avatar_url})
+                return
+            
+            self._json({'error': 'Файл не загружен'}, 400)
+            return
+
+
                 # ========== АВТОРИЗАЦИЯ ==========
         elif self.path == '/api/auth/register':
             from storage.database import register_user

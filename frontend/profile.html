@@ -205,9 +205,18 @@
         <!-- ПРОФИЛЬ -->
         <div class="profile-card">
             <div class="avatar-big" id="avatarBig">?</div>
+
+            <!-- ЗАГРУЗКА ФОТО -->
+            <form id="avatarForm" enctype="multipart/form-data" style="margin:15px 0;">
+                <label style="cursor:pointer; font-size:13px; opacity:0.7;">
+                    📷 Изменить фото
+                    <input type="file" id="avatarFile" accept="image/*" 
+                           style="display:none;" onchange="uploadAvatar()">
+                </label>
+            </form>
+
             <div class="username-big" id="profileUsername">...</div>
-            <div class="user-email" id="profileEmail">...</div>
-            <div class="user-level" id="profileLevel">Уровень 1</div>
+            <!-- остальное -->
         </div>
 
         <!-- СТАТИСТИКА -->
@@ -293,7 +302,39 @@ function logout() {
     localStorage.removeItem('wallet');
     window.location.href = '/';
 }
-</script>
 
+async function uploadAvatar() {
+    const file = document.getElementById('avatarFile').files[0];
+    if (!file) return;
+    
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || 'guest';
+    
+    // 1. Сохраняем ЛОКАЛЬНО в IndexedDB
+    const base64 = await AvatarCache.fileToBase64(file);
+    await AvatarCache.save(userId, base64);
+    
+    // 2. Применяем на странице
+    AvatarCache.applyToAll(base64);
+    
+    // 3. Сохраняем ссылку в localStorage (для совместимости)
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+    equipped.avatar = 'local';  // флаг "взято из кэша"
+    localStorage.setItem('equipped', JSON.stringify(equipped));
+    
+    // 4. ОТПРАВЛЯЕМ НА СЕРВЕР (опционально, в фоне)
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('user_id', userId);
+    
+    fetch('/api/upload-avatar', {
+        method: 'POST',
+        body: formData
+    }).catch(() => {});  // ошибка не страшна — главное локально сохранилось
+    
+    showToast('Фото обновлено!');
+}
+</script>
+<script src="/frontend/js/avatar.js"></script>
 </body>
 </html>
