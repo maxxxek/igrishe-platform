@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎯 Квиз — Игрок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a14; --card: rgba(255,255,255,0.03);
+            --text: #fff; --accent: #7c3aed; --accent2: #f472b6;
+            --green: #22c55e; --red: #ef4444; --orange: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Rubik', sans-serif; font-weight: 500;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 16px;
+        }
+        .card {
+            background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 25px 20px; max-width: 400px; width: 100%;
+            text-align: center;
+        }
+        .title { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .score { font-size: 44px; font-weight: 900; color: var(--accent); margin: 10px 0; }
+        .question-text { font-size: 18px; font-weight: 700; margin: 15px 0; line-height: 1.4; }
+
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .answer-btn {
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px; padding: 18px 10px; font-family: 'Rubik', sans-serif;
+            font-weight: 700; font-size: 15px; cursor: pointer; color: white;
+            transition: 0.2s; text-align: center;
+        }
+        .answer-btn:active { border-color: var(--accent); background: rgba(124,58,237,0.1); }
+        .answer-btn:disabled { opacity: 0.4; pointer-events: none; }
+        .answer-btn.selected { border-color: var(--accent); opacity: 1; }
+        .answer-btn.correct { border-color: var(--green) !important; background: rgba(34,197,94,0.2) !important; }
+        .answer-btn.wrong { border-color: var(--red) !important; background: rgba(239,68,68,0.2) !important; }
+
+        .timer { font-size: 36px; font-weight: 900; color: var(--orange); margin: 10px 0; }
+        .timer.warning { color: var(--red); animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        .status { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; margin-top: 10px; }
+        .status-correct { background: rgba(34,197,94,0.2); color: var(--green); }
+        .status-wrong { background: rgba(239,68,68,0.2); color: var(--red); }
+
+        .hidden { display: none !important; }
+        .waiting { opacity: 0.5; padding: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="screen">
+    <!-- ВОПРОС -->
+    <div id="questionArea" class="hidden">
+        <div class="title">🎯 Квиз</div>
+        <div class="score" id="scoreDisplay">0</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="timer" id="timer"></div>
+        <div class="answers-grid" id="answersGrid"></div>
+        <div class="status" id="answerStatus"></div>
+    </div>
+
+    <!-- ОЖИДАНИЕ -->
+    <div id="waitingArea">
+        <div class="waiting">📺<br>Жди вопрос на ТВ</div>
+    </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
+const playerId = params.get('player') || '';
+let hasAnswered = false, currentTimer = null;
+
+function checkState() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            
+            if (data.scores && data.scores[playerId] !== undefined) {
+                document.getElementById('scoreDisplay').textContent = data.scores[playerId];
+            }
+            
+            if (data.state === 'playing' && data.current_question) {
+                showQuestion(data.current_question);
+            } else if (data.state === 'finished') {
+                document.getElementById('questionArea').classList.add('hidden');
+                document.getElementById('waitingArea').classList.remove('hidden');
+                document.querySelector('.waiting').innerHTML = '🏁 Игра окончена!';
+            } else {
+                document.getElementById('questionArea').classList.add('hidden');
+                document.getElementById('waitingArea').classList.remove('hidden');
+                hasAnswered = false;
+            }
+        });
+}
+
+function showQuestion(q) {
+    hasAnswered = false;
+    document.getElementById('answerStatus').textContent = '';
+    document.getElementById('answerStatus').className = 'status';
+    document.getElementById('questionArea').classList.remove('hidden');
+    document.getElementById('waitingArea').classList.add('hidden');
+    document.getElementById('questionText').textContent = q.text;
+    
+    document.getElementById('answersGrid').innerHTML = q.answers.map((a, i) =>
+        `<button class="answer-btn" onclick="submitAnswer(${i}, this)">${a}</button>`
+    ).join('');
+    
+    let t = q.time || 30;
+    const timerEl = document.getElementById('timer');
+    timerEl.classList.remove('warning');
+    clearInterval(currentTimer);
+    timerEl.textContent = '⏱ ' + t;
+    currentTimer = setInterval(() => {
+        t--; timerEl.textContent = '⏱ ' + t;
+        if (t <= 5) timerEl.classList.add('warning');
+        if (t <= 0) { clearInterval(currentTimer); timerEl.textContent = '⏰'; }
+    }, 1000);
+}
+
+function submitAnswer(idx, btn) {
+    if (hasAnswered) return;
+    hasAnswered = true;
+    
+    document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+    btn.classList.add('selected');
+    
+    fetch('/api/answer', {
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode, player_id:playerId, answer:idx})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.correct) {
+            btn.classList.add('correct');
+            document.getElementById('answerStatus').textContent = '✅ Верно!';
+            document.getElementById('answerStatus').className = 'status status-correct';
+        } else {
+            btn.classList.add('wrong');
+            document.getElementById('answerStatus').textContent = '❌ Мимо';
+            document.getElementById('answerStatus').className = 'status status-wrong';
+            try{new Audio('/static/sounds/wrong.mp3').play().catch(()=>{});}catch(e){}
+        }
+        if (data.score !== undefined) {
+            document.getElementById('scoreDisplay').textContent = data.score;
+        }
+    });
+    
+    clearInterval(currentTimer);
+    document.getElementById('timer').textContent = '✅';
+}
+
+setInterval(checkState, 1500);
+checkState();
+</script>
+</body>
+</html>

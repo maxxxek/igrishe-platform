@@ -3,46 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>📱 ИГРИЩЕ</title>
+    <title>📱 ИГРИЩЕ — Игрок</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #ededed;
-            --card-bg: rgba(255,255,255,0.55);
-            --card-border: rgba(255,255,255,0.5);
-            --text: #111;
-            --accent: #7c3aed;
-            --accent2: #f472b6;
-            --green: #22c55e;
-            --red: #ef4444;
-            --orange: #f59e0b;
+            --bg: #ededed; --card-bg: rgba(255,255,255,0.55); --card-border: rgba(255,255,255,0.5);
+            --text: #111; --accent: #7c3aed; --accent2: #f472b6; --red: #ef4444;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Rubik', sans-serif; font-weight: 500;
-            background: var(--bg);
-            min-height: 100vh; min-height: 100dvh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 16px;
+            background: var(--bg); min-height: 100vh; min-height: 100dvh;
+            display: flex; align-items: center; justify-content: center; padding: 16px;
         }
-
         .container { width: 100%; max-width: 400px; }
 
-        /* ШАПКА */
         .nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .nav-logo {
             width: 45px; height: 45px; border-radius: 50%; background: white;
             display: flex; align-items: center; justify-content: center;
             overflow: visible; border: 3px solid #e3e3e3;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 20px;
+            cursor: pointer; transition: 0.3s; margin-top: 20px;
         }
         .nav-logo:hover { transform: scale(1.1); }
         .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -8px; }
-
         .profile-badge {
             display: flex; align-items: center; gap: 8px;
             background: rgba(255,255,255,0.5); backdrop-filter: blur(10px);
@@ -62,17 +48,13 @@
             background: var(--card-bg); backdrop-filter: blur(20px);
             border: 2px solid var(--card-border); border-radius: 24px;
             padding: 25px 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-            animation: cardIn 0.5s ease;
         }
-        @keyframes cardIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
-
         .logo-title {
             font-size: 36px; font-weight: 900; text-align: center;
             background: linear-gradient(135deg, var(--accent), var(--accent2));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text; margin-bottom: 20px;
         }
-
         .input-group { margin-bottom: 14px; }
         .input-label { font-size: 12px; font-weight: 700; opacity: 0.5; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
         .glass-input {
@@ -83,7 +65,6 @@
         }
         .glass-input:focus { border-color: var(--accent); }
         #codeInput { letter-spacing: 8px; text-transform: uppercase; font-size: 22px; }
-
         .btn {
             width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
             font-weight: 800; font-size: 18px; border: none; border-radius: 50px;
@@ -91,40 +72,8 @@
             background: linear-gradient(135deg, var(--accent), #a855f7, var(--accent2));
         }
         .btn:active { transform: scale(0.96); }
-
-        .player-header { text-align: center; margin-bottom: 15px; }
-        .player-name { font-size: 22px; font-weight: 800; color: var(--text); }
-        .score-label { font-size: 11px; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; }
-        .player-score { font-size: 44px; font-weight: 900; color: var(--accent); margin: 4px 0; }
-
         .error-msg { color: var(--red); text-align: center; margin-top: 10px; font-size: 13px; min-height: 18px; }
-
-        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-        .answer-btn {
-            background: rgba(255,255,255,0.6); border: 2px solid rgba(255,255,255,0.6);
-            border-radius: 14px; padding: 16px 8px; font-family: 'Rubik', sans-serif;
-            font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; transition: 0.2s;
-            color: var(--text);
-        }
-        .answer-btn:active:not(:disabled) { border-color: var(--accent); background: rgba(124,58,237,0.1); }
-        .answer-btn:disabled { cursor: not-allowed; opacity: 0.45; pointer-events: none; }
-        .answer-btn.selected-answer { opacity: 1 !important; border-color: var(--accent); }
-        .answer-btn.correct-choice { border-color: var(--green) !important; background: rgba(34,197,94,0.2) !important; }
-        .answer-btn.wrong-choice { border-color: var(--red) !important; background: rgba(239,68,68,0.2) !important; }
-
-        .timer { text-align: center; font-size: 32px; font-weight: 900; color: var(--accent); margin: 10px 0; }
-        .timer.warning { color: var(--red); animation: timerPulse 0.5s infinite; }
-        @keyframes timerPulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-
         .hidden { display: none !important; }
-        .waiting-icon { font-size: 44px; display: block; margin-bottom: 8px; }
-
-        .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
-        .status-correct { background: rgba(34,197,94,0.2); color: #16a34a; }
-        .status-wrong { background: rgba(239,68,68,0.2); color: #dc2626; }
-        .question-text { text-align: center; font-size: 17px; font-weight: 700; margin: 10px 0; line-height: 1.4; color: var(--text); }
-        .pulse-anim { animation: scorePulse 0.4s ease; }
-        @keyframes scorePulse { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
     </style>
 </head>
 <body>
@@ -152,347 +101,55 @@
         </div>
     </div>
 
-    <!-- ИГРА -->
-    <div id="gameScreen" class="hidden">
-        <div class="glass-card">
-            <div class="player-header"><div class="player-name" id="playerName">—</div><div class="score-label">очки</div><div class="player-score" id="scoreDisplay">0</div></div>
-            <div id="quizArea" class="hidden">
-                <div id="questionArea" class="hidden"><div class="question-text" id="questionText"></div><div class="timer" id="timer"></div><div class="answers-grid" id="answersGrid"></div><div style="text-align:center;" id="answerStatus"></div></div>
-                <div id="waitingArea"><div style="text-align:center;padding:20px;"><span class="waiting-icon">📺</span><div style="opacity:0.6;font-weight:700;">Жди вопрос на ТВ!</div></div></div>
-            </div>
-            <div id="truthDareArea" class="hidden">
-                <div id="votingArea" class="hidden"><div style="text-align:center;font-size:16px;margin-bottom:15px;">Голосуй за <span id="voteTargetName" style="color:var(--accent);"></span>:</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="answer-btn" onclick="submitVote('truth')" style="font-size:18px;padding:25px;">🗣 Правда</button><button class="answer-btn" onclick="submitVote('dare')" style="font-size:18px;padding:25px;">💥 Действие</button></div></div>
-                <div id="taskArea" class="hidden"><div style="text-align:center;font-size:16px;margin-bottom:10px;">Твоё задание:</div><div id="taskDisplay" style="text-align:center;font-size:20px;font-weight:800;padding:16px;background:rgba(255,255,255,0.5);border-radius:14px;margin-bottom:15px;line-height:1.4;"></div><button class="btn" onclick="taskDone()">✅ ГОТОВО</button></div>
-                <div id="tdWaitingArea"><div style="text-align:center;padding:20px;"><span class="waiting-icon">📺</span><div id="tdWaitingText" style="opacity:0.6;font-weight:700;">Смотри на ТВ</div></div></div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
-<script src="/frontend/js/wallet.js"></script>
 <script>
-// Профиль
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-document.getElementById('profileAvatar').textContent = equipped.avatar || (user.username ? user.username[0].toUpperCase() : '👤');
+document.getElementById('profileAvatar').textContent = equipped.avatar || (user.username?.[0] || '👤');
 document.getElementById('profileText').textContent = user.username || 'Гость';
-
-// ИГРОВАЯ ЛОГИКА
-let playerId = null, roomCode = null, gameType = null, isCurrentPlayer = false, gameInterval = null, currentTimer = null, hasAnswered = false;
 
 function joinGame() {
     const name = document.getElementById('nameInput').value.trim() || 'Игрок';
     const code = document.getElementById('codeInput').value.toUpperCase();
-    const errorEl = document.getElementById('errorMsg'); 
-    errorEl.textContent = '';
-    
-    if (code.length !== 4) { 
-        errorEl.textContent = 'Нужен 4-буквенный код'; 
-        return; 
-    }
+    const err = document.getElementById('errorMsg'); err.textContent = '';
+    if (code.length !== 4) { err.textContent = 'Нужен 4-буквенный код'; return; }
     
     // Собираем аватарку
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
     let avatarUrl = '';
-    
     if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
-        avatarUrl = equipped.avatar;  // загруженный на сервер
+        avatarUrl = equipped.avatar;
     }
     
     fetch('/api/join', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-            name: name,
-            code: code,
-            avatar_url: avatarUrl
-        })
+        body:JSON.stringify({name, code, avatar_url: avatarUrl})
     })
     .then(r => r.json())
     .then(data => {
-        if (data.error) {
-            errorEl.textContent = data.error;
-            return;
-        }
-        playerId = data.player_id;
-        roomCode = code;
-        gameType = data.game_type || 'quiz';
-        
-        document.getElementById('joinScreen').classList.add('hidden');
-        document.getElementById('gameScreen').classList.remove('hidden');
-        document.getElementById('playerName').textContent = data.name;
-        
-        // Редирект для спец-игр
-        if (gameType === 'kto_blizhe') {
-            window.location.href = '/frontend/player_kto_blizhe.html?code=' + roomCode + '&player=' + playerId;
-            return;
-        }
-        if (gameType === 'mafia') {
-            window.location.href = '/frontend/player_mafia.html?code=' + roomCode + '&player=' + playerId;
-            return;
-        }
-        
-        checkGameState();
-        gameInterval = setInterval(checkGameState, 1500);
+        if (data.error) { err.textContent = data.error; return; }
+        redirectToGame(data.game_type, code, data.player_id);
     })
-    .catch(() => {
-        errorEl.textContent = 'Сервер не отвечает';
-    });
+    .catch(() => { err.textContent = 'Сервер не отвечает'; });
 }
 
-function checkGameState() {
-    if (!roomCode) return;
-    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
-        if (data.error) return;
-        
-        // Обновляем очки
-        if (data.scores && data.scores[playerId] !== undefined) {
-            document.getElementById('scoreDisplay').textContent = data.scores[playerId];
-        }
-        
-        // Если игра сброшена — возвращаемся в лобби
-        if (data.state === 'lobby') {
-            document.getElementById('questionArea').classList.add('hidden');
-            document.getElementById('taskArea').classList.add('hidden');
-            document.getElementById('votingArea').classList.add('hidden');
-            document.getElementById('tdWaitingArea').classList.remove('hidden');
-            document.getElementById('tdWaitingText').textContent = '🔄 Ожидаем новую игру...';
-            document.getElementById('waitingArea').classList.remove('hidden');
-            document.getElementById('waitingArea').innerHTML = 
-                '<div style="text-align:center;padding:20px;">🔄 Ожидаем новую игру...</div>';
-            document.getElementById('scoreDisplay').textContent = '0';
-            hasAnswered = false;
-            return;
-        }
-        
-        // Выбор режима
-        if (data.game_type === 'truth_dare') {
-            handleTruthDareState(data);
-        } else if (data.game_type === 'quiz') {
-            handleQuizState(data);
-        }
-    });
-}
-
-function submitVote(vote) {
-    fetch('/api/vote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode,player_id:playerId,vote})})
-    .then(()=>{document.getElementById('votingArea').classList.add('hidden');document.getElementById('tdWaitingText').textContent='Твой голос учтён!';document.getElementById('tdWaitingArea').classList.remove('hidden');});
-}
-
-function taskDone() {
-    fetch('/api/task_done',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode,player_id:playerId})})
-    .then(()=>{document.getElementById('taskArea').classList.add('hidden');document.getElementById('tdWaitingArea').classList.remove('hidden');document.getElementById('tdWaitingText').textContent='Задание выполнено!';});
-}
-
-function handleTruthDareState(data) {
-    document.getElementById('quizArea').classList.add('hidden');
-    document.getElementById('truthDareArea').classList.remove('hidden');
-    if(data.state==='lobby'){document.getElementById('votingArea').classList.add('hidden');document.getElementById('taskArea').classList.add('hidden');document.getElementById('tdWaitingArea').classList.remove('hidden');document.getElementById('tdWaitingText').textContent='Ожидаем начала...';return;}
-    const isMyTurn = data.current_player_id === playerId; isCurrentPlayer = isMyTurn;
-    if(data.state==='voting'){document.getElementById('taskArea').classList.add('hidden');if(isMyTurn){document.getElementById('votingArea').classList.add('hidden');document.getElementById('tdWaitingArea').classList.remove('hidden');document.getElementById('tdWaitingText').textContent='Ты выбран! Жди решения...';}else{document.getElementById('votingArea').classList.remove('hidden');document.getElementById('tdWaitingArea').classList.add('hidden');document.getElementById('voteTargetName').textContent=data.current_player_name||'игрока';}}
-    else if(data.state==='task'&&data.show_task){document.getElementById('votingArea').classList.add('hidden');if(isMyTurn){document.getElementById('taskArea').classList.remove('hidden');document.getElementById('tdWaitingArea').classList.add('hidden');document.getElementById('taskDisplay').textContent=(data.task_type==='truth'?'🗣 ПРАВДА: ':'💥 ДЕЙСТВИЕ: ')+data.current_task;}else{document.getElementById('taskArea').classList.add('hidden');document.getElementById('tdWaitingArea').classList.remove('hidden');document.getElementById('tdWaitingText').textContent=data.current_player_name+' выполняет задание...';}}
-    else if(data.state==='finished'){
-        document.getElementById('votingArea').classList.add('hidden');document.getElementById('taskArea').classList.add('hidden');document.getElementById('tdWaitingArea').classList.remove('hidden');
-        fetch('/api/game/reward',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode,player_id:playerId})})
-        .then(r=>r.json()).then(reward=>{
-            if(reward.coins_earned){WALLET.addCoins(reward.coins_earned);document.getElementById('tdWaitingText').textContent='🏁 Игра окончена! +'+reward.coins_earned+' 🪙';}
-        });
-        clearInterval(gameInterval);
+function redirectToGame(gameType, code, playerId) {
+    const pages = {
+        'quiz': '/frontend/player_quiz.html',
+        'truth_dare': '/frontend/player_truth_dare.html',
+        'kto_blizhe': '/frontend/player_kto_blizhe.html',
+        'mafia': '/frontend/player_mafia.html'
+    };
+    const url = pages[gameType];
+    if (url) {
+        window.location.href = url + '?code=' + code + '&player=' + playerId;
     }
 }
 
-function handleQuizState(data) {
-    document.getElementById('truthDareArea').classList.add('hidden');
-    document.getElementById('quizArea').classList.remove('hidden');
-    
-    if (data.state === 'playing' && data.current_question) {
-        showQuestion(data.current_question);
-    } else if (data.state === 'finished') {
-        document.getElementById('questionArea').classList.add('hidden');
-        document.getElementById('waitingArea').classList.remove('hidden');
-        
-        // Запрашиваем награду
-        fetch('/api/game/reward', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({code: roomCode, player_id: playerId})
-        })
-        .then(r => r.json())
-        .then(reward => {
-            if (reward.coins_earned) {
-                WALLET.addCoins(reward.coins_earned);
-                document.getElementById('waitingArea').innerHTML = 
-                    `<div style="text-align:center;padding:20px;">🏁 Игра окончена! +${reward.coins_earned}🪙</div>`;
-            }
-        });
-        
-        clearInterval(gameInterval);
-    } else if (data.state === 'lobby') {
-        document.getElementById('questionArea').classList.add('hidden');
-        document.getElementById('waitingArea').classList.remove('hidden');
-        document.getElementById('waitingArea').innerHTML = 
-            '<div style="text-align:center;padding:20px;">🔄 Ожидаем новую игру...</div>';
-        document.getElementById('scoreDisplay').textContent = '0';
-        hasAnswered = false;
-    } else {
-        document.getElementById('questionArea').classList.add('hidden');
-        document.getElementById('waitingArea').classList.remove('hidden');
-    }
-}
-
-function showQuestion(question) {
-    hasAnswered = false;
-    document.getElementById('answerStatus').innerHTML = '';
-    document.getElementById('questionArea').classList.remove('hidden');
-    document.getElementById('waitingArea').classList.add('hidden');
-    document.getElementById('questionText').textContent = question.text;
-    document.getElementById('answersGrid').innerHTML = question.answers.map((a,i)=>`<button class="answer-btn" onclick="submitAnswer(${i},this)">${a}</button>`).join('');
-    startSyncedTimer();
-}
-
-function startSyncedTimer() {
-    const timerEl = document.getElementById('timer');
-    clearInterval(currentTimer);
-    function updateTimer() {
-        if(!roomCode)return;
-        fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{
-            if(!data.current_question)return;
-            const timeLeft = data.question_time_left||0;
-            if(timeLeft<=0){timerEl.textContent='⏰ Время!';timerEl.classList.add('warning');}
-            else {timerEl.textContent='⏱ '+timeLeft;if(timeLeft<=5)timerEl.classList.add('warning');else timerEl.classList.remove('warning');}
-        }).catch(()=>{});
-    }
-    updateTimer(); currentTimer=setInterval(updateTimer,1000);
-}
-
-function submitAnswer(answerIndex, button) {
-    if(!roomCode||!playerId||hasAnswered)return;
-    hasAnswered=true;
-    document.querySelectorAll('.answer-btn').forEach(b=>{b.classList.add('answered');b.disabled=true;b.style.pointerEvents='none';b.style.opacity='0.45';b.onclick=null;});
-    button.classList.add('selected-answer'); button.style.opacity='1';
-    fetch('/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode,player_id:playerId,answer:answerIndex})})
-    .then(r=>r.json()).then(data=>{
-        if(data.error)return;
-        if(data.score!==undefined){const s=document.getElementById('scoreDisplay');s.textContent=data.score;s.classList.add('pulse-anim');setTimeout(()=>s.classList.remove('pulse-anim'),400);}
-        if(data.correct){button.classList.add('correct-choice');document.getElementById('answerStatus').innerHTML='<span class="status-badge status-correct">✅ Верно!</span>';}
-        else {button.classList.add('wrong-choice');document.getElementById('answerStatus').innerHTML='<span class="status-badge status-wrong">❌ Мимо</span>';
-            try{new Audio('/static/sounds/wrong.mp3').play().catch(()=>{});}catch(e){}}
-    }).catch(()=>{});
-    clearInterval(currentTimer); document.getElementById('timer').textContent='✅ Отправлен';
-}
-
-function showGameInterface(type) {
-    // Скрываем все области
-    document.getElementById('quizArea').classList.add('hidden');
-    if (document.getElementById('truthDareArea')) {
-        document.getElementById('truthDareArea').classList.add('hidden');
-    }
-    
-    // Показываем нужную в зависимости от типа игры
-    if (type === 'quiz') {
-        document.getElementById('quizArea').classList.remove('hidden');
-    } else if (type === 'truth_dare') {
-        if (document.getElementById('truthDareArea')) {
-            document.getElementById('truthDareArea').classList.remove('hidden');
-        }
-    } else if (type === 'kto_blizhe') {
-        // Редирект на страницу для "Кто ближе?"
-        window.location.href = '/frontend/player_kto_blizhe.html?code=' + roomCode + '&player=' + playerId;
-    } else if (type === 'mafia') {
-        // Для мафии пока остаёмся на этом же экране
-        document.getElementById('quizArea').classList.remove('hidden');
-    }
-}
-
-function handleTruthDareState(data) {
-    document.getElementById('quizArea').classList.add('hidden');
-    document.getElementById('truthDareArea').classList.remove('hidden');
-    if (data.state === 'lobby') {
-        document.getElementById('votingArea').classList.add('hidden');
-        document.getElementById('taskArea').classList.add('hidden');
-        document.getElementById('tdWaitingArea').classList.remove('hidden');
-        document.getElementById('tdWaitingText').textContent = 'Ожидаем начала...';
-        return;
-    }
-    const isMyTurn = data.current_player_id === playerId;
-    if (data.state === 'voting') {
-        document.getElementById('taskArea').classList.add('hidden');
-        if (isMyTurn) {
-            document.getElementById('votingArea').classList.add('hidden');
-            document.getElementById('tdWaitingArea').classList.remove('hidden');
-            document.getElementById('tdWaitingText').textContent = 'Ты выбран! Жди решения...';
-        } else {
-            document.getElementById('votingArea').classList.remove('hidden');
-            document.getElementById('tdWaitingArea').classList.add('hidden');
-            document.getElementById('voteTargetName').textContent = data.current_player_name || 'игрока';
-        }
-    } else if (data.state === 'task' && data.show_task) {
-        document.getElementById('votingArea').classList.add('hidden');
-        if (isMyTurn) {
-            document.getElementById('taskArea').classList.remove('hidden');
-            document.getElementById('tdWaitingArea').classList.add('hidden');
-            document.getElementById('taskDisplay').textContent = (data.task_type === 'truth' ? '🗣 ПРАВДА: ' : '💥 ДЕЙСТВИЕ: ') + data.current_task;
-        } else {
-            document.getElementById('taskArea').classList.add('hidden');
-            document.getElementById('tdWaitingArea').classList.remove('hidden');
-            document.getElementById('tdWaitingText').textContent = data.current_player_name + ' выполняет задание...';
-        }
-    } else if (data.state === 'finished') {
-        document.getElementById('votingArea').classList.add('hidden');
-        document.getElementById('taskArea').classList.add('hidden');
-        document.getElementById('tdWaitingArea').classList.remove('hidden');
-        document.getElementById('tdWaitingText').textContent = 'Игра окончена!';
-        clearInterval(gameInterval);
-    }
-}
-
-function submitVote(vote) {
-    fetch('/api/vote', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({code:roomCode, player_id:playerId, vote})
-    })
-    .then(() => {
-        document.getElementById('votingArea').classList.add('hidden');
-        document.getElementById('tdWaitingText').textContent = 'Твой голос учтён!';
-        document.getElementById('tdWaitingArea').classList.remove('hidden');
-    });
-}
-
-function taskDone() {
-    fetch('/api/task_done', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({code:roomCode, player_id:playerId})
-    })
-    .then(() => {
-        document.getElementById('taskArea').classList.add('hidden');
-        document.getElementById('tdWaitingArea').classList.remove('hidden');
-        document.getElementById('tdWaitingText').textContent = 'Задание выполнено!';
-    });
-}
-
-function updateProfileUI() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-    const avatarEl = document.getElementById('profileAvatar');
-    if (!avatarEl) return;
-    
-    if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
-        avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    } else if (equipped.avatar && equipped.avatar.length <= 4) {
-        avatarEl.textContent = equipped.avatar;
-    } else {
-        avatarEl.textContent = user.username ? user.username[0].toUpperCase() : '👤';
-    }
-}
-
-document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')joinGame();});
-document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('codeInput').focus();});
+document.getElementById('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
+document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('codeInput').focus(); });
 document.getElementById('nameInput').focus();
 </script>
-<script src="/frontend/js/avatar.js"></script>
 </body>
 </html>

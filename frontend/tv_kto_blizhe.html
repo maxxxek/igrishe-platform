@@ -6,387 +6,839 @@
     <title>🎯 Кто ближе? — ТВ</title>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0a0a14;
-            --card: rgba(255,255,255,0.03);
-            --border: rgba(255,255,255,0.06);
-            --text: #fff;
-            --gold: #f59e0b;
-            --green: #22c55e;
-            --purple: #7c3aed;
-        }
+        :root { --bg: #0a0a14; --text: #fff; --gold: #f59e0b; --green: #22c55e; --purple: #7c3aed; --red: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--bg); font-family: 'Rubik', sans-serif;
-            color: var(--text); min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            padding: 20px;
+        body { 
+            font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); 
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a14 70%);
         }
         .container { width: 100%; max-width: 900px; }
-
-        .card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 24px; padding: 30px; margin: 15px 0;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
+        .card { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 30px; text-align: center; margin: 15px 0; 
+            animation: fadeIn 0.5s ease; backdrop-filter: blur(10px);
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .title { font-size: 32px; font-weight: 900; margin-bottom: 5px; }
         .subtitle { font-size: 16px; opacity: 0.5; margin-bottom: 20px; }
-
-        /* ИГРОКИ ВНИЗУ */
-        .players-bar {
-            display: flex; gap: 10px; justify-content: center;
-            flex-wrap: wrap; margin-top: 20px;
+        
+        /* Счётчик раундов */
+        .round-counter {
+            display: inline-block; padding: 8px 20px; border-radius: 20px;
+            font-size: 14px; font-weight: 700; margin-bottom: 10px;
+            background: rgba(245,158,11,0.15); color: var(--gold);
+            border: 1px solid rgba(245,158,11,0.3);
         }
-        .player-chip {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(255,255,255,0.05); padding: 10px 18px;
-            border-radius: 25px; font-weight: 600; font-size: 14px;
-            transition: 0.3s;
+        .round-dots {
+            display: flex; gap: 8px; justify-content: center; margin: 10px 0 20px;
+        }
+        .round-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); transition: 0.4s;
+        }
+        .round-dot.done { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+        .round-dot.current { 
+            background: var(--gold); animation: dotPulse 1s infinite;
+            box-shadow: 0 0 12px rgba(245,158,11,0.6);
+        }
+        .round-dot.upcoming { background: rgba(255,255,255,0.05); }
+        @keyframes dotPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.5); } }
+        
+        .players-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+        .player-chip { 
+            display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); 
+            padding: 10px 18px; border-radius: 25px; font-weight: 600; font-size: 14px; transition: 0.3s; 
         }
         .player-chip.ready { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.3); }
         .player-dot { width: 10px; height: 10px; border-radius: 50%; }
-
-        /* ПРОГРЕСС-БАР */
-        .progress-wrapper {
-            position: relative; height: 80px; margin: 30px 0;
-            background: rgba(255,255,255,0.03); border-radius: 40px;
-            overflow: visible;
-        }
-        .progress-track {
-            position: absolute; top: 50%; left: 5%; right: 5%;
-            height: 6px; background: rgba(255,255,255,0.08);
-            transform: translateY(-50%); border-radius: 3px;
-        }
-        .progress-marker {
-            position: absolute; top: 50%; transform: translate(-50%, -50%);
-            width: 24px; height: 24px; border-radius: 50%;
-            border: 3px solid white; z-index: 2; cursor: pointer;
-            transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .progress-marker .label {
-            position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
-            font-size: 11px; font-weight: 700; white-space: nowrap;
-            opacity: 0; transition: 0.3s;
-        }
-        .progress-marker.revealed .label { opacity: 1; }
-        .correct-flag {
-            position: absolute; top: -35px; transform: translateX(-50%);
-            font-size: 20px; opacity: 0; transition: 0.5s;
-        }
-        .correct-flag.show { opacity: 1; }
-        .correct-marker {
-            position: absolute; top: 50%; transform: translate(-50%, -50%);
-            width: 36px; height: 36px; border-radius: 50%;
-            background: var(--green); border: 4px solid white;
-            z-index: 3; opacity: 0; transition: opacity 0.5s;
-            box-shadow: 0 0 30px rgba(34,197,94,0.6);
-        }
-        .correct-marker.show { opacity: 1; }
-
-        /* ТАЙМЕР */
-        .timer {
-            font-size: 48px; font-weight: 900; color: var(--gold);
-            margin: 15px 0;
-        }
+        
+        .question-text { font-size: 28px; font-weight: 800; margin: 15px 0; line-height: 1.4; }
+        .timer { font-size: 36px; font-weight: 900; color: var(--gold); margin: 15px 0; }
         .timer.urgent { color: #ef4444; animation: pulse 0.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-
-        .question-text {
-            font-size: 28px; font-weight: 800; margin: 15px 0; line-height: 1.4;
-        }
-        .question-text .typing { border-right: 3px solid var(--gold); animation: blink 0.7s infinite; }
-        @keyframes blink { 0%,100%{border-color:transparent;} 50%{border-color:var(--gold);} }
-
-        .btn {
-            padding: 14px 40px; font-family: 'Rubik', sans-serif;
-            font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
-            cursor: pointer; color: white; margin: 8px;
-            background: linear-gradient(135deg, var(--gold), #d97706);
-            transition: 0.3s;
+        
+        .btn { 
+            padding: 14px 40px; font-family: 'Rubik', sans-serif; font-weight: 800; font-size: 18px; 
+            border: none; border-radius: 30px; cursor: pointer; color: white; margin: 8px; 
+            background: linear-gradient(135deg, var(--gold), #d97706); transition: 0.3s; 
         }
         .btn:hover { transform: scale(1.03); }
         .btn-purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
+        .btn-green { background: linear-gradient(135deg, var(--green), #16a34a); }
+        .btn-red { background: linear-gradient(135deg, var(--red), #dc2626); }
         .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .winner-banner { font-size: 36px; font-weight: 900; color: var(--green); margin: 15px 0; }
-
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        
+        .bank { font-size: 20px; margin: 10px 0; }
         .hidden { display: none !important; }
+        
+        .phase-badge { 
+            display: inline-block; padding: 8px 20px; border-radius: 20px; 
+            font-size: 14px; font-weight: 700; margin-bottom: 15px; 
+            background: rgba(124,58,237,0.3); color: #a78bfa; 
+        }
+        
+        /* Прогресс бар */
+        .progress-wrapper { 
+            position: relative; height: 150px; margin: 30px 0; 
+            background: rgba(255,255,255,0.02); border-radius: 40px; overflow: visible; 
+        }
+        .progress-track { 
+            position: absolute; top: 50%; left: 5%; right: 5%; height: 6px; 
+            background: rgba(255,255,255,0.08); transform: translateY(-50%); border-radius: 3px; 
+        }
+        .progress-marker { 
+            position: absolute; top: 50%; transform: translate(-50%, -50%); 
+            width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; 
+            z-index: 2; cursor: pointer; transition: all 0.3s; 
+        }
+        .progress-marker:hover { transform: translate(-50%, -50%) scale(1.3); }
+        .progress-marker .label { 
+            position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); 
+            font-size: 11px; font-weight: 700; white-space: nowrap; 
+        }
+        .progress-marker .answer-value { 
+            position: absolute; top: -28px; left: 50%; transform: translateX(-50%); 
+            font-size: 11px; font-weight: 800; opacity: 0.8; 
+        }
+        
+        /* Правильный ответ */
+        .correct-runner { 
+            position: absolute; top: 50%; transform: translate(-50%, -50%); 
+            width: 44px; height: 44px; border-radius: 50%; background: var(--green); 
+            border: 4px solid white; z-index: 4; transition: left 3s cubic-bezier(0.25, 0.1, 0.1, 1); 
+            box-shadow: 0 0 20px rgba(34,197,94,0.5); 
+        }
+        .correct-runner.running { animation: runnerGlow 0.3s infinite alternate; }
+        @keyframes runnerGlow { from { box-shadow: 0 0 15px rgba(34,197,94,0.3); } to { box-shadow: 0 0 40px rgba(34,197,94,0.9); } }
+        
+        .correct-flag { 
+            position: absolute; top: -45px; transform: translateX(-50%); 
+            font-size: 34px; z-index: 5; transition: left 3s cubic-bezier(0.25, 0.1, 0.1, 1); 
+            filter: drop-shadow(0 0 10px rgba(34,197,94,0.5));
+        }
+        
+        .winner-banner { 
+            font-size: 28px; font-weight: 900; color: var(--green); margin: 15px 0; 
+            animation: bounceIn 0.5s ease; 
+        }
+        @keyframes bounceIn { 
+            0% { transform: scale(0.3); opacity: 0; } 
+            50% { transform: scale(1.1); } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        
+        .status-text { font-size: 16px; opacity: 0.7; margin: 10px 0; }
+        
+        /* Лидерборд */
+        .leaderboard-wrapper { max-height: 400px; overflow-y: auto; margin: 20px 0; }
+        .leaderboard { width: 100%; border-collapse: collapse; }
+        .leaderboard th { 
+            padding: 12px; font-size: 12px; font-weight: 700; opacity: 0.5; 
+            text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); 
+        }
+        .leaderboard td { 
+            padding: 16px 12px; font-size: 16px; font-weight: 600; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; 
+        }
+        .leaderboard .player-cell { display: flex; align-items: center; gap: 10px; text-align: left; }
+        .leaderboard .rank { font-size: 24px; font-weight: 900; }
+        .leaderboard .rank-1 { color: #f59e0b; }
+        .leaderboard .rank-2 { color: #94a3b8; }
+        .leaderboard .rank-3 { color: #b45309; }
+        .leaderboard .coins-positive { color: var(--green); font-weight: 700; }
+        .leaderboard .coins-zero { opacity: 0.4; }
+        
+        /* Финальный экран */
+        .final-winner { 
+            font-size: 48px; font-weight: 900; 
+            background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 
+            0% { filter: brightness(1); } 
+            50% { filter: brightness(1.3); } 
+            100% { filter: brightness(1); } 
+        }
+        .final-trophy { font-size: 80px; animation: trophyBounce 1s ease infinite alternate; }
+        @keyframes trophyBounce { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-15px) rotate(5deg); } }
+        
+        .confetti { 
+            position: fixed; top: -10px; animation: confettiFall 3s linear infinite; 
+            font-size: 24px; pointer-events: none; z-index: 100;
+        }
+        @keyframes confettiFall { 
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; } 
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
-    <!-- ЭКРАН 1: ПРАВИЛА + ГОТОВНОСТЬ -->
+    <!-- ЭКРАН 1: ИНТРО -->
     <div class="card" id="screenIntro">
         <div class="title">🎯 Кто ближе?</div>
         <div class="subtitle">Игра на интуицию и удачу!</div>
         <div style="font-size:18px;opacity:0.7;line-height:1.6;margin:20px 0;">
             📖 <b>Правила:</b><br>
             • Ведущий задаёт вопрос с числовым ответом<br>
-            • Ты делаешь ставку (50-500🪙)<br>
-            • Потом пишешь свою версию числа<br>
-            • Кто ближе всех — забирает банк!
+            • Каждый пишет свою версию числа<br>
+            • Потом все видят варианты и делают ставки<br>
+            • Кто поставил на самый близкий ответ — забирает банк!
         </div>
-        <div style="font-size:24px;font-weight:800;margin:20px 0;">Все готовы?</div>
+        <div style="font-size:24px;font-weight:800;margin:20px 0;">Ожидание готовности...</div>
         <div class="players-bar" id="introPlayers"></div>
+        <div class="status-text" id="introStatus"></div>
         <button class="btn" id="btnStartGame" disabled onclick="startGame()">🚀 Начать игру</button>
     </div>
 
     <!-- ЭКРАН 2: ВОПРОС -->
     <div class="card hidden" id="screenQuestion">
-        <div class="title">📝 Вопрос</div>
-        <div class="question-text" id="qText"><span class="typing"></span></div>
-        <div style="opacity:0.5;" id="qHint"></div>
-        <div class="timer" id="qTimer">1:00</div>
-        <div class="players-bar" id="qPlayers"></div>
-        <button class="btn" id="btnNextToBet" onclick="goToBet()">💰 К ставкам!</button>
+        <div class="round-counter" id="roundCounterQ">Раунд 1/7</div>
+        <div class="round-dots" id="roundDotsQ"></div>
+        <div class="phase-badge">📺 ВОПРОС</div>
+        <div class="title">Вопрос раунда</div>
+        <div class="question-text" id="qText"></div>
+        <div class="timer" id="qTimer">0:30</div>
+        <div class="status-text" id="qStatus">Читаем вопрос...</div>
+        <button class="btn btn-purple" id="btnGoAnswer" onclick="goToAnswer()">📝 К ответам!</button>
     </div>
 
-    <!-- ЭКРАН 3: СТАВКИ -->
+    <!-- ЭКРАН 3: ОТВЕТЫ ИГРОКОВ -->
+    <div class="card hidden" id="screenAnswer">
+        <div class="round-counter" id="roundCounterA">Раунд 1/7</div>
+        <div class="round-dots" id="roundDotsA"></div>
+        <div class="phase-badge">📝 ИГРОКИ ОТВЕЧАЮТ</div>
+        <div class="title">Ваши варианты</div>
+        <div class="question-text" id="answerQText"></div>
+        <div class="timer" id="answerTimer">1:00</div>
+        <div class="players-bar" id="answerPlayers"></div>
+        <div class="status-text" id="answerStatus">Игроки пишут свои варианты...</div>
+        <button class="btn" id="btnShowAnswers" onclick="showAnswers()" disabled>👀 Показать варианты (0/0)</button>
+    </div>
+
+    <!-- ЭКРАН 4: ПОКАЗ ВАРИАНТОВ -->
+    <div class="card hidden" id="screenShowAnswers">
+        <div class="round-counter" id="roundCounterSA">Раунд 1/7</div>
+        <div class="round-dots" id="roundDotsSA"></div>
+        <div class="phase-badge">👀 ВАРИАНТЫ ИГРОКОВ</div>
+        <div class="title">Кто что думает?</div>
+        <div class="progress-wrapper" id="answersProgress">
+            <div class="progress-track"></div>
+        </div>
+        <div class="status-text">Смотрите на варианты! Скоро ставки...</div>
+        <button class="btn btn-purple" onclick="goToBet()">💰 К ставкам!</button>
+    </div>
+
+    <!-- ЭКРАН 5: СТАВКИ -->
     <div class="card hidden" id="screenBet">
-        <div class="title">💰 Ставки</div>
+        <div class="round-counter" id="roundCounterB">Раунд 1/7</div>
+        <div class="round-dots" id="roundDotsB"></div>
+        <div class="phase-badge">💰 СТАВКИ</div>
+        <div class="title">Делаем ставки</div>
         <div class="question-text" id="betQText"></div>
-        <div class="timer" id="betTimer">2:00</div>
         <div class="progress-wrapper" id="betProgress">
             <div class="progress-track"></div>
         </div>
+        <div class="timer" id="betTimer">2:00</div>
         <div class="players-bar" id="betPlayers"></div>
-        <div style="font-size:20px;margin:10px 0;">🏦 Банк: <b id="bankTotal" style="color:var(--gold);">0</b> 🪙</div>
-        <button class="btn btn-purple" id="btnReveal" onclick="revealAnswer()">🏆 Вскрыть ответ!</button>
+        <div class="bank">🏦 Банк: <b id="bankTotal" style="color:var(--gold);">0</b> 🪙</div>
+        <div class="status-text" id="betStatus">Игроки выбирают на что ставить...</div>
+        <button class="btn btn-green" id="btnReveal" onclick="revealResult()" disabled>🏆 Вскрыть ответ! (0/0)</button>
     </div>
 
-    <!-- ЭКРАН 4: РЕЗУЛЬТАТ -->
+    <!-- ЭКРАН 6: РЕЗУЛЬТАТ -->
     <div class="card hidden" id="screenResult">
-        <div class="title">🏆 Результат</div>
-        <div style="font-size:20px;margin:10px 0;">Правильный ответ: <b id="correctAnswer" style="color:var(--green);"></b></div>
+        <div class="round-counter" id="roundCounterR">Раунд 1/7</div>
+        <div class="round-dots" id="roundDotsR"></div>
+        <div class="phase-badge">🏆 РЕЗУЛЬТАТ</div>
+        <div class="title">Правильный ответ</div>
+        <div style="font-size:36px;font-weight:900;color:var(--green);margin:10px 0;" id="correctAnswerDisplay"></div>
         <div class="progress-wrapper" id="resultProgress">
             <div class="progress-track"></div>
-            <div class="correct-marker" id="correctMarker" style="left:50%;"></div>
-            <div class="correct-flag" id="correctFlag" style="left:50%;">✅</div>
+            <div class="correct-runner" id="correctRunner"></div>
+            <div class="correct-flag" id="correctFlag">✅</div>
         </div>
         <div class="winner-banner" id="winnerBanner"></div>
-        <button class="btn" onclick="nextRound()">➡️ Следующий раунд</button>
+        
+        <div class="leaderboard-wrapper">
+            <table class="leaderboard">
+                <thead>
+                    <tr><th>#</th><th>Игрок</th><th>Ответ</th><th>Разница</th><th>Выигрыш</th></tr>
+                </thead>
+                <tbody id="leaderboardBody"></tbody>
+            </table>
+        </div>
+        
+        <button class="btn" onclick="nextRound()" id="btnNextRound">➡️ Следующий раунд</button>
         <button class="btn btn-outline" onclick="playAgain()">🔄 Сыграть ещё</button>
+    </div>
+
+    <!-- ЭКРАН 7: ФИНАЛ -->
+    <div class="card hidden" id="screenFinal">
+        <div class="final-trophy">🏆</div>
+        <div class="title" style="margin-top:10px;">Игра завершена!</div>
+        <div class="final-winner" id="finalWinnerName"></div>
+        <div style="font-size:20px;opacity:0.7;margin:10px 0;">Абсолютный чемпион!</div>
+        
+        <div class="leaderboard-wrapper">
+            <table class="leaderboard">
+                <thead>
+                    <tr><th>#</th><th>Игрок</th><th>Всего выигрышей</th><th>Заработано</th></tr>
+                </thead>
+                <tbody id="finalLeaderboardBody"></tbody>
+            </table>
+        </div>
+        
+        <button class="btn btn-green" onclick="playAgain()">🔄 Играть снова</button>
     </div>
 
 </div>
 
 <script>
-let roomCode = new URLSearchParams(window.location.search).get('code') || '';
-let players = {};
-let currentQuestion = null;
-let timers = {};
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
 const colors = ['#e94560','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316'];
-let phase = 'intro';
+let players = {}, currentQuestion = null, timers = {};
+let totalWins = {}; // Для финальной статистики
+let totalEarnings = {};
 
-function showScreen(screen) {
+function showScreen(id) {
     document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
-    document.getElementById(screen).classList.remove('hidden');
-    phase = screen.replace('screen','');
+    document.getElementById(id).classList.remove('hidden');
 }
 
-// ЗВУКИ
-function playSound(name) {
-    try { new Audio('/static/sounds/' + name + '.mp3').play().catch(() => {}); } catch(e) {}
+// Звуки через Web Audio API
+function playBeep(freq = 440, duration = 0.1, type = 'sine') {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq; osc.type = type;
+        gain.gain.value = 0.08;
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.stop(ctx.currentTime + duration);
+    } catch(e) {}
 }
 
-// ========== ЭКРАН 1: ИНТРО ==========
-function loadIntro() {
-    showScreen('screenIntro');
-    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
-        players = data.players || {};
-        updateIntroPlayers();
-    });
+function playTick() { playBeep(800, 0.03, 'square'); }
+function playWin() { 
+    playBeep(523, 0.15); setTimeout(() => playBeep(659, 0.15), 150); 
+    setTimeout(() => playBeep(784, 0.3), 300);
+}
+function playReveal() {
+    [300,350,400,450,500,550,600,650].forEach((f, i) => 
+        setTimeout(() => playBeep(f, 0.06, 'triangle'), i * 40)
+    );
+}
+function playFanfare() {
+    const notes = [523,659,784,1047,784,1047];
+    notes.forEach((f, i) => setTimeout(() => playBeep(f, 0.3, 'triangle'), i * 200));
 }
 
-function updateIntroPlayers() {
-    document.getElementById('introPlayers').innerHTML = Object.entries(players).map(([id, p], i) => `
-        <div class="player-chip ${p.ready ? 'ready' : ''}">
-            <div class="player-dot" style="background:${colors[i%8]}"></div>
-            ${p.name}: ${p.ready ? '✅ Готов' : '⏳ Читает...'}
-        </div>`).join('');
-    const allReady = Object.values(players).length > 0 && Object.values(players).every(p => p.ready);
-    document.getElementById('btnStartGame').disabled = !allReady;
+// Конфетти
+function spawnConfetti() {
+    const emojis = ['🎉','🎊','✨','🌟','💫','🎯','🏆','💰','🪙','⭐'];
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDuration = (1.5 + Math.random() * 3) + 's';
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 50);
+    }
 }
 
-function startGame() {
-    playSound('fon');
-    fetch('/api/start', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode})
-    }).then(() => loadQuestion());
-}
-
-// ========== ЭКРАН 2: ВОПРОС ==========
-function loadQuestion() {
-    showScreen('screenQuestion');
-    fetch('/api/pari/question?code=' + roomCode)
+// ===== СЧЁТЧИК РАУНДОВ =====
+function updateRoundCounter() {
+    fetch('/api/state/' + roomCode)
         .then(r => r.json())
-        .then(q => {
-            currentQuestion = q;
-            // Эффект печати
-            typeText('qText', q.question, () => {
-                document.getElementById('qHint').textContent = 'Подсказка: ' + (q.hint || 'Думайте!');
+        .then(data => {
+            const q = data.pari_question;
+            if (!q) return;
+            
+            const current = q.round || 1;
+            const total = q.total || 7;
+            const text = `Раунд ${current}/${total}`;
+            
+            ['Q', 'A', 'SA', 'B', 'R'].forEach(suffix => {
+                const counter = document.getElementById('roundCounter' + suffix);
+                const dots = document.getElementById('roundDots' + suffix);
+                if (counter) counter.textContent = text;
+                if (dots) {
+                    dots.innerHTML = '';
+                    for (let i = 1; i <= total; i++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'round-dot';
+                        if (i < current) dot.classList.add('done');
+                        else if (i === current) dot.classList.add('current');
+                        else dot.classList.add('upcoming');
+                        dots.appendChild(dot);
+                    }
+                }
             });
-            startTimer('qTimer', 60, goToBet);
         });
 }
 
-function typeText(elId, text, callback) {
-    const el = document.getElementById(elId);
-    el.innerHTML = '';
-    let i = 0;
-    const interval = setInterval(() => {
-        el.textContent += text[i];
-        i++;
-        if (i >= text.length) {
-            clearInterval(interval);
-            el.innerHTML = text;
-            if (callback) callback();
-        }
-    }, 50);
+// ===== ИНТРО =====
+function updateIntroPlayers() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            players = data.players || {};
+            const readyPlayers = data.pari_ready || [];
+            
+            document.getElementById('introPlayers').innerHTML = Object.entries(players).map(([id,p],i) => `
+                <div class="player-chip ${readyPlayers.includes(id) ? 'ready' : ''}">
+                    <div class="player-dot" style="background:${colors[i%8]}"></div>
+                    ${p.name}: ${readyPlayers.includes(id) ? '✅ Готов' : '⏳ Читает...'}
+                </div>`).join('');
+            
+            const allReady = Object.values(players).length > 0 && readyPlayers.length === Object.values(players).length;
+            document.getElementById('btnStartGame').disabled = !allReady;
+            document.getElementById('introStatus').textContent = allReady ? 'Все готовы!' : `Готовы: ${readyPlayers.length}/${Object.values(players).length}`;
+        });
 }
 
-function goToBet() {
+function startGame() {
+    playBeep(500, 0.2);
+    totalWins = {};
+    totalEarnings = {};
+    fetch('/api/start', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode})
+    }).then(() => {
+        showScreen('screenQuestion');
+        updateRoundCounter();
+        loadQuestion();
+    });
+}
+
+// ===== ВОПРОС =====
+function loadQuestion() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.pari_question) {
+                currentQuestion = data.pari_question;
+                document.getElementById('qText').textContent = currentQuestion.question;
+                startTimer('qTimer', 30, () => {
+                    document.getElementById('qStatus').textContent = 'Время вышло!';
+                });
+            }
+        });
+}
+
+function goToAnswer() {
     clearTimers();
-    playSound('vibor');
-    loadBetScreen();
+    playBeep(600, 0.2);
+    
+    fetch('/api/pari/go-answer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(() => {
+        showScreen('screenAnswer');
+        updateRoundCounter();
+        document.getElementById('answerQText').textContent = currentQuestion?.question || '';
+        startTimer('answerTimer', 60, showAnswers);
+        updateAnswerScreen();
+    });
 }
 
-// ========== ЭКРАН 3: СТАВКИ ==========
-function loadBetScreen() {
-    showScreen('screenBet');
-    document.getElementById('betQText').textContent = currentQuestion?.question || '';
-    startTimer('betTimer', 120, revealAnswer);
-    updateBetScreen();
+// ===== ОТВЕТЫ =====
+function updateAnswerScreen() {
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        players = data.players || {};
+        const answers = data.pari_answers || {};
+        const allDone = data.all_answers_done || false;
+        
+        document.getElementById('answerPlayers').innerHTML = Object.entries(players).map(([id,p],i) => `
+            <div class="player-chip ${answers[id] !== undefined ? 'ready' : ''}">
+                <div class="player-dot" style="background:${colors[i%8]}"></div>
+                ${p.name}: ${answers[id] !== undefined ? '✅ Готово' : '⏳ Думает...'}
+            </div>`).join('');
+        
+        document.getElementById('btnShowAnswers').disabled = !allDone;
+        document.getElementById('btnShowAnswers').textContent = `👀 Показать варианты (${Object.keys(answers).length}/${Object.keys(players).length})`;
+        document.getElementById('answerStatus').textContent = allDone ? 'Все ответили!' : `Ответили: ${Object.keys(answers).length}/${Object.keys(players).length}`;
+        
+        if (allDone) clearTimers();
+    });
+}
+
+function showAnswers() {
+    clearTimers();
+    playBeep(700, 0.2);
+    
+    fetch('/api/pari/go-show-answers', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(() => {
+        showScreen('screenShowAnswers');
+        updateRoundCounter();
+        drawAnswersProgress();
+    });
+}
+
+function drawAnswersProgress() {
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        const answers = data.pari_answers || {};
+        players = data.players || {};
+        
+        const bar = document.getElementById('answersProgress');
+        bar.querySelectorAll('.progress-marker').forEach(m => m.remove());
+        
+        const values = Object.values(answers);
+        if (values.length === 0) return;
+        
+        const minVal = Math.min(...values) * 0.9;
+        const maxVal = Math.max(...values) * 1.1;
+        
+        Object.entries(answers).forEach(([pid, val], i) => {
+            const pos = ((val - minVal) / (maxVal - minVal)) * 90 + 5;
+            const m = document.createElement('div');
+            m.className = 'progress-marker';
+            m.style.left = Math.min(95, Math.max(5, pos)) + '%';
+            m.style.backgroundColor = colors[Object.keys(players).indexOf(pid) % 8] || colors[0];
+            m.innerHTML = `
+                <div class="answer-value">${val.toLocaleString()}</div>
+                <div class="label">${players[pid]?.name || '?'}</div>
+            `;
+            bar.appendChild(m);
+        });
+    });
+}
+
+// ===== СТАВКИ =====
+function goToBet() {
+    playBeep(800, 0.2);
+    
+    fetch('/api/pari/go-bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(() => {
+        showScreen('screenBet');
+        updateRoundCounter();
+        document.getElementById('betQText').textContent = currentQuestion?.question || '';
+        startTimer('betTimer', 120, revealResult);
+        drawBetProgress();
+        updateBetScreen();
+    });
+}
+
+function drawBetProgress() {
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        const answers = data.pari_answers || {};
+        players = data.players || {};
+        
+        const bar = document.getElementById('betProgress');
+        bar.querySelectorAll('.progress-marker').forEach(m => m.remove());
+        
+        const values = Object.values(answers);
+        if (values.length === 0) return;
+        
+        const minVal = Math.min(...values) * 0.9;
+        const maxVal = Math.max(...values) * 1.1;
+        
+        Object.entries(answers).forEach(([pid, val], i) => {
+            const pos = ((val - minVal) / (maxVal - minVal)) * 90 + 5;
+            const m = document.createElement('div');
+            m.className = 'progress-marker';
+            m.style.left = Math.min(95, Math.max(5, pos)) + '%';
+            m.style.backgroundColor = colors[Object.keys(players).indexOf(pid) % 8] || colors[0];
+            m.innerHTML = `
+                <div class="answer-value">${val.toLocaleString()}</div>
+                <div class="label">${players[pid]?.name || '?'}</div>
+            `;
+            bar.appendChild(m);
+        });
+    });
 }
 
 function updateBetScreen() {
     fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
         players = data.players || {};
         const bets = data.pari_bets || {};
-        const bank = Object.values(bets).reduce((s, b) => s + (b || 0), 0);
-        document.getElementById('bankTotal').textContent = bank;
+        const totalBet = Object.values(bets).reduce((s,b) => s+(b||0), 0);
+        const allDone = data.all_bets_done || false;
         
-        document.getElementById('betPlayers').innerHTML = Object.entries(players).map(([id, p], i) => `
+        document.getElementById('bankTotal').textContent = totalBet.toLocaleString();
+        document.getElementById('betPlayers').innerHTML = Object.entries(players).map(([id,p],i) => `
             <div class="player-chip ${bets[id] ? 'ready' : ''}">
                 <div class="player-dot" style="background:${colors[i%8]}"></div>
-                ${p.name}: ${bets[id] ? bets[id] + '🪙' : '...'}
+                ${p.name}: ${bets[id] ? bets[id]+'🪙' : '...'}
             </div>`).join('');
+        
+        document.getElementById('btnReveal').disabled = !allDone;
+        document.getElementById('btnReveal').textContent = `🏆 Вскрыть ответ! (${Object.keys(bets).length}/${Object.keys(players).length})`;
+        document.getElementById('betStatus').textContent = allDone ? 'Все ставки сделаны!' : `Ставки: ${Object.keys(bets).length}/${Object.keys(players).length}`;
+        
+        if (allDone) clearTimers();
     });
 }
 
-function revealAnswer() {
+// ===== РЕЗУЛЬТАТ =====
+function revealResult() {
     clearTimers();
-    playSound('winner');
-    loadResultScreen();
-}
-
-// ========== ЭКРАН 4: РЕЗУЛЬТАТ ==========
-function loadResultScreen() {
-    showScreen('screenResult');
-    fetch('/api/pari/results?code=' + roomCode)
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('correctAnswer').textContent = 
-                data.correct_answer + ' ' + (currentQuestion?.unit || '');
-            
-            const answers = data.answers || [];
-            const correct = data.correct_answer;
-            const minVal = Math.min(...answers.map(a => a.answer)) * 0.9;
-            const maxVal = Math.max(...answers.map(a => a.answer)) * 1.1;
-            
-            // Расставляем маркеры игроков
-            const bar = document.getElementById('resultProgress');
-            bar.querySelectorAll('.progress-marker').forEach(m => m.remove());
-            answers.forEach((a, i) => {
-                const pos = ((a.answer - minVal) / (maxVal - minVal)) * 90 + 5;
-                const marker = document.createElement('div');
-                marker.className = 'progress-marker revealed';
-                marker.style.left = pos + '%';
-                marker.style.backgroundColor = colors[i % colors.length];
-                marker.style.top = (30 + (i % 3) * 20) + 'px';
-                marker.innerHTML = `<div class="label">${a.name}</div>`;
-                bar.appendChild(marker);
-            });
-            
-            // Правильный ответ
-            const correctPos = ((correct - minVal) / (maxVal - minVal)) * 90 + 5;
-            const cm = document.getElementById('correctMarker');
-            cm.style.left = correctPos + '%';
-            document.getElementById('correctFlag').style.left = correctPos + '%';
-            
-            // Анимация: бегунок бежит
-            setTimeout(() => {
-                cm.classList.add('show');
-                document.getElementById('correctFlag').classList.add('show');
-                playSound('approve');
-            }, 500);
-            
-            // Победитель
-            if (data.winner) {
-                document.getElementById('winnerBanner').textContent = 
-                    `🏆 ${data.winner.name} забирает банк! +${data.pot || 0}🪙`;
-            }
-        });
-}
-
-// ========== ТАЙМЕРЫ ==========
-function startTimer(elId, seconds, callback) {
-    clearTimers();
-    let remaining = seconds;
-    const el = document.getElementById(elId);
-    updateTimerDisplay(el, remaining);
+    playReveal();
     
-    timers[elId] = setInterval(() => {
-        remaining--;
-        updateTimerDisplay(el, remaining);
-        if (remaining <= 10) el.classList.add('urgent');
-        if (remaining <= 0) {
-            clearInterval(timers[elId]);
-            if (callback) callback();
-        }
-    }, 1000);
-}
-
-function updateTimerDisplay(el, sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-}
-
-function clearTimers() {
-    Object.values(timers).forEach(t => clearInterval(t));
-    timers = {};
-}
-
-function nextRound() {
-    fetch('/api/pari/next', {
+    fetch('/api/pari/go-result', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({code: roomCode})
-    }).then(() => loadQuestion());
+    }).then(() => {
+        showScreen('screenResult');
+        updateRoundCounter();
+        
+        fetch('/api/pari/results?code=' + roomCode)
+            .then(r => r.json())
+            .then(data => {
+                const answers = data.answers || [];
+                const correct = data.correct_answer;
+                const unit = data.unit || '';
+                const winners = data.winners || [];
+                const winAmount = data.win_amount || 0;
+                const pot = data.pot || 0;
+                
+                document.getElementById('correctAnswerDisplay').textContent = correct.toLocaleString() + ' ' + unit;
+                
+                // Прогресс бар
+                const bar = document.getElementById('resultProgress');
+                bar.querySelectorAll('.progress-marker').forEach(m => m.remove());
+                
+                const allValues = [...answers.map(a => a.answer), correct];
+                const minVal = Math.min(...allValues) * 0.9;
+                const maxVal = Math.max(...allValues) * 1.1;
+                
+                answers.forEach((a, i) => {
+                    const pos = ((a.answer - minVal) / (maxVal - minVal)) * 90 + 5;
+                    const m = document.createElement('div');
+                    m.className = 'progress-marker';
+                    m.style.left = Math.min(95, Math.max(5, pos)) + '%';
+                    m.style.backgroundColor = colors[i % colors.length];
+                    m.innerHTML = `
+                        <div class="answer-value">${a.answer.toLocaleString()}</div>
+                        <div class="label">${a.name}</div>
+                    `;
+                    bar.appendChild(m);
+                });
+                
+                // Анимация бегунка
+                const cp = ((correct - minVal) / (maxVal - minVal)) * 90 + 5;
+                const runner = document.getElementById('correctRunner');
+                const flag = document.getElementById('correctFlag');
+                
+                runner.style.transition = 'none';
+                runner.style.left = '5%';
+                flag.style.left = '5%';
+                
+                setTimeout(() => {
+                    runner.style.transition = 'left 3s cubic-bezier(0.25, 0.1, 0.1, 1)';
+                    runner.classList.add('running');
+                    runner.style.left = Math.min(95, Math.max(5, cp)) + '%';
+                    flag.style.left = Math.min(95, Math.max(5, cp)) + '%';
+                }, 100);
+                
+                setTimeout(() => {
+                    runner.classList.remove('running');
+                    playWin();
+                }, 3100);
+                
+                // Победители
+                if (winners.length > 0) {
+                    const winnerNames = winners.map(w => w.name).join(', ');
+                    document.getElementById('winnerBanner').textContent = `🏆 ${winnerNames} забирает банк! По ${winAmount}🪙`;
+                    
+                    // Считаем победы и заработок
+                    winners.forEach(w => {
+                        totalWins[w.player_id] = (totalWins[w.player_id] || 0) + 1;
+                        totalEarnings[w.player_id] = (totalEarnings[w.player_id] || 0) + winAmount; // ✅ ДОБАВЬ
+                    });
+                } else if (data.closest_player) {
+                    document.getElementById('winnerBanner').textContent = `🎯 Ближе всех: ${data.closest_player.name}! Но никто не поставил...`;
+                }
+                
+                // Лидерборд
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = '';
+                
+                const sortedAnswers = [...answers].sort((a, b) => a.diff - b.diff);
+                
+                sortedAnswers.forEach((a, i) => {
+                    const rank = i + 1;
+                    const isPlayerWinner = winners.some(w => w.player_id === a.player_id);
+                    const playerWinAmount = isPlayerWinner ? winAmount : 0;
+                    
+                    let rankEmoji = '';
+                    let rankClass = '';
+                    if (rank === 1) { rankEmoji = '🥇'; rankClass = 'rank-1'; }
+                    else if (rank === 2) { rankEmoji = '🥈'; rankClass = 'rank-2'; }
+                    else if (rank === 3) { rankEmoji = '🥉'; rankClass = 'rank-3'; }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><span class="rank ${rankClass}">${rankEmoji || rank}</span></td>
+                        <td><div class="player-cell"><div class="player-dot" style="background:${colors[i % colors.length]};min-width:10px;"></div>${a.name}</div></td>
+                        <td>${a.answer.toLocaleString()} ${unit}</td>
+                        <td>${a.diff.toLocaleString()}</td>
+                        <td class="${playerWinAmount > 0 ? 'coins-positive' : 'coins-zero'}">${playerWinAmount > 0 ? '+' + playerWinAmount + '🪙' : '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                const totalRow = document.createElement('tr');
+                totalRow.innerHTML = `<td colspan="4" style="text-align:right;font-weight:700;">🏦 Банк:</td><td style="color:var(--gold);font-weight:700;">${pot}🪙</td>`;
+                tbody.appendChild(totalRow);
+                
+                // Проверяем, последний ли это раунд
+                const isLastRound = (currentQuestion?.round || 1) >= (currentQuestion?.total || 7);
+                const btnNext = document.getElementById('btnNextRound');
+                if (isLastRound) {
+                    btnNext.textContent = '🏆 Завершить игру';
+                    btnNext.onclick = showFinal;
+                } else {
+                    btnNext.textContent = '➡️ Следующий раунд';
+                    btnNext.onclick = nextRound;
+                }
+            });
+    });
+}
+
+// ===== ФИНАЛ =====
+function showFinal() {
+    playFanfare();
+    
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            players = data.players || {};
+            
+            showScreen('screenFinal');
+            spawnConfetti();
+            
+            // Определяем абсолютного победителя
+            const sortedWins = Object.entries(totalWins).sort((a, b) => b[1] - a[1]);
+            const topPlayer = sortedWins[0];
+            
+            if (topPlayer && players[topPlayer[0]]) {
+                document.getElementById('finalWinnerName').textContent = players[topPlayer[0]].name;
+            } else {
+                document.getElementById('finalWinnerName').textContent = 'Ничья!';
+            }
+            
+            // Финальная таблица
+            const tbody = document.getElementById('finalLeaderboardBody');
+            tbody.innerHTML = '';
+            
+            const sortedPlayers = Object.entries(players).sort((a, b) => {
+                const winsA = totalWins[a[0]] || 0;
+                const winsB = totalWins[b[0]] || 0;
+                return winsB - winsA;
+            });
+            
+            sortedPlayers.forEach(([pid, p], i) => {
+                const rank = i + 1;
+                const wins = totalWins[pid] || 0;
+                
+                let rankEmoji = '';
+                let rankClass = '';
+                if (rank === 1) { rankEmoji = '👑'; rankClass = 'rank-1'; }
+                else if (rank === 2) { rankEmoji = '🥈'; rankClass = 'rank-2'; }
+                else if (rank === 3) { rankEmoji = '🥉'; rankClass = 'rank-3'; }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="rank ${rankClass}">${rankEmoji || rank}</span></td>
+                    <td><div class="player-cell"><div class="player-dot" style="background:${colors[i % colors.length]};min-width:10px;"></div>${p.name}</div></td>
+                    <td>${wins} 🏆</td>
+                    <td class="coins-positive">+${earnings} 🪙</td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+}
+
+// ===== ТАЙМЕР =====
+function startTimer(elId, sec, cb) {
+    clearTimers();
+    let r = sec;
+    const el = document.getElementById(elId);
+    if (!el) return;
+    
+    el.textContent = Math.floor(r/60)+':'+String(r%60).padStart(2,'0');
+    el.classList.remove('urgent');
+    
+    timers[elId] = setInterval(() => {
+        r--;
+        el.textContent = Math.floor(r/60)+':'+String(r%60).padStart(2,'0');
+        if (r <= 10) el.classList.add('urgent');
+        if (r <= 5) playTick();
+        if (r <= 0) { clearInterval(timers[elId]); if (cb) cb(); }
+    }, 1000);
+}
+
+function clearTimers() { Object.values(timers).forEach(t => clearInterval(t)); timers = {}; }
+
+function nextRound() {
+    fetch('/api/pari/next', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode})
+    }).then(r => r.json()).then(data => {
+        if (data.finished) {
+            showFinal();
+        } else {
+            showScreen('screenQuestion');
+            updateRoundCounter();
+            loadQuestion();
+        }
+    });
 }
 
 function playAgain() {
     fetch('/api/reset', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode})
-    }).then(() => window.location.href = '/tv');
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode})
+    }).then(() => window.location.reload());
 }
 
-// Старт
-loadIntro();
+// ===== ОБНОВЛЕНИЕ =====
+function updateCurrentScreen() {
+    updateRoundCounter();
+    
+    const currentScreen = document.querySelector('.card:not(.hidden)');
+    if (!currentScreen) return;
+    
+    switch(currentScreen.id) {
+        case 'screenIntro': updateIntroPlayers(); break;
+        case 'screenAnswer': updateAnswerScreen(); break;
+        case 'screenBet': updateBetScreen(); break;
+        case 'screenShowAnswers': drawAnswersProgress(); break;
+    }
+}
+
+// СТАРТ
+showScreen('screenIntro');
 setInterval(() => {
-    if (phase === 'intro') updateIntroPlayers();
-    if (phase === 'bet') updateBetScreen();
+    updateIntroPlayers();
+    updateCurrentScreen();
 }, 2000);
+updateIntroPlayers();
 </script>
 </body>
 </html>

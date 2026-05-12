@@ -9,32 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #ededed;
-            --card-bg: rgba(255,255,255,0.55);
-            --card-border: rgba(255,255,255,0.5);
-            --text: #111;
-            --accent: #7c3aed;
-            --accent2: #f472b6;
-            --green: #22c55e;
-            --red: #ef4444;
-            --orange: #f59e0b;
-            --shadow: 0 8px 40px rgba(0,0,0,0.08);
+            --bg: #ededed; --card-bg: rgba(255,255,255,0.55); --card-border: rgba(255,255,255,0.5);
+            --text: #111; --accent: #7c3aed; --accent2: #f472b6;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Rubik', sans-serif;
-            font-weight: 500;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px;
+            font-family: 'Rubik', sans-serif; font-weight: 500;
+            background: var(--bg); min-height: 100vh; padding-bottom: 100px;
+            display: flex; flex-direction: column; align-items: center; padding-top: 20px;
         }
-
         .container { width: 100%; max-width: 950px; }
 
-        /* ШАПКА */
         .nav {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.5); backdrop-filter: blur(18px);
@@ -47,174 +32,87 @@
             width: 55px; height: 55px; border-radius: 50%; background: white;
             display: flex; align-items: center; justify-content: center;
             overflow: visible; border: 3px solid #e3e3e3;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 25px;
+            cursor: pointer; transition: 0.3s; margin-top: 25px;
         }
         .nav-logo:hover { transform: scale(1.1); }
         .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -10px; }
-
         .profile-badge {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: rgba(255,255,255,0.5);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid rgba(255,255,255,0.7);
-        border-radius: 40px;
-        padding: 8px 18px;
-        cursor: default;
-        transition: 0.3s;
-        position: relative;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.5); backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 40px;
+            padding: 8px 18px; cursor: default; transition: 0.3s; position: relative;
         }
-
-        .profile-badge:hover {
-        background: rgba(255,255,255,0.8);
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
+        .profile-badge:hover { background: rgba(255,255,255,0.8); transform: scale(1.05); }
         .profile-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             background: linear-gradient(135deg, #a53cff, #3fffd2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: white;
-            font-weight: 700;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; font-weight: 700;
         }
-
-        .profile-text {
-            font-weight: 700;
-            color: var(--text);
-            font-size: 15px;
-            white-space: nowrap;
-        }
-
-        .profile-arrow {
-            font-size: 11px;
-            transition: 0.3s;
-            color: #888;
-        }
-        .profile-arrow { font-size: 12px; transition: 0.3s; margin-left: 4px; }
+        .profile-text { font-weight: 700; color: var(--text); font-size: 15px; }
+        .profile-arrow { font-size: 12px; transition: 0.3s; }
         .profile-badge:hover .profile-arrow { transform: rotate(180deg); }
-
         .profile-dropdown {
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(18px);
-            border: 2px solid rgba(255,255,255,0.7);
-            border-radius: 16px;
-            padding: 10px 0;
-            min-width: 180px;
+            position: absolute; top: 110%; right: 0;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 16px;
+            padding: 10px 0; min-width: 180px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-            transition: all 0.3s;
-            z-index: 100;
+            opacity: 0; visibility: hidden; transform: translateY(-8px);
+            transition: all 0.3s; z-index: 100;
         }
-
-        .profile-badge:hover .profile-dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .profile-dropdown::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            background: transparent;
-        }
-
+        .profile-badge:hover .profile-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .profile-dropdown::before { content: ''; position: absolute; top: -15px; left: 0; width: 100%; height: 15px; background: transparent; }
         .profile-dropdown-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding: 12px 20px; cursor: pointer; font-size: 15px; font-weight: 600;
+            color: #333; transition: 0.2s; display: flex; align-items: center; gap: 10px;
         }
-
-        .profile-dropdown-item:hover {
-            background: rgba(124,58,237,0.08);
-            color: #7c3aed;
-        }
-
-        .profile-dropdown-divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 5px 0;
-        }
-        .profile-arrow {
-            font-size: 12px;
-            transition: 0.3s;
-            margin-left: 4px;
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 2px solid rgba(255,255,255,0.7);
-            border-radius: 16px;
-            padding: 10px 0;
-            min-width: 180px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-            transition: all 0.3s;
-            z-index: 100;
-        }
-
-        .profile-badge:hover .profile-arrow {
-            transform: rotate(180deg);
-        }
-
+        .profile-dropdown-item:hover { background: rgba(124,58,237,0.08); color: #7c3aed; }
+        .profile-dropdown-divider { height: 1px; background: #e0e0e0; margin: 5px 0; }
         .nav-btn {
             background: linear-gradient(135deg, var(--accent), var(--accent2));
             color: white; border: none; border-radius: 30px;
-            padding: 10px 20px; font-family: 'Rubik', sans-serif;
-            font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s;
+            padding: 10px 20px; font-weight: 700; font-size: 16px; cursor: pointer;
         }
         .nav-btn:hover { transform: scale(1.05); }
 
-        /* КАРТОЧКИ */
         .glass-card {
             background: var(--card-bg); backdrop-filter: blur(20px);
             border: 2px solid var(--card-border); border-radius: 24px;
-            padding: 30px; margin: 15px 0; box-shadow: var(--shadow);
+            padding: 30px; margin: 15px 0;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
         }
-
         .logo-title {
             font-size: 48px; font-weight: 900; text-align: center;
             background: linear-gradient(135deg, var(--accent), var(--accent2));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text; margin-bottom: 10px;
         }
-        #lobbyGameName { background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: var(--text) !important; background-clip: unset !important; color: var(--text); }
-
+        #lobbyGameName { background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: var(--text) !important; color: var(--text); }
         .subtitle { text-align: center; opacity: 0.6; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; }
         .section-title { text-align: center; font-size: 20px; opacity: 0.7; margin-bottom: 20px; }
         .hidden { display: none !important; }
         .center { text-align: center; }
+
+        .tier-slider {
+            display: flex; justify-content: center; background: rgba(200,200,200,0.2);
+            border-radius: 50px; padding: 5px; margin: 20px auto; max-width: 380px; position: relative;
+        }
+        .tier-slider-bg {
+            position: absolute; top: 5px; left: 5px;
+            width: calc(50% - 5px); height: calc(100% - 10px);
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5); border-radius: 45px;
+            transition: all 0.4s; z-index: 0;
+        }
+        .tier-slider.premium .tier-slider-bg { left: 50%; background: linear-gradient(135deg, #7c3aed, #a855f7); }
+        .tier-tab {
+            flex: 1; text-align: center; padding: 14px 20px; border-radius: 45px;
+            cursor: pointer; font-weight: 700; font-size: 16px;
+            position: relative; z-index: 1; color: #888; transition: color 0.3s;
+        }
+        .tier-tab.active { color: #111; font-weight: 900; }
+        .tier-slider.premium .tier-tab.active { color: white; }
 
         .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
         .game-card {
@@ -223,137 +121,33 @@
         }
         .game-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
         .game-card.selected { border-color: var(--accent); background: rgba(124,58,237,0.05); }
-        .game-icon-wrap { width: 60px; height: 60px; margin: 0 auto 12px; background: rgba(255,255,255,0.5); border-radius: 16px; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .game-icon-img { width: 100%; height: 100%; object-fit: contain; filter: none !important; }
-        .game-icon-emoji { font-size: 40px; background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: unset !important; }
+        .game-icon-emoji { font-size: 40px; }
         .game-name { font-size: 22px; font-weight: 800; margin-bottom: 5px; }
         .game-desc { font-size: 13px; opacity: 0.6; }
-        .game-badge { display: inline-block; margin-top: 10px; padding: 5px 14px; background: rgba(124,58,237,0.1); border-radius: 20px; font-size: 11px; letter-spacing: 1px; }
+        .game-badge { display: inline-block; margin-top: 10px; padding: 5px 14px; background: rgba(124,58,237,0.1); border-radius: 20px; font-size: 11px; }
 
         .room-code { font-size: 60px; letter-spacing: 12px; padding: 15px 40px; background: rgba(255,255,255,0.7); border-radius: 16px; display: inline-block; font-weight: 900; color: var(--text); }
         .highlight { color: var(--accent); font-weight: 700; }
-
         .players-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
         .player-card { background: rgba(255,255,255,0.6); padding: 10px 18px; border-radius: 14px; font-weight: 700; font-size: 16px; }
 
         .btn {
-            display: inline-block; padding: 14px 40px; font-family: 'Rubik', sans-serif;
-            font-weight: 800; font-size: 20px; border: none; border-radius: 50px;
-            cursor: pointer; color: white; transition: 0.3s; margin: 6px;
+            display: inline-block; padding: 14px 40px; font-weight: 800; font-size: 20px;
+            border: none; border-radius: 50px; cursor: pointer; color: white; margin: 6px;
+            background: linear-gradient(135deg, var(--accent), #a855f7, var(--accent2));
+            box-shadow: 0 6px 24px rgba(124,58,237,0.4); transition: 0.3s;
         }
-        .btn-primary { background: linear-gradient(135deg, var(--accent), #a855f7, var(--accent2)); box-shadow: 0 6px 24px rgba(124,58,237,0.4); }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:hover { transform: translateY(-2px); }
         .btn:disabled { background: #ccc; cursor: not-allowed; color: #999; }
         .btn-secondary { background: rgba(255,255,255,0.6); color: var(--text); }
-
-        .game-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
-        .game-header-icon { width: 36px; height: 36px; object-fit: contain; filter: none !important; }
-        .game-header-emoji { font-size: 32px; background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset; }
-        .game-header-title { font-size: 24px; font-weight: 800; opacity: 0.8; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-        .question-counter { text-align: center; opacity: 0.5; font-size: 14px; margin-bottom: 10px; }
-        .question-text { font-size: 32px; font-weight: 800; margin-bottom: 20px; text-align: center; color: var(--text); }
-        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 600px; margin: 0 auto; }
-        .answer-display { background: rgba(255,255,255,0.6); padding: 18px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; }
-
-        .timer { font-size: 56px; font-weight: 900; text-align: center; background: linear-gradient(135deg, var(--accent), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 15px 0; }
-        .timer.warning { background: linear-gradient(135deg, var(--red), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .timer.auto-next { background: linear-gradient(135deg, var(--green), #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .players-status { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 15px 0; }
-        .player-status-card { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); padding: 8px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; border: 2px solid rgba(255,255,255,0.5); }
-        .player-status-card.answered { border-color: var(--green); background: rgba(34,197,94,0.1); }
-        .player-status-card.not-answered { border-color: var(--orange); background: rgba(245,158,11,0.05); }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .status-dot.done { background: var(--green); }
-        .status-dot.waiting { background: var(--orange); animation: dotPulse 1s infinite; }
-        @keyframes dotPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-        .answered-count { font-size: 13px; opacity: 0.6; text-align: center; margin-top: 5px; }
-
-        .scores-list { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
-        .score-card { background: rgba(255,255,255,0.5); padding: 10px 18px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.5); }
-        .score-card.top { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.3); }
-        .score-name { font-size: 11px; opacity: 0.6; }
-        .score-value { font-size: 22px; color: var(--accent); }
-
-        .winner-crown { font-size: 60px; display: block; }
-        .winner-name { font-size: 36px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .winner-score { font-size: 42px; font-weight: 900; color: var(--accent); }
-        .ranking-item { display: flex; justify-content: space-between; padding: 12px 20px; background: rgba(255,255,255,0.5); border-radius: 12px; margin: 6px 0; font-weight: 700; font-size: 16px; }
-        .ranking-score { color: var(--accent); font-weight: 900; }
         .empty-state { text-align: center; opacity: 0.4; padding: 20px; }
 
-        /* СЛАЙДЕР */
-        .tier-slider {
-            display: flex; justify-content: center; gap: 0;
-            background: rgba(200, 200, 200, 0.2);
-            border-radius: 50px;
-            padding: 5px; margin: 20px auto; max-width: 380px;
-            position: relative;
-        }
-        .tier-slider-bg {
-            position: absolute; top: 5px; left: 5px;
-            width: calc(50% - 5px); height: calc(100% - 10px);
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 45px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 0;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        }
-        .tier-slider.premium .tier-slider-bg {
-            left: 50%;
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            border-color: transparent;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.3);
-        }
-        .tier-tab {
-            flex: 1; text-align: center; padding: 14px 20px;
-            border-radius: 45px; cursor: pointer; font-weight: 700;
-            font-size: 16px; transition: color 0.3s;
-            position: relative; z-index: 1; color: #888;
-        }
-        .tier-tab.active { color: #111; font-weight: 900; }
-        .tier-slider.premium .tier-tab.active { color: white; }
-        .tier-slider.premium .tier-tab:not(.active) { color: #aaa; }
-
-        /* КНОПКА НАЗАД */
-        .btn-back {
-           display: inline-flex; align-items: center; gap: 6px;
-           padding: 8px 16px; border-radius: 30px;
-           background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.5);
-           cursor: pointer; font-weight: 700; font-size: 14px;
-           margin-bottom: 15px; transition: 0.3s;
-        }
-        .btn-back:hover { background: rgba(255,255,255,0.8); }
-
-        /* УРОВНИ */
-        .level-screen { animation: slideIn 0.3s ease; }
-        @keyframes slideIn {
-           from { opacity: 0; transform: translateX(20px); }
-           to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* КАТЕГОРИИ */
-        .categories-row {
-            display: flex; gap: 10px; justify-content: center;
-            flex-wrap: wrap; margin-bottom: 20px;
-        }
-        .category-card {
-            padding: 10px 18px; border-radius: 25px;
-            background: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.5);
-            cursor: pointer; font-weight: 700; font-size: 14px;
-            transition: 0.3s; white-space: nowrap;
-        }
-        .category-card:hover { background: rgba(255,255,255,0.8); }
-        .category-card.active {
-            background: rgba(124,58,237,0.1); border-color: #7c3aed;
-            color: #7c3aed;
-        }
-        .category-card.locked {
-            opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5);
+        /* КНОПКА СНИЗУ ЗАКРЕПЛЕНА */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(18px);
+            border-top: 2px solid rgba(255,255,255,0.7);
+            padding: 15px; text-align: center; z-index: 998;
         }
     </style>
 </head>
@@ -367,530 +161,83 @@
             <div class="nav-logo" onclick="window.location.href='/'">
                 <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='🎮'">
             </div>
-
-            <!-- Плашка профиля с выпадающим меню -->
-            <div class="profile-badge" id="profileBadge">
+            <div class="profile-badge">
                 <div class="profile-avatar" id="profileAvatar">👤</div>
                 <span class="profile-text" id="profileText">Гость</span>
                 <span class="profile-arrow">▼</span>
-
                 <div class="profile-dropdown">
                     <div class="profile-dropdown-item" onclick="window.location.href='/frontend/dashboard.html?page=profile'">👤 Профиль</div>
-                    <div class="profile-dropdown-item" onclick="window.location.href='/frontend/dashboard.html?page=shop'">💰 Кошелёк</div>
-                    <div class="profile-dropdown-item" onclick="window.location.href='/frontend/dashboard.html?page=wallet'">🛍 Магазин</div>
+                    <div class="profile-dropdown-item" onclick="window.location.href='/frontend/dashboard.html?page=wallet'">💰 Кошелёк</div>
+                    <div class="profile-dropdown-item" onclick="window.location.href='/frontend/dashboard.html?page=shop'">🛍 Магазин</div>
                     <div class="profile-dropdown-divider"></div>
                     <div class="profile-dropdown-item" onclick="logout()" style="color:#ef4444;">🚪 Выйти</div>
                 </div>
             </div>
         </div>
-
         <button class="nav-btn" onclick="window.location.href='/player'">📱 Игрок</button>
     </div>
 
-<!-- ВЫБОР ИГРЫ -->
-<div id="game-select" class="glass-card">
-    <div class="logo-title">ИГРИЩЕ</div>
-    <div class="subtitle">игра для компании</div>
-    
-    <!-- СЛАЙДЕР БЕСПЛАТНЫЕ / ПРЕМИУМ -->
-    <div class="tier-slider" id="tierSlider">
-        <div class="tier-slider-bg"></div>
-        <div class="tier-tab active" onclick="switchTier('free')">Бесплатные</div>
-        <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
-    </div>
-    
-    <!-- ИГРЫ -->
-    <div class="section-title">Выбери игру:</div>
-    <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка игр...</div></div>
-    <div class="center" style="margin-top:20px;">
-        <button class="btn btn-primary" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button>
-    </div>
-</div>
-
-
-<!-- ЛОББИ (снаружи!) -->
-<div id="lobby" class="glass-card hidden">
-    <div class="logo-title" id="lobbyGameName"></div>
-    <div class="center"><div class="room-code" id="roomCode">----</div></div>
-    <p class="center" style="margin-top:15px;opacity:0.7;">Заходи на <span class="highlight" id="serverUrl">...</span></p>
-    <div class="players-grid" id="playersList"><div class="empty-state">Ожидаем игроков...</div></div>
-    <div class="center">
-        <button class="btn btn-primary" id="startBtn" disabled onclick="startGame()">🎮 НАЧАТЬ ИГРУ</button>
-        <br><button class="btn btn-secondary" onclick="resetToMenu()">← Выбрать другую игру</button>
-    </div>
-</div>
-
-<!-- ИГРА (снаружи!) -->
-<div id="game-screen" class="glass-card hidden">
-    <div class="game-header">
-        <img class="game-header-icon" id="gameIconImg" src="" alt="" style="display:none;">
-        <span class="game-header-emoji" id="gameIconEmoji"></span>
-        <span class="game-header-title" id="gameTitle"></span>
-    </div>
-    <div id="quiz-area" class="hidden">
-        <div class="question-counter" id="questionCounter"></div>
-        <div class="question-text" id="questionText"></div>
-        <div class="timer" id="timer"></div>
-        <div class="answers-grid" id="answersDisplay"></div>
-        <div class="answered-count" id="answeredCount"></div>
-        <div class="players-status" id="playersStatus"></div>
-        <div class="scores-list" id="scoresDisplay"></div>
-    </div>
-    <div id="truthdare-area" class="hidden">
-        <div id="voting-screen">
-            <div class="center" style="font-size:24px;margin:15px 0;">🎯 Выбран: <span id="currentPlayerName" style="color:var(--accent);font-weight:900;"></span></div>
-            <div class="center" style="opacity:0.7;margin-bottom:20px;">Голосуйте: Правда или Действие?</div>
-            <div style="display:flex;gap:20px;justify-content:center;">
-                <div style="background:rgba(255,255,255,0.6);padding:25px 35px;border-radius:16px;text-align:center;font-size:20px;font-weight:800;">🗣 Правда<br><span id="truthVotes" style="font-size:40px;color:var(--accent);">0</span></div>
-                <div style="background:rgba(255,255,255,0.6);padding:25px 35px;border-radius:16px;text-align:center;font-size:20px;font-weight:800;">💥 Действие<br><span id="dareVotes" style="font-size:40px;color:var(--accent2);">0</span></div>
-            </div>
+    <!-- ВЫБОР ИГРЫ -->
+    <div id="game-select" class="glass-card">
+        <div class="logo-title">ИГРИЩЕ</div>
+        <div class="subtitle">игра для компании</div>
+        <div class="tier-slider" id="tierSlider">
+            <div class="tier-slider-bg"></div>
+            <div class="tier-tab active" onclick="switchTier('free')">Бесплатные</div>
+            <div class="tier-tab" onclick="switchTier('premium')">👑 Премиум</div>
         </div>
-        <div id="task-screen" class="hidden">
-            <div class="center" style="font-size:24px;margin:15px 0;"><span id="taskPlayerName"></span>, твоё задание:</div>
-            <div style="text-align:center;font-size:28px;font-weight:800;margin:20px 0;padding:25px;background:rgba(255,255,255,0.6);border-radius:16px;" id="taskText"></div>
-            <div class="center" style="opacity:0.6;">Ожидаем выполнения...</div>
-            <div class="players-status" id="tdPlayersStatus"></div>
-        </div>
-        <div class="scores-list" id="tdScoresDisplay"></div>
+        <div class="section-title">Выбери игру:</div>
+        <div class="games-grid" id="gamesList"><div class="empty-state">Загрузка игр...</div></div>
     </div>
+
+    <!-- ЛОББИ -->
+    <div id="lobby" class="glass-card hidden">
+        <div class="logo-title" id="lobbyGameName"></div>
+        <div class="center"><div class="room-code" id="roomCode">----</div></div>
+        <p class="center" style="margin-top:15px;opacity:0.7;">Заходи на <span class="highlight" id="serverUrl">...</span></p>
+        <div class="players-grid" id="playersList"><div class="empty-state">Ожидаем игроков...</div></div>
+    </div>
+
 </div>
 
-<!-- ФИНАЛ (снаружи!) -->
-<div id="finish-screen" class="glass-card hidden">
-    <div class="logo-title" style="font-size:36px;">ИГРА ОКОНЧЕНА!</div>
-    <div class="center" style="margin:20px 0;">
-        <span class="winner-crown">👑</span>
-        <div class="winner-name" id="winnerName"></div>
-        <div class="winner-score" id="winnerScore"></div>
-    </div>
-    <div id="finalRanking" style="max-width:450px;margin:0 auto;"></div>
-    <div class="center" style="margin-top:20px;">
-        <button class="btn btn-primary" onclick="playAgain()">🔄 Сыграть ещё (тот же состав)</button>
-        <br>
-        <button class="btn btn-secondary" onclick="resetToMenu()">🚪 Выйти в меню</button>
-    </div>
+<!-- КНОПКА СОЗДАТЬ КОМНАТУ (выбор игры) -->
+<div class="bottom-bar" id="bottomCreate">
+    <button class="btn" id="createRoomBtn" disabled onclick="createRoom()">🚀 СОЗДАТЬ КОМНАТУ</button>
+</div>
+
+<!-- КНОПКА НАЧАТЬ ИГРУ (лобби) -->
+<div class="bottom-bar hidden" id="bottomStart">
+    <button class="btn" id="startBtn" disabled onclick="startGame()">🎮 НАЧАТЬ ИГРУ</button>
+    <button class="btn btn-secondary" onclick="resetToMenu()">← Выбрать другую игру</button>
 </div>
 
 <script>
-// Профиль
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-document.getElementById('profileAvatar').textContent = equipped.avatar || (user.username ? user.username[0].toUpperCase() : '👤');
+document.getElementById('profileAvatar').textContent = equipped.avatar || (user.username?.[0] || '👤');
 document.getElementById('profileText').textContent = user.username || 'Гость';
 
-// ========== ЛОГИКА ИГРЫ (НЕ ТРОНУТА) ==========
-let selectedGame = null, roomCode = null, currentTimer = null, autoNextTimer = null;
-let lobbyInterval = null, updateInterval = null, lastAnswerCount = 0, lastPlayerCount = 0;
-let autoNextLocked = false;
+let selectedGame = null, roomCode = null, lobbyInterval = null, lastPlayerCount = 0, currentTier = 'free';
 
-fetch('/api/games').then(r => r.json()).then(games => {
-    const grid = document.getElementById('gamesList');
-    grid.innerHTML = Object.entries(games).map(([id, game]) => {
-        const hasImage = game.icon_image && game.icon_image.trim() !== '';
-        const iconHTML = hasImage ? `<img src="${game.icon_image}" class="game-icon-img" alt="">` : `<span class="game-icon-emoji">${game.icon || '🎮'}</span>`;
-        return `<div class="game-card" data-game="${id}" onclick="selectGame('${id}')"><div class="game-icon-wrap">${iconHTML}</div><div class="game-name" style="color:${game.color}">${game.name}</div><div class="game-desc">${game.description}</div><div class="game-badge">${game.questions_count} вопросов</div></div>`;
-    }).join('');
-});
-
-
-function createRoom() {
-    if (!selectedGame) {
-        alert('Выбери игру!');
-        return;
-    }
-    
-    fetch('/api/create?game=' + selectedGame)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.error) {
-            alert(data.error);
-            return;
-        }
-        
-        roomCode = data.code;
-        
-        // Скрываем выбор игры
-        document.getElementById('game-select').classList.add('hidden');
-        
-        // Показываем лобби
-        document.getElementById('lobby').classList.remove('hidden');
-        
-        // Заполняем данные
-        document.getElementById('lobbyGameName').textContent = data.game.name;
-        document.getElementById('roomCode').textContent = roomCode;
-        document.getElementById('serverUrl').textContent = window.location.host + '/player';
-        
-        // Запускаем музыку
-        preloadLobbyMusic();
-        playLobbyMusic();
-        
-        // Обновляем лобби
-        lastPlayerCount = 0;
-        updateLobby();
-        lobbyInterval = setInterval(updateLobby, 2000);
-    })
-    .catch(function(err) {
-        console.error('Ошибка:', err);
-        alert('Не удалось создать комнату');
-    });
-
-}
-
-function startGame() {
-    playGameStart();
-    
-    fetch('/api/start', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode})
-    })
-    .then(r => r.json())
-    .then(data => {
-        console.log('Ответ start:', data);
-        if (data.error) { alert(data.error); return; }
-        
-        // Ждём полсекунды и запрашиваем состояние
-        setTimeout(() => {
-            fetch('/api/state/' + roomCode)
-                .then(r => r.json())
-                .then(fullData => {
-                    console.log('Состояние после старта:', fullData);
-                    clearInterval(lobbyInterval);
-                    showGameScreen(fullData);
-                });
-        }, 500);
-    })
-    .catch(err => console.error('Ошибка:', err));
-}
-function showGameScreen(data) {
-    document.getElementById('lobby').classList.add('hidden');
-    
-    // Для "Кто ближе?" — редирект на отдельный экран
-    if (data.game_type === 'kto_blizhe') {
-        window.location.href = '/frontend/tv_kto_blizhe.html?code=' + roomCode;
-        return;
-    }
-    
-    document.getElementById('game-screen').classList.remove('hidden');
-    
-    // Иконка
-    if (data.game_icon_image) {
-        document.getElementById('gameIconImg').src = data.game_icon_image;
-        document.getElementById('gameIconImg').style.display = 'inline-block';
-        document.getElementById('gameIconEmoji').style.display = 'none';
-    } else {
-        document.getElementById('gameIconImg').style.display = 'none';
-        document.getElementById('gameIconEmoji').textContent = data.game_icon || '🎮';
-        document.getElementById('gameIconEmoji').style.display = 'inline';
-    }
-    document.getElementById('gameTitle').textContent = data.game_name || '';
-    
-    if (data.game_type === 'truth_dare') {
-        document.getElementById('quiz-area').classList.add('hidden');
-        document.getElementById('truthdare-area').classList.remove('hidden');
-    } else {
-        document.getElementById('truthdare-area').classList.add('hidden');
-        document.getElementById('quiz-area').classList.remove('hidden');
-        showQuestion();
-    }
-    
-    lastAnswerCount = 0;
-    updateInterval = setInterval(updateGameState, 1000);
-}
-function updateGameState() { if(!roomCode)return; fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.error)return; if(data.state==='finished'){clearInterval(updateInterval);showFinalScreen(data);return;} if(data.game_type==='truth_dare'){updateTruthDareScreen(data);}else if(data.game_type==='quiz'){updatePlayerStatus(data);updateScores(data);const total=Object.keys(data.players||{}).length;const answered=data.answers_count||0;if(!autoNextLocked&&total>0&&answered>0&&answered>=total){clearInterval(currentTimer);clearTimeout(autoNextTimer);autoNext();}} }); }
-function updateTruthDareScreen(data) { document.getElementById('quiz-area').classList.add('hidden'); document.getElementById('truthdare-area').classList.remove('hidden'); document.getElementById('gameTitle').textContent=data.game_name+' — Раунд '+(data.round+1)+'/'+data.total_rounds; if(data.state==='voting'){document.getElementById('voting-screen').classList.remove('hidden');document.getElementById('task-screen').classList.add('hidden');document.getElementById('currentPlayerName').textContent=data.current_player_name||'...';const v=data.votes||{};document.getElementById('truthVotes').textContent=Object.values(v).filter(x=>x==='truth').length;document.getElementById('dareVotes').textContent=Object.values(v).filter(x=>x==='dare').length;}else if(data.state==='task'&&data.show_task){document.getElementById('voting-screen').classList.add('hidden');document.getElementById('task-screen').classList.remove('hidden');document.getElementById('taskPlayerName').textContent=data.current_player_name||'';document.getElementById('taskText').textContent=(data.task_type==='truth'?'🗣 ПРАВДА: ':'💥 ДЕЙСТВИЕ: ')+data.current_task;} const players=data.players||{}; const votes=data.votes||{}; document.getElementById('tdPlayersStatus').innerHTML=Object.entries(players).map(([id,p])=>{const cur=id===data.current_player_id;const vd=votes[id]!==undefined;return`<div class="player-status-card ${vd||cur?'answered':'not-answered'}"><div class="status-dot ${vd||cur?'done':'waiting'}"></div><span>${p.name}</span><span style="font-size:12px;opacity:0.6;margin-left:8px;">${cur?'🎯 Выбран':vd?'✅ Проголосовал':'⏳ Думает...'}</span></div>`;}).join(''); const scores=data.scores||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('tdScoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
-function showQuestion() { fetch('/api/state/'+roomCode).then(r=>r.json()).then(data=>{ if(data.state==='finished'){showFinalScreen(data);return;} const q=data.current_question; if(!q)return; document.getElementById('questionCounter').textContent=`Вопрос ${data.question_index+1} из ${data.total_questions}`; document.getElementById('questionText').textContent=q.text; document.getElementById('answersDisplay').innerHTML=q.answers.map(a=>`<div class="answer-display">${a}</div>`).join(''); const timeLeft=data.question_time_left||q.time||30; const timerEl=document.getElementById('timer'); timerEl.classList.remove('warning','auto-next'); clearInterval(currentTimer); clearTimeout(autoNextTimer); let rem=timeLeft; timerEl.textContent='⏱ '+rem; currentTimer=setInterval(()=>{rem--;timerEl.textContent='⏱ '+rem;if(rem<=5)timerEl.classList.add('warning');if(rem<=0){clearInterval(currentTimer);timerEl.textContent='⏰ 0';autoNext();}},1000); autoNextTimer=setTimeout(autoNext,(timeLeft+3)*1000); updatePlayerStatus(data); updateScores(data); }); }
-function autoNext() { if(autoNextLocked)return; autoNextLocked=true; playAutoNext(); clearInterval(currentTimer); clearTimeout(autoNextTimer); lastAnswerCount=0; const timerEl=document.getElementById('timer'); timerEl.textContent='→ Дальше...'; timerEl.classList.add('auto-next'); setTimeout(()=>{fetch('/api/next',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}).then(()=>{timerEl.classList.remove('auto-next');autoNextLocked=false;showQuestion();});},1500); }
-
-function updateLobby() {
-    if (!roomCode) return;
-    fetch('/api/state/' + roomCode)
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) return;
-        const players = data.players || {};
-        const count = Object.keys(players).length;
-        
-        if (count > lastPlayerCount && lastPlayerCount > 0) playPlayerJoin();
-        lastPlayerCount = count;
-        
-        // Загружаем аватарки
-        fetch('/api/avatars/' + roomCode)
-            .then(r => r.json())
-            .then(avatars => {
-                document.getElementById('playersList').innerHTML = count === 0 
-                    ? '<div class="empty-state">Ожидаем игроков...</div>'
-                    : Object.entries(players).map(([id, p]) => {
-                        const avatar = avatars[id] || p.avatar_url || '';
-                        const avatarHTML = avatar
-                            ? `<img src="${avatar}" style="width:28px;height:28px;object-fit:cover;border-radius:50%;">`
-                            : p.name[0];
-                        return `<div class="player-card">
-                            <span class="player-emoji" style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#a53cff,#3fffd2);color:white;font-weight:700;font-size:14px;">${avatarHTML}</span>
-                            ${p.name}
-                        </div>`;
-                    }).join('');
-            })
-            .catch(() => {
-                // Без аватарок
-                const emojis = ['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋'];
-                document.getElementById('playersList').innerHTML = count === 0 
-                    ? '<div class="empty-state">Ожидаем игроков...</div>'
-                    : Object.entries(players).map(([id, p], i) => 
-                        `<div class="player-card"><span class="player-emoji">${emojis[i%8]}</span>${p.name}</div>`
-                    ).join('');
-            });
-        
-        document.getElementById('startBtn').disabled = count === 0;
-        if (data.state === 'playing') { clearInterval(lobbyInterval); showGameScreen(data); }
-    });
-}
-
-
-function updatePlayerStatus(data) {
-    const players = data.players || {};
-    const answered = data.answered_players || [];
-    document.getElementById('answeredCount').textContent = 
-        `Ответили: ${answered.length} из ${Object.keys(players).length}`;
-    
-    fetch('/api/avatars/' + roomCode)
-        .then(r => r.json())
-        .then(avatars => {
-            document.getElementById('playersStatus').innerHTML = Object.entries(players)
-                .map(([id, p]) => {
-                    const a = answered.includes(id);
-                    const avatar = avatars[id] || p.avatar_url || '';
-                    const avatarHTML = avatar
-                        ? `<img src="${avatar}" style="width:28px;height:28px;border-radius:50%;">`
-                        : p.name[0];
-                    return `<div class="player-status-card ${a ? 'answered' : 'not-answered'}">
-                        <div class="status-dot ${a ? 'done' : 'waiting'}"></div>
-                        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;">${avatarHTML}</div>
-                        <span>${p.name}</span>
-                    </div>`;
-                }).join('');
-        })
-        .catch(() => {
-            document.getElementById('playersStatus').innerHTML = Object.entries(players)
-                .map(([id, p]) => {
-                    const a = answered.includes(id);
-                    return `<div class="player-status-card ${a ? 'answered' : 'not-answered'}">
-                        <div class="status-dot ${a ? 'done' : 'waiting'}"></div>
-                        <span>${p.name}</span>
-                    </div>`;
-                }).join('');
+function loadGames() {
+    fetch('/api/games').then(r => r.json()).then(games => {
+        const grid = document.getElementById('gamesList');
+        let filtered = Object.entries(games).filter(([id, game]) => {
+            if (currentTier === 'premium' && game.tier !== 'premium') return false;
+            if (currentTier === 'free' && game.tier === 'premium' && !isPremium()) return false;
+            return true;
         });
+        grid.innerHTML = filtered.map(([id, game]) => `<div class="game-card" data-game="${id}" onclick="selectGame('${id}')"><span class="game-icon-emoji">${game.icon||'🎮'}</span><div class="game-name" style="color:${game.color||'#7c3aed'}">${game.name}</div><div class="game-desc">${game.description||''}</div><div class="game-badge">${game.questions_count||'?'} шт.</div></div>`).join('');
+    });
 }
 
-function updateScores(data) { const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); const medals=['🥇','🥈','🥉']; document.getElementById('scoresDisplay').innerHTML=sorted.map(([id,s],i)=>`<div class="score-card ${i===0?'top':''}"><div class="score-name">${medals[i]||'🏅'} ${players[id]?.name||'Игрок'}</div><div class="score-value">${s}</div></div>`).join(''); }
-function showFinalScreen(data) { playWinner(); clearInterval(currentTimer); clearTimeout(autoNextTimer); clearInterval(updateInterval); document.getElementById('game-screen').classList.add('hidden'); document.getElementById('finish-screen').classList.remove('hidden'); const scores=data.scores||{}; const players=data.players||{}; const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); if(sorted.length>0){document.getElementById('winnerName').textContent=players[sorted[0][0]]?.name||'Игрок';document.getElementById('winnerScore').textContent=sorted[0][1]+' очков';} const medals=['🥇','🥈','🥉']; document.getElementById('finalRanking').innerHTML=sorted.map(([id,s],i)=>{const p=players[id];const coins=s>=100?50:s>=50?30:10;return`<div class="ranking-item"><span>${medals[i]||'🏅'} ${p?p.name:'Игрок'}</span><span class="ranking-score">${s} очков <span style="font-size:14px;">+${coins}🪙</span></span></div>`;}).join(''); }
-function resetToMenu() { stopLobbyMusic(); clearInterval(currentTimer); clearTimeout(autoNextTimer); clearInterval(lobbyInterval); clearInterval(updateInterval); if(roomCode)fetch('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})}); document.querySelectorAll('#lobby,#game-screen,#finish-screen').forEach(e=>e.classList.add('hidden')); document.getElementById('game-select').classList.remove('hidden'); document.getElementById('createRoomBtn').disabled=true; document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('selected')); roomCode=null;selectedGame=null; }
-</script>
-
-<script>
-// ========== ЗВУКИ ==========
-let lobbyAudioCtx=null,lobbySource=null,lobbyBuffer=null,lobbyGain=null,winnerPlayed=false;
-async function preloadLobbyMusic(){try{if(!lobbyAudioCtx)lobbyAudioCtx=new(window.AudioContext||window.webkitAudioContext)();if(!lobbyBuffer){const r=await fetch('/static/sounds/fon.mp3');lobbyBuffer=await lobbyAudioCtx.decodeAudioData(await r.arrayBuffer());}}catch(e){}}
-function playLobbyMusic(){if(!lobbyBuffer){preloadLobbyMusic().then(()=>playLooped());return;}playLooped();}
-function playLooped(){if(!lobbyBuffer||!lobbyAudioCtx)return;stopLobbyMusic();lobbySource=lobbyAudioCtx.createBufferSource();lobbySource.buffer=lobbyBuffer;lobbySource.loop=true;lobbySource.loopStart=0.05;lobbySource.loopEnd=lobbyBuffer.duration-0.05;lobbyGain=lobbyAudioCtx.createGain();lobbyGain.gain.value=0.3;lobbySource.connect(lobbyGain);lobbyGain.connect(lobbyAudioCtx.destination);lobbySource.start(0);}
-function stopLobbyMusic(){if(lobbySource){try{lobbySource.stop(0);}catch(e){}lobbySource=null;}}
-function playSound(n,v=0.5){try{const a=new Audio('/static/sounds/'+n+'.mp3');a.volume=v;a.play().catch(()=>{});}catch(e){}}
-function playPlayerJoin(){playSound('connection',0.4);}
-function playCorrect(){playSound('approve',0.5);}
-function playAutoNext(){playSound('vibor',0.6);}
-function playWinner(){if(!winnerPlayed){winnerPlayed=true;playSound('winner',0.7);}}
-function playGameStart(){stopLobbyMusic();winnerPlayed=false;playSound('fon',0.6);}
-
-let currentTier = 'free';
-let currentLevel = 0;
-let navigationStack = [0];
-
-// Слайдер
 function switchTier(tier) {
     if (currentTier === tier) return;
     currentTier = tier;
-    
-    const slider = document.getElementById('tierSlider');
-    
-    if (tier === 'premium') {
-        slider.classList.add('premium');
-    } else {
-        slider.classList.remove('premium');
-    }
-    
-    // Обновляем активные классы
-    const tabs = document.querySelectorAll('.tier-tab');
-    tabs.forEach(t => t.classList.remove('active'));
-    
-    if (tier === 'free') {
-        tabs[0].classList.add('active');
-    } else {
-        tabs[1].classList.add('active');
-    }
-    
-    renderCategories();
-}
-
-// LEVEL 0 → Категории
-function renderCategories() {
-    currentLevel = 0;
-    navigationStack = [0];
-    document.getElementById('level-0').classList.remove('hidden');
-    document.getElementById('level-1').classList.add('hidden');
-    document.getElementById('level-2').classList.add('hidden');
-    document.getElementById('level-3').classList.add('hidden');
-    
-    const categories = currentTier === 'free' 
-        ? [
-            { icon: '🃏', name: 'За столом', desc: 'Угадай мелодию, Мафия, Имаджинариум' },
-            { icon: '🌐', name: 'Онлайн', desc: 'Рандом, Учёба, По паролю' },
-            { icon: '🙈', name: 'Без экрана', desc: 'Крокодил, Кто я, Данетки' }
-          ]
-        : [
-            { icon: '🕶', name: 'Виртуальные', desc: 'VR-игры и симуляции' },
-            { icon: '👥', name: 'Командные', desc: 'Игры на большие компании' },
-            { icon: '🔌', name: 'Интегрированные', desc: 'Соцсети и стримы' }
-          ];
-    
-    document.getElementById('categoriesGrid').innerHTML = categories.map(cat => `
-        <div class="game-card" onclick="openCategory('${cat.name}')">
-            <span style="font-size:44px;display:block;margin-bottom:8px;">${cat.icon}</span>
-            <div class="game-name">${cat.name}</div>
-            <div class="game-desc">${cat.desc}</div>
-        </div>`).join('');
-}
-
-// LEVEL 1 → Подкатегории
-function openCategory(cat) {
-    currentLevel = 1;
-    navigationStack = [0, 1];
-    document.getElementById('level-0').classList.add('hidden');
-    document.getElementById('level-1').classList.remove('hidden');
-    document.getElementById('level-2').classList.add('hidden');
-    document.getElementById('level-3').classList.add('hidden');
-    document.getElementById('level1Title').textContent = cat;
-    
-    let subs = [];
-    
-    if (currentTier === 'free') {
-        if (cat === 'За столом') {
-            subs = ['🎵 Угадай песню', '🕵️ Мафия', '🎨 Чья картина?', '🎬 Фильмознай', '💥 Кто ближе?', '👻 Мемасо битва'];
-        } else if (cat === 'Онлайн') {
-            subs = ['🎲 Рандом', '📚 Учёба', '🔥 Правда или Действие', '🎯 Квиз-Шоу', '🔐 По паролю'];
-        } else if (cat === 'Без экрана') {
-            subs = ['🐊 Крокодил', '🤔 Кто я?', '❓ Данетки', '🎭 Правда или действие', '🕵️ Шпион'];
-        }
-    } else {
-        subs = ['🔒 Игра 1 (Premium)', '🔒 Игра 2 (Premium)', '🔒 Игра 3 (Premium)'];
-    }
-    
-    document.getElementById('subGrid').innerHTML = subs.map(sub => {
-        const isLocked = sub.includes('🔒');
-        return `
-            <div class="game-card ${isLocked ? 'locked' : ''}" 
-                onclick="${isLocked ? '' : `openSubCategory('${sub}')`}">
-                <span style="font-size:36px;display:block;">${isLocked ? '🔒' : '📦'}</span>
-                <div class="game-name">${sub}</div>
-            </div>`;
-    }).join('');
-}
-
-// LEVEL 2 → Детали (Учёба → предметы, По паролю → ввод)
-function openSubCategory(sub) {
-    if (sub.includes('Учёба')) {
-        currentLevel = 2;
-        navigationStack = [0, 1, 2];
-        document.getElementById('level-1').classList.add('hidden');
-        document.getElementById('level-2').classList.remove('hidden');
-        document.getElementById('level2Title').textContent = '📚 Учёба';
-        
-        const subjects = ['🌿 Естествознание', '📐 Математика', '💻 IT квиз', '⚡ Физика'];
-        document.getElementById('detailGrid').innerHTML = subjects.map(s => `
-            <div class="game-card" onclick="openGames('${s}')">
-                <span style="font-size:40px;">${s.slice(0,2)}</span>
-                <div class="game-name">${s}</div>
-            </div>`).join('');
-        
-    } else if (sub.includes('По паролю')) {
-        const pwd = prompt('🔐 Введите пароль категории:');
-        if (pwd === '1234') {  // потом заменим на проверку с сервера
-            openGames('Защищённые квизы');
-        } else if (pwd) {
-            alert('Неверный пароль!');
-        }
-        
-    } else {
-        openGames(sub);
-    }
-}
-
-// LEVEL 3 → Список игр
-function openGames(sub) {
-    currentLevel = 3;
-    navigationStack = [0, 1, 2, 3];
-    document.getElementById('level-0').classList.add('hidden');
-    document.getElementById('level-1').classList.add('hidden');
-    document.getElementById('level-2').classList.add('hidden');
-    document.getElementById('level-3').classList.remove('hidden');
-    document.getElementById('level3Title').textContent = sub;
-    
-    fetch('/api/games').then(r => r.json()).then(games => {
-        const grid = document.getElementById('gamesList');
-        
-        // Фильтруем по категории и подкатегории
-        let filtered = Object.entries(games).filter(([id, game]) => {
-            // Премиум-игры только для премиум-пользователей
-            if (game.tier === 'premium' && !isPremium()) return false;
-            
-            // Фильтр по категории (из navigationStack)
-            const category = getCategoryFromStack();
-            if (category && game.category !== category) return false;
-            
-            // Фильтр по подкатегории
-            if (sub && game.subcategory) {
-                const subLower = sub.toLowerCase();
-                if (subLower.includes('рандом') && game.subcategory !== 'random') return false;
-                if (subLower.includes('учёба') && game.subcategory !== 'study') return false;
-                if (subLower.includes('паролю') && game.subcategory !== 'password') return false;
-                if (subLower.includes('мелодию') && game.subcategory !== 'melody') return false;
-                if (subLower.includes('мафия') && game.subcategory !== 'mafia') return false;
-                if (subLower.includes('имаджинариум') && game.subcategory !== 'imaginarium') return false;
-                if (subLower.includes('фильм') && game.subcategory !== 'movie') return false;
-                if (subLower.includes('попадос') && game.subcategory !== 'popados') return false;
-                if (subLower.includes('крокодил') && game.subcategory !== 'crocodile') return false;
-                if (subLower.includes('кто я') && game.subcategory !== 'whoami') return false;
-                if (subLower.includes('данетки') && game.subcategory !== 'danetki') return false;
-                if (subLower.includes('шпион') && game.subcategory !== 'spy') return false;
-            }
-            
-            return true;
-        });
-        
-        if (filtered.length === 0) {
-            grid.innerHTML = '<div class="empty-state">Нет доступных игр в этой категории</div>';
-            document.getElementById('createRoomBtn').disabled = true;
-            return;
-        }
-        
-        grid.innerHTML = filtered.map(([id, game]) => `
-            <div class="game-card" data-game="${id}" onclick="selectGame('${id}')">
-                <span class="game-icon-emoji">${game.icon || '🎮'}</span>
-                <div class="game-name">${game.name}</div>
-                <div class="game-desc">${game.description}</div>
-                <div class="game-badge">${game.questions_count} вопросов</div>
-            </div>`).join('');
-    });
-}
-
-function getCategoryFromStack() {
-    // Берём категорию первого уровня из navigationStack
-    const level1Title = document.getElementById('level1Title')?.textContent || '';
-    if (level1Title.includes('За столом')) return 'table';
-    if (level1Title.includes('Онлайн')) return 'online';
-    if (level1Title.includes('Без экрана')) return 'offline';
-    return null;
+    document.getElementById('tierSlider').classList.toggle('premium', tier === 'premium');
+    document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.tier-tab:${tier === 'premium' ? 'last-child' : 'first-child'}`).classList.add('active');
+    loadGames();
 }
 
 function selectGame(id) {
@@ -900,126 +247,91 @@ function selectGame(id) {
     document.getElementById('createRoomBtn').disabled = false;
 }
 
-function goBack() {
-    navigationStack.pop();
-    const prev = navigationStack[navigationStack.length - 1] || 0;
-    
-    document.getElementById('level-0').classList.add('hidden');
-    document.getElementById('level-1').classList.add('hidden');
-    document.getElementById('level-2').classList.add('hidden');
-    document.getElementById('level-3').classList.add('hidden');
-    
-    if (prev === 0) {
-        document.getElementById('level-0').classList.remove('hidden');
-    } else if (prev === 1) {
-        document.getElementById('level-1').classList.remove('hidden');
-    } else if (prev === 2) {
-        document.getElementById('level-2').classList.remove('hidden');
-    }
-}
-
-function isPremium() {
-    return JSON.parse(localStorage.getItem('premium') || '{"active":false}').active;
-}
-
-function playAgain() {
-    // Сбрасываем комнату на сервере
-    fetch('/api/reset', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode})
-    })
-    .then(() => {
-        // Скрываем финал, показываем лобби
-        document.getElementById('finish-screen').classList.add('hidden');
+function createRoom() {
+    if (!selectedGame) return;
+    fetch('/api/create?game=' + selectedGame)
+    .then(r => r.json()).then(data => {
+        if (data.error) { alert(data.error); return; }
+        roomCode = data.code;
+        document.getElementById('game-select').classList.add('hidden');
         document.getElementById('lobby').classList.remove('hidden');
-        
-        // Обновляем лобби
-        updateLobby();
+        document.getElementById('bottomCreate').classList.add('hidden');
+        document.getElementById('bottomStart').classList.remove('hidden');
+        document.getElementById('lobbyGameName').textContent = data.game.name;
+        document.getElementById('roomCode').textContent = roomCode;
+        document.getElementById('serverUrl').textContent = window.location.host + '/player';
+        preloadLobbyMusic(); playLobbyMusic();
+        lastPlayerCount = 0; updateLobby();
         lobbyInterval = setInterval(updateLobby, 2000);
-        
-        // Запускаем музыку лобби
-        preloadLobbyMusic();
-        playLobbyMusic();
     });
 }
 
-
-// ========== МАФИЯ ==========
-function loadMafiaRole() {
-    fetch('/api/mafia/role?code=' + roomCode + '&player=' + playerId)
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('mafiaRoleIcon').textContent = data.icon;
-            document.getElementById('mafiaRoleName').textContent = data.name;
-            document.getElementById('mafiaRoleDesc').textContent = data.description;
-            document.getElementById('mafiaRoleScreen').classList.remove('hidden');
-            document.getElementById('mafiaHiddenScreen').classList.add('hidden');
-        });
-}
-function hideMafiaRole() {
-    document.getElementById('mafiaRoleScreen').classList.add('hidden');
-    document.getElementById('mafiaHiddenScreen').classList.remove('hidden');
-}
-function showMafiaRole() {
-    document.getElementById('mafiaRoleScreen').classList.remove('hidden');
-    document.getElementById('mafiaHiddenScreen').classList.add('hidden');
-}
-
-// ========== КТО БЛИЖЕ ==========
-let currentBet = 100;
-function changeBet(amount) {
-    currentBet = Math.max(50, Math.min(500, currentBet + amount));
-    document.getElementById('betAmount').textContent = currentBet;
-}
-function placeBet() {
-    fetch('/api/pari/bet', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode, player_id: playerId, bet: currentBet})
-    })
-    .then(() => {
-        document.getElementById('pariBetScreen').classList.add('hidden');
-        document.getElementById('pariWaiting').classList.remove('hidden');
-    });
-}
-function submitPariAnswer() {
-    const answer = parseInt(document.getElementById('pariAnswer').value);
-    if (!answer) return;
-    fetch('/api/pari/answer', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode, player_id: playerId, answer: answer})
-    })
-    .then(r => r.json())
-    .then(data => {
-        document.getElementById('pariAnswerScreen').classList.add('hidden');
-        document.getElementById('pariResultScreen').classList.remove('hidden');
-        document.getElementById('pariResultEmoji').textContent = data.won ? '🏆' : '😢';
-        document.getElementById('pariResultText').textContent = data.won ? 'Ты победил!' : 'Не повезло...';
+function updateLobby() {
+    if (!roomCode) return;
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        if (data.error) return;
+        const players = data.players || {};
+        const count = Object.keys(players).length;
+        if (count > lastPlayerCount && lastPlayerCount > 0) playPlayerJoin();
+        lastPlayerCount = count;
+        const emojis = ['🦊','🐼','🐨','🦁','🐸','🦄','🐙','🦋'];
+        document.getElementById('playersList').innerHTML = count === 0 ? '<div class="empty-state">Ожидаем игроков...</div>' : Object.entries(players).map(([id,p],i) => `<div class="player-card"><span>${emojis[i%8]}</span> ${p.name}</div>`).join('');
+        document.getElementById('startBtn').disabled = count === 0;
     });
 }
 
+function startGame() {
+    playGameStart();
+    fetch('/api/start', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})})
+    .then(r => r.json()).then(data => {
+        if (data.error) return;
+        setTimeout(() => {
+            fetch('/api/state/' + roomCode).then(r => r.json()).then(fullData => {
+                clearInterval(lobbyInterval);
+                redirectToGame(fullData);
+            });
+        }, 500);
+    });
+}
 
-function updateProfileUI() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-    const avatarEl = document.getElementById('profileAvatar');
-    if (!avatarEl) return;
-    
-    if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
-        avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    } else if (equipped.avatar && equipped.avatar.length <= 4) {
-        avatarEl.textContent = equipped.avatar;
-    } else {
-        avatarEl.textContent = user.username ? user.username[0].toUpperCase() : '👤';
+function redirectToGame(data) {
+    const pages = {
+        'quiz': '/frontend/tv_quiz.html',
+        'truth_dare': '/frontend/tv_truth_dare.html',
+        'kto_blizhe': '/frontend/tv_kto_blizhe.html',
+        'mafia': '/frontend/tv_mafia.html'
+    };
+    const url = pages[data.game_type];
+    if (url) {
+        window.location.href = url + '?code=' + roomCode;
     }
 }
-// Запуск
-renderCategories();
+
+function resetToMenu() {
+    stopLobbyMusic(); clearInterval(lobbyInterval);
+    if (roomCode) fetch('/api/reset', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})});
+    document.getElementById('lobby').classList.add('hidden');
+    document.getElementById('bottomStart').classList.add('hidden');
+    document.getElementById('bottomCreate').classList.remove('hidden');
+    document.getElementById('game-select').classList.remove('hidden');
+    document.getElementById('createRoomBtn').disabled = true;
+    document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+    selectedGame = null; roomCode = null;
+}
+
+function isPremium() { return JSON.parse(localStorage.getItem('premium')||'{"active":false}').active; }
+function logout() { localStorage.clear(); window.location.href = '/'; }
+
+// Звуки
+let lobbyAudioCtx=null,lobbySource=null,lobbyBuffer=null;
+async function preloadLobbyMusic(){try{if(!lobbyAudioCtx)lobbyAudioCtx=new(window.AudioContext||window.webkitAudioContext)();if(!lobbyBuffer){const r=await fetch('/static/sounds/fon.mp3');lobbyBuffer=await lobbyAudioCtx.decodeAudioData(await r.arrayBuffer());}}catch(e){}}
+function playLobbyMusic(){if(!lobbyBuffer){preloadLobbyMusic().then(()=>playLooped());return;}playLooped();}
+function playLooped(){if(!lobbyBuffer||!lobbyAudioCtx)return;stopLobbyMusic();lobbySource=lobbyAudioCtx.createBufferSource();lobbySource.buffer=lobbyBuffer;lobbySource.loop=true;lobbyGain=lobbyAudioCtx.createGain();lobbyGain.gain.value=0.3;lobbySource.connect(lobbyGain);lobbyGain.connect(lobbyAudioCtx.destination);lobbySource.start(0);}
+function stopLobbyMusic(){if(lobbySource){try{lobbySource.stop(0);}catch(e){}lobbySource=null;}}
+function playPlayerJoin(){try{new Audio('/static/sounds/connection.mp3').play().catch(()=>{});}catch(e){}}
+function playGameStart(){stopLobbyMusic();try{new Audio('/static/sounds/fon.mp3').play().catch(()=>{});}catch(e){}}
+
+loadGames();
 </script>
-
-<script src="/frontend/js/avatar.js"></script>
-
 </body>
 </html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🔥 Правда или Действие</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a14; --text: #fff; --accent: #7c3aed; --accent2: #f472b6;
+            --green: #22c55e; --red: #ef4444; --orange: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Rubik', sans-serif; background: var(--bg);
+            color: var(--text); min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 30px 20px; max-width: 380px; width: 100%;
+            text-align: center;
+        }
+        .title { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+        .info { font-size: 18px; margin: 15px 0; }
+        
+        .btn {
+            width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
+            font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
+            cursor: pointer; color: white; margin-top: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            transition: 0.3s;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-truth { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .btn-dare { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-done { background: linear-gradient(135deg, var(--orange), #d97706); }
+        
+        .task-display {
+            font-size: 24px; font-weight: 800; padding: 20px;
+            background: rgba(255,255,255,0.05); border-radius: 16px;
+            margin: 15px 0; line-height: 1.4;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="screen">
+    <!-- ГОЛОСОВАНИЕ -->
+    <div id="phaseVote" class="hidden">
+        <div class="title">Голосуй!</div>
+        <div class="info">Выбран: <b id="targetName">...</b></div>
+        <button class="btn btn-truth" onclick="vote('truth')">🗣 Правда</button>
+        <button class="btn btn-dare" onclick="vote('dare')">💥 Действие</button>
+    </div>
+
+    <!-- ЗАДАНИЕ -->
+    <div id="phaseTask" class="hidden">
+        <div class="title">Твоё задание!</div>
+        <div class="task-display" id="taskDisplay">...</div>
+        <button class="btn btn-done" onclick="taskDone()">✅ Готово!</button>
+    </div>
+
+    <!-- ОЖИДАНИЕ -->
+    <div id="phaseWait">
+        <div class="title">📺</div>
+        <div class="info" id="waitText">Смотри на ТВ</div>
+    </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
+const playerId = params.get('player') || '';
+
+function vote(type) {
+    fetch('/api/vote', {
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode, player_id:playerId, vote:type})
+    }).then(() => {
+        showPhase('wait');
+        document.getElementById('waitText').textContent = 'Твой голос учтён!';
+    });
+}
+
+function taskDone() {
+    fetch('/api/task_done', {
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:roomCode, player_id:playerId})
+    }).then(() => {
+        showPhase('wait');
+        document.getElementById('waitText').textContent = 'Задание выполнено!';
+    });
+}
+
+function showPhase(phase) {
+    document.getElementById('phaseVote').classList.add('hidden');
+    document.getElementById('phaseTask').classList.add('hidden');
+    document.getElementById('phaseWait').classList.add('hidden');
+    if (phase === 'vote') document.getElementById('phaseVote').classList.remove('hidden');
+    if (phase === 'task') document.getElementById('phaseTask').classList.remove('hidden');
+    if (phase === 'wait') document.getElementById('phaseWait').classList.remove('hidden');
+}
+
+function checkState() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            
+            document.getElementById('targetName').textContent = data.current_player_name || '...';
+            
+            const isMe = data.current_player_id === playerId;
+            
+            if (data.state === 'voting') {
+                if (isMe) {
+                    showPhase('wait');
+                    document.getElementById('waitText').textContent = 'Ты выбран! Жди решения...';
+                } else {
+                    showPhase('vote');
+                }
+            } else if (data.state === 'task' && data.show_task) {
+                if (isMe) {
+                    showPhase('task');
+                    document.getElementById('taskDisplay').textContent = 
+                        (data.task_type === 'truth' ? '🗣 ПРАВДА: ' : '💥 ДЕЙСТВИЕ: ') + 
+                        (data.current_task || '');
+                } else {
+                    showPhase('wait');
+                    document.getElementById('waitText').textContent = 
+                        (data.current_player_name || '') + ' выполняет задание...';
+                }
+            } else if (data.state === 'finished') {
+                showPhase('wait');
+                document.getElementById('waitText').textContent = '🏁 Игра окончена!';
+            } else {
+                showPhase('wait');
+            }
+        });
+}
+
+setInterval(checkState, 2000);
+checkState();
+</script>
+</body>
+</html>

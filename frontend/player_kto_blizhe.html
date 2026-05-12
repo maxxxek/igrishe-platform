@@ -6,88 +6,258 @@
     <title>🎯 Кто ближе? — Игрок</title>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root { --bg: #0a0a14; --text: #fff; --gold: #f59e0b; --green: #22c55e; --purple: #7c3aed; --red: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #0a0a14; font-family: 'Rubik', sans-serif;
-            color: white; min-height: 100vh;
+            background: var(--bg); font-family: 'Rubik', sans-serif;
+            color: var(--text); min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
             padding: 20px;
         }
         .card {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 24px; padding: 30px 20px; max-width: 380px; width: 100%;
-            text-align: center;
+            border-radius: 24px; padding: 30px 20px; max-width: 420px; width: 100%;
+            text-align: center; animation: fadeIn 0.3s ease;
         }
-        .title { font-size: 22px; font-weight: 900; margin-bottom: 15px; }
-        .question { font-size: 18px; margin-bottom: 20px; opacity: 0.9; }
-        .hint { font-size: 14px; opacity: 0.5; margin-bottom: 20px; }
-
-        .bet-control { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 20px 0; }
-        .bet-btn {
-            width: 50px; height: 50px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.05); color: white;
-            font-size: 24px; cursor: pointer;
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Баланс */
+        .balance-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 18px; margin-bottom: 20px;
+            background: rgba(245,158,11,0.08); border-radius: 16px;
+            border: 1px solid rgba(245,158,11,0.15);
         }
-        .bet-btn:active { transform: scale(0.9); }
-        .bet-value { font-size: 40px; font-weight: 900; color: #f59e0b; }
+        .balance-label { font-size: 13px; opacity: 0.6; }
+        .balance-value { font-size: 22px; font-weight: 900; color: var(--gold); }
+        
+        .round-info {
+            display: inline-block; padding: 6px 14px; border-radius: 12px;
+            font-size: 12px; font-weight: 700; margin-bottom: 10px;
+            background: rgba(245,158,11,0.1); color: var(--gold);
+        }
+        
+        .title { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+        .emoji { font-size: 48px; margin: 15px 0; }
+        .question { font-size: 20px; margin-bottom: 20px; opacity: 0.9; line-height: 1.4; font-weight: 600; }
+        
+        .phase-indicator {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; margin-bottom: 10px;
+            background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);
+        }
+        .phase-indicator.active { background: rgba(124,58,237,0.3); color: #a78bfa; }
+        .phase-indicator.done { background: rgba(34,197,94,0.2); color: #4ade80; }
 
         .input-number {
-            width: 100%; padding: 16px; font-size: 28px; text-align: center;
-            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.2);
+            width: 100%; padding: 16px; font-size: 32px; text-align: center;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
             border-radius: 16px; color: white; font-family: 'Rubik', sans-serif;
-            font-weight: 700; outline: none; margin: 15px 0;
+            font-weight: 700; outline: none; margin: 20px 0; transition: 0.3s;
         }
-        .input-number:focus { border-color: #f59e0b; }
+        .input-number:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
+        .input-number::placeholder { color: rgba(255,255,255,0.2); font-size: 18px; }
+        .input-number:disabled { opacity: 0.5; }
 
         .btn {
-            width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
+            width: 100%; padding: 16px; font-family: 'Rubik', sans-serif;
             font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
             cursor: pointer; color: white; margin-top: 10px; transition: 0.3s;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--gold), #d97706);
         }
         .btn:active { transform: scale(0.96); }
-        .btn-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .btn-purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
+        .btn-green { background: linear-gradient(135deg, var(--green), #16a34a); }
+        .btn-red { background: linear-gradient(135deg, var(--red), #dc2626); }
 
-        .result { font-size: 40px; margin: 15px 0; }
+        .variants-list { margin: 20px 0; }
+        .variant-chip {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; margin: 10px 0;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px; cursor: pointer; transition: 0.3s;
+            font-weight: 600; font-size: 18px;
+        }
+        .variant-chip:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+        .variant-chip.selected { border-color: var(--gold); background: rgba(245,158,11,0.15); }
+        .variant-chip .player-name { font-size: 14px; opacity: 0.6; }
+        .variant-chip .check { font-size: 24px; opacity: 0; transition: 0.3s; }
+        .variant-chip.selected .check { opacity: 1; }
+
+        .bet-control { 
+            display: flex; align-items: center; gap: 15px; justify-content: center; 
+            margin: 25px 0; 
+        }
+        .bet-btn {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05); color: white;
+            font-size: 26px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .bet-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+        .bet-value { font-size: 42px; font-weight: 900; color: var(--gold); min-width: 100px; }
+        .bet-range { font-size: 12px; opacity: 0.4; margin-top: -10px; margin-bottom: 20px; }
+
+        .result-emoji { font-size: 64px; margin: 15px 0; animation: bounce 0.6s ease; }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+        .result-text { font-size: 16px; margin: 10px 0; line-height: 1.5; white-space: pre-line; }
+        .result-amount { font-size: 28px; font-weight: 900; color: var(--gold); margin: 15px 0; }
+        
+        .final-stats {
+            background: rgba(255,255,255,0.03); border-radius: 16px;
+            padding: 20px; margin: 20px 0; text-align: left;
+        }
+        .final-stat-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 15px;
+        }
+        .final-stat-row:last-child { border-bottom: none; }
+        .final-stat-label { opacity: 0.6; }
+        .final-stat-value { font-weight: 700; }
+        .final-stat-value.gold { color: var(--gold); }
+        .final-stat-value.green { color: var(--green); }
+        
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+            margin-right: 8px; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .status-dot.waiting { background: var(--gold); }
+        .status-dot.done { background: var(--green); }
+        
         .hidden { display: none !important; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
     </style>
 </head>
 <body>
 
 <div class="card" id="screen">
-    <!-- ЭКРАН 1: ПРАВИЛА + ГОТОВНОСТЬ -->
+    <!-- БАЛАНС -->
+    <div class="balance-bar">
+        <span class="balance-label">💰 Баланс</span>
+        <span class="balance-value" id="playerBalance">0 🪙</span>
+    </div>
+    
+    <!-- ЭКРАН 1: ИНТРО -->
     <div id="introScreen">
+        <div class="emoji">📖</div>
         <div class="title">🎯 Кто ближе?</div>
-        <div class="question">Прочитай правила на ТВ</div>
-        <button class="btn btn-purple" id="btnReady" onclick="setReady()">✅ Я готов!</button>
+        <div class="question">Прочитай правила на ТВ и нажми готовность</div>
+        <button class="btn btn-purple" id="btnReady" onclick="setReady()">
+            <span id="btnReadyText">✅ Я готов!</span>
+        </button>
+        <div style="margin-top:15px;font-size:14px;opacity:0.5;">
+            Ожидаем всех игроков...
+        </div>
     </div>
 
-    <!-- ЭКРАН 2: СТАВКА -->
+    <!-- ЭКРАН 2: ВОПРОС НА ТВ -->
+    <div id="questionScreen" class="hidden">
+        <div class="round-info" id="roundInfoQ">Раунд 1/7</div>
+        <div class="phase-indicator active">📺 ВОПРОС</div>
+        <div class="title">Вопрос на ТВ</div>
+        <div class="question" id="qTextQuestion"></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;opacity:0.6;">
+            <div class="status-dot waiting"></div>
+            <span>Скоро будем писать варианты...</span>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: ПИШЕМ СВОЙ ВАРИАНТ -->
+    <div id="answerScreen" class="hidden">
+        <div class="round-info" id="roundInfoA">Раунд 1/7</div>
+        <div class="phase-indicator active">📝 ТВОЙ ВАРИАНТ</div>
+        <div class="title">Твоя версия</div>
+        <div class="question" id="qTextAnswer"></div>
+        
+        <input type="number" class="input-number" id="answerInput" placeholder="Введи своё число...">
+        <button class="btn btn-purple" id="btnAnswer" onclick="submitAnswer()">
+            📝 Отправить вариант
+        </button>
+        <div style="margin-top:10px;font-size:12px;opacity:0.4;">
+            Пиши что думаешь! Это твой вариант
+        </div>
+    </div>
+
+    <!-- ЭКРАН 4: СМОТРИМ ВАРИАНТЫ -->
+    <div id="showAnswersScreen" class="hidden">
+        <div class="round-info" id="roundInfoS">Раунд 1/7</div>
+        <div class="phase-indicator active">👀 ВАРИАНТЫ</div>
+        <div class="title">Смотрим варианты</div>
+        <div class="question">Смотри на ТВ! Все варианты там</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;opacity:0.6;">
+            <div class="status-dot waiting"></div>
+            <span>Скоро начнутся ставки...</span>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 5: СТАВКИ -->
     <div id="betScreen" class="hidden">
-        <div class="title">💰 Твоя ставка</div>
-        <div class="question" id="qText"></div>
-        <div class="hint" id="qHint"></div>
+        <div class="round-info" id="roundInfoB">Раунд 1/7</div>
+        <div class="phase-indicator active">💰 СТАВКИ</div>
+        <div class="title">На кого ставишь?</div>
+        <div class="question">Выбери чей вариант ближе к истине</div>
+        
+        <div class="variants-list" id="variantsList"></div>
+        
         <div class="bet-control">
             <button class="bet-btn" onclick="changeBet(-50)">−</button>
             <div class="bet-value" id="betAmount">100</div>
             <button class="bet-btn" onclick="changeBet(+50)">+</button>
         </div>
-        <button class="btn" onclick="placeBet()">✅ Ставка</button>
+        <div class="bet-range">🪙 от 50 до 500</div>
+        
+        <button class="btn" id="btnBet" onclick="placeBet()" disabled>
+            💰 Выбери вариант и поставь <span id="betAmountBtn">100</span> 🪙
+        </button>
     </div>
 
-    <!-- ЭКРАН 3: ОТВЕТ -->
-    <div id="answerScreen" class="hidden">
-        <div class="title">📝 Твой ответ</div>
-        <input type="number" class="input-number" id="answerInput" placeholder="Введи число">
-        <button class="btn btn-purple" onclick="submitAnswer()">📝 Отправить</button>
+    <!-- ЭКРАН 6: ОЖИДАНИЕ РЕЗУЛЬТАТА -->
+    <div id="waitResultScreen" class="hidden">
+        <div class="round-info" id="roundInfoW">Раунд 1/7</div>
+        <div class="emoji">⏳</div>
+        <div class="title">Ожидание</div>
+        <div class="question">Ждём вскрытия правильного ответа...</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;opacity:0.6;">
+            <div class="status-dot waiting"></div>
+            <span>Интрига!</span>
+        </div>
     </div>
 
-    <!-- ЭКРАН 4: ЖДЁМ РЕЗУЛЬТАТА -->
-    <div id="waitScreen" class="hidden">
-        <div class="title">⏳ Ожидание</div>
-        <div class="result">📺</div>
-        <div>Смотри на ТВ!</div>
+    <!-- ЭКРАН 7: РЕЗУЛЬТАТ -->
+    <div id="resultScreen" class="hidden">
+        <div class="round-info" id="roundInfoR">Раунд 1/7</div>
+        <div class="phase-indicator done">✅ РЕЗУЛЬТАТ</div>
+        <div class="title">Результат раунда</div>
+        <div class="result-emoji" id="resultEmoji">🎯</div>
+        <div class="result-text" id="resultText"></div>
+        <div class="result-amount" id="resultAmount"></div>
+        <button class="btn btn-green" onclick="waitNextRound()">
+            ➡️ Жду следующий раунд
+        </button>
+    </div>
+
+    <!-- ЭКРАН 8: ФИНАЛ -->
+    <div id="finalScreen" class="hidden">
+        <div class="phase-indicator done">🏆 ИГРА ЗАВЕРШЕНА</div>
+        <div class="emoji" id="finalEmoji">👑</div>
+        <div class="title" id="finalTitle">Игра завершена!</div>
+        <div class="question" id="finalText">Смотри на ТВ!</div>
+        <div class="result-amount" id="finalAmount"></div>
+        
+        <div class="final-stats" id="finalStats"></div>
+        
+        <button class="btn btn-green" onclick="location.reload()">
+            🔄 Играть снова
+        </button>
     </div>
 </div>
 
@@ -96,84 +266,426 @@ const params = new URLSearchParams(window.location.search);
 const roomCode = params.get('code') || '';
 const playerId = params.get('player') || '';
 let bet = 100;
+let selectedTarget = null;
+let hasAnswered = false;
+let hasBet = false;
+let currentPhase = 'intro';
+let lastResultData = null;
+
+// ===== БАЛАНС =====
+function updateBalance() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            const player = data.players?.[playerId];
+            const coins = player?.coins || player?.balance || 0;
+            document.getElementById('playerBalance').textContent = Number(coins).toLocaleString() + ' 🪙';
+        })
+        .catch(() => {
+            document.getElementById('playerBalance').textContent = '0 🪙';
+        });
+}
 
 // ===== ИНТРО =====
 function setReady() {
+    const btn = document.getElementById('btnReady');
+    const btnText = document.getElementById('btnReadyText');
+    
     fetch('/api/pari/ready', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({code: roomCode, player_id: playerId})
-    }).then(() => {
-        document.getElementById('btnReady').textContent = '✅ Ожидание...';
-        document.getElementById('btnReady').disabled = true;
+    }).then(r => r.json()).then(data => {
+        if (data.ok) {
+            btnText.textContent = '✅ Готов!';
+            btn.disabled = true;
+            btn.classList.add('btn-green');
+            btn.classList.remove('btn-purple');
+        }
     });
 }
 
-// ===== СТАВКА =====
-function changeBet(amount) {
-    bet = Math.max(50, Math.min(500, bet + amount));
-    document.getElementById('betAmount').textContent = bet;
-}
-
-function placeBet() {
-    fetch('/api/pari/bet', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: roomCode, player_id: playerId, bet: bet})
-    }).then(() => {
-        document.getElementById('betScreen').classList.add('hidden');
-        document.getElementById('answerScreen').classList.remove('hidden');
-    });
-}
-
-// ===== ОТВЕТ =====
+// ===== ОТВЕТ (свой вариант) =====
 function submitAnswer() {
-    const answer = parseInt(document.getElementById('answerInput').value);
-    if (!answer && answer !== 0) return;
+    if (hasAnswered) return;
+    
+    const input = document.getElementById('answerInput');
+    const answer = parseFloat(input.value);
+    
+    if (isNaN(answer)) {
+        input.style.borderColor = 'var(--red)';
+        input.style.animation = 'shake 0.3s ease';
+        setTimeout(() => {
+            input.style.borderColor = 'rgba(255,255,255,0.15)';
+            input.style.animation = '';
+        }, 300);
+        return;
+    }
+    
+    hasAnswered = true;
+    const btn = document.getElementById('btnAnswer');
+    btn.disabled = true;
+    btn.textContent = '⏳ Отправляем...';
+    input.disabled = true;
     
     fetch('/api/pari/answer', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({code: roomCode, player_id: playerId, answer: answer})
-    }).then(() => {
-        document.getElementById('answerScreen').classList.add('hidden');
-        document.getElementById('waitScreen').classList.remove('hidden');
+    }).then(r => r.json()).then(data => {
+        if (data.ok) {
+            btn.textContent = '✅ Вариант отправлен!';
+            btn.classList.add('btn-green');
+        }
     });
 }
 
-// ===== АВТООБНОВЛЕНИЕ =====
+// ===== СТАВКИ =====
+function loadVariants() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            const answers = data.pari_answers || {};
+            const players = data.players || {};
+            const currentPlayerName = players[playerId]?.name || 'Вы';
+            
+            let variantsHTML = '';
+            Object.entries(answers).forEach(([pid, val]) => {
+                const playerName = pid === playerId ? `${currentPlayerName} (вы)` : (players[pid]?.name || 'Игрок');
+                variantsHTML += `
+                    <div class="variant-chip" data-target="${pid}" onclick="selectVariant('${pid}')">
+                        <div>
+                            <div style="font-size:20px;">${Number(val).toLocaleString()}</div>
+                            <div class="player-name">${playerName}</div>
+                        </div>
+                        <div class="check">✓</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('variantsList').innerHTML = variantsHTML || '<div style="opacity:0.5;">Нет вариантов</div>';
+        });
+}
+
+function selectVariant(targetId) {
+    selectedTarget = targetId;
+    
+    document.querySelectorAll('.variant-chip').forEach(chip => {
+        chip.classList.remove('selected');
+        if (chip.dataset.target === targetId) {
+            chip.classList.add('selected');
+        }
+    });
+    
+    document.getElementById('btnBet').disabled = false;
+}
+
+function changeBet(amount) {
+    bet = Math.max(50, Math.min(500, bet + amount));
+    const betAmount = document.getElementById('betAmount');
+    const betAmountBtn = document.getElementById('betAmountBtn');
+    
+    if (betAmount) betAmount.textContent = bet;
+    if (betAmountBtn) betAmountBtn.textContent = bet;
+}
+
+function placeBet() {
+    if (!selectedTarget || hasBet) return;
+    
+    hasBet = true;
+    const btn = document.getElementById('btnBet');
+    btn.disabled = true;
+    btn.textContent = '⏳ Отправляем ставку...';
+    
+    fetch('/api/pari/bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            code: roomCode, 
+            player_id: playerId, 
+            bet: bet,
+            target: selectedTarget
+        })
+    }).then(r => r.json()).then(data => {
+        if (data.ok) {
+            btn.textContent = '✅ Ставка принята!';
+            btn.classList.add('btn-green');
+        }
+    });
+}
+
+// ===== РЕЗУЛЬТАТ =====
+function loadResult() {
+    fetch('/api/pari/results?code=' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            lastResultData = data;
+            
+            const winners = data.winners || [];
+            const closest = data.closest_player;
+            const winAmount = data.win_amount || 0;
+            const correctAnswer = data.correct_answer || 0;
+            const unit = data.unit || '';
+            const answers = data.answers || [];
+            
+            const myAnswer = answers.find(a => a.player_id === playerId);
+            const isWinner = winners.some(w => w.player_id === playerId);
+            const isClosest = closest && closest.player_id === playerId;
+            const myDiff = myAnswer ? Math.abs(myAnswer.answer - correctAnswer) : 0;
+            
+            let emoji, title, text, amount;
+            
+            if (isWinner) {
+                emoji = '🏆';
+                title = 'Победа!';
+                text = `Ты поставил на правильный вариант и выиграл!\nПравильный ответ: ${correctAnswer.toLocaleString()} ${unit}`;
+                amount = `+${winAmount} 🪙`;
+                if (isClosest) text += '\nИ твой ответ был ближе всех!';
+            } else if (isClosest) {
+                emoji = '🎯';
+                title = 'Точно в цель!';
+                text = `Твой ответ был ближе всех!\nПравильный ответ: ${correctAnswer.toLocaleString()} ${unit}\nТвой ответ: ${myAnswer.answer.toLocaleString()} ${unit}\nРазница: ${myDiff.toLocaleString()} ${unit}`;
+                amount = 'Но никто не поставил на тебя 😢';
+            } else if (myAnswer) {
+                emoji = '😢';
+                title = 'Не в этот раз';
+                text = `Твой ответ: ${myAnswer.answer.toLocaleString()} ${unit}\nПравильный ответ: ${correctAnswer.toLocaleString()} ${unit}\nРазница: ${myDiff.toLocaleString()} ${unit}`;
+                amount = 'Попробуй в следующем раунде!';
+            } else {
+                emoji = '🤔';
+                title = 'Результат';
+                text = `Правильный ответ: ${correctAnswer.toLocaleString()} ${unit}`;
+                amount = '';
+            }
+            
+            document.getElementById('resultEmoji').textContent = emoji;
+            document.getElementById('resultText').textContent = text;
+            document.getElementById('resultAmount').textContent = amount;
+            
+            showScreen('resultScreen');
+            updateBalance();
+        })
+        .catch(err => {
+            console.error('Ошибка загрузки результата:', err);
+            document.getElementById('resultEmoji').textContent = '❌';
+            document.getElementById('resultText').textContent = 'Ошибка загрузки результата';
+            document.getElementById('resultAmount').textContent = '';
+            showScreen('resultScreen');
+        });
+}
+
+// ===== ФИНАЛ =====
+function showFinalScreen() {
+    const data = lastResultData || {};
+    const answers = data.answers || [];
+    const winners = data.winners || [];
+    const winAmount = data.win_amount || 0;
+    const correct = data.correct_answer || 0;
+    const unit = data.unit || '';
+    
+    const isWinner = winners.some(w => w.player_id === playerId);
+    const myAnswer = answers.find(a => a.player_id === playerId);
+    
+    showScreen('finalScreen');
+    
+    if (isWinner) {
+        document.getElementById('finalEmoji').textContent = '🏆';
+        document.getElementById('finalTitle').textContent = 'Ты чемпион!';
+        document.getElementById('finalText').textContent = 'Ты выиграл последний раунд!';
+        document.getElementById('finalAmount').textContent = `+${winAmount} 🪙`;
+    } else if (myAnswer) {
+        document.getElementById('finalEmoji').textContent = '🎮';
+        document.getElementById('finalTitle').textContent = 'Игра завершена!';
+        document.getElementById('finalText').textContent = 'Спасибо за игру!';
+        document.getElementById('finalAmount').textContent = '';
+    } else {
+        document.getElementById('finalEmoji').textContent = '🎮';
+        document.getElementById('finalTitle').textContent = 'Игра завершена!';
+        document.getElementById('finalText').textContent = 'Спасибо за игру!';
+        document.getElementById('finalAmount').textContent = '';
+    }
+    
+    // Статистика
+    let statsHTML = '';
+    
+    if (myAnswer) {
+        const rank = [...answers].sort((a, b) => a.diff - b.diff).findIndex(a => a.player_id === playerId) + 1;
+        
+        statsHTML += `
+            <div class="final-stat-row">
+                <span class="final-stat-label">🎯 Твой ответ</span>
+                <span class="final-stat-value">${myAnswer.answer.toLocaleString()} ${unit}</span>
+            </div>
+            <div class="final-stat-row">
+                <span class="final-stat-label">✅ Правильный</span>
+                <span class="final-stat-value green">${correct.toLocaleString()} ${unit}</span>
+            </div>
+            <div class="final-stat-row">
+                <span class="final-stat-label">📏 Разница</span>
+                <span class="final-stat-value">${myAnswer.diff.toLocaleString()} ${unit}</span>
+            </div>
+            <div class="final-stat-row">
+                <span class="final-stat-label">🏅 Место в раунде</span>
+                <span class="final-stat-value gold">#${rank}</span>
+            </div>
+        `;
+    }
+    
+    if (isWinner) {
+        statsHTML += `
+            <div class="final-stat-row">
+                <span class="final-stat-label">💰 Выигрыш</span>
+                <span class="final-stat-value gold">+${winAmount} 🪙</span>
+            </div>
+        `;
+    }
+    
+    if (!statsHTML) {
+        statsHTML = '<div style="text-align:center;opacity:0.5;">Нет данных</div>';
+    }
+    
+    document.getElementById('finalStats').innerHTML = statsHTML;
+    updateBalance();
+}
+
+// ===== СЛЕДУЮЩИЙ РАУНД =====
+function waitNextRound() {
+    showScreen('questionScreen');
+}
+
+// ===== УПРАВЛЕНИЕ ЭКРАНАМИ =====
+function showScreen(id) {
+    const screens = document.querySelectorAll('#screen > div');
+    screens.forEach(s => {
+        if (s.classList.contains('balance-bar')) return; // Не скрываем баланс
+        s.classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+}
+
+// ===== ОБНОВЛЕНИЕ СЧЁТЧИКА РАУНДОВ =====
+function updateRoundInfo() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            const q = data.pari_question;
+            if (!q) return;
+            
+            const text = `Раунд ${q.round || 1}/${q.total || 7}`;
+            ['Q', 'A', 'S', 'B', 'W', 'R'].forEach(suffix => {
+                const el = document.getElementById('roundInfo' + suffix);
+                if (el) el.textContent = text;
+            });
+        });
+}
+
+// ===== ПРОВЕРКА СОСТОЯНИЯ =====
 function checkState() {
     fetch('/api/state/' + roomCode)
         .then(r => r.json())
         .then(data => {
-            const q = data.pari_question || data.current_question;
-            if (q) {
-                document.getElementById('qText').textContent = q.question || q.text;
-                document.getElementById('qHint').textContent = 'Подсказка: ' + (q.hint || '');
+            if (data.error) return;
+            
+            // Обновляем баланс
+            updateBalance();
+            updateRoundInfo();
+            
+            // Проверяем завершение игры
+            if (data.state === 'finished') {
+                showFinalScreen();
+                return;
             }
             
-            // Переключение экранов по фазе
-            if (data.pari_phase === 'bet') {
-                document.getElementById('introScreen').classList.add('hidden');
-                document.getElementById('betScreen').classList.remove('hidden');
-                document.getElementById('answerScreen').classList.add('hidden');
-                document.getElementById('waitScreen').classList.add('hidden');
-            } else if (data.pari_phase === 'answer') {
-                document.getElementById('introScreen').classList.add('hidden');
-                document.getElementById('betScreen').classList.add('hidden');
-                document.getElementById('answerScreen').classList.remove('hidden');
-                document.getElementById('waitScreen').classList.add('hidden');
-            } else if (data.pari_phase === 'result') {
-                document.getElementById('introScreen').classList.add('hidden');
-                document.getElementById('betScreen').classList.add('hidden');
-                document.getElementById('answerScreen').classList.add('hidden');
-                document.getElementById('waitScreen').classList.remove('hidden');
+            const q = data.pari_question;
+            const phase = data.pari_phase || 'intro';
+            const answers = data.pari_answers || {};
+            const bets = data.pari_bets || {};
+            
+            // Обновляем вопросы
+            if (q) {
+                const qText = q.question || '';
+                document.getElementById('qTextQuestion').textContent = qText;
+                document.getElementById('qTextAnswer').textContent = qText;
             }
+            
+            // Переключение фаз
+            if (phase !== currentPhase) {
+                currentPhase = phase;
+                
+                switch(phase) {
+                    case 'intro':
+                        showScreen('introScreen');
+                        break;
+                    
+                    case 'question':
+                        showScreen('questionScreen');
+                        break;
+                    
+                    case 'answer':
+                        hasAnswered = false;
+                        showScreen('answerScreen');
+                        const input = document.getElementById('answerInput');
+                        const btn = document.getElementById('btnAnswer');
+                        if (input) { input.value = ''; input.disabled = false; }
+                        if (btn) { btn.disabled = false; btn.textContent = '📝 Отправить вариант'; btn.classList.remove('btn-green'); }
+                        break;
+                    
+                    case 'show_answers':
+                        showScreen('showAnswersScreen');
+                        break;
+                    
+                    case 'bet':
+                        hasBet = false;
+                        selectedTarget = null;
+                        showScreen('betScreen');
+                        loadVariants();
+                        const betBtn = document.getElementById('btnBet');
+                        if (betBtn) { betBtn.disabled = true; betBtn.textContent = `💰 Выбери вариант и поставь ${bet} 🪙`; betBtn.classList.remove('btn-green'); }
+                        document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('selected'));
+                        break;
+                    
+                    case 'result':
+                        showScreen('waitResultScreen');
+                        loadResult();
+                        break;
+                    
+                    default:
+                        showScreen('questionScreen');
+                }
+            }
+            
+            // Если игрок уже ответил в фазе answer
+            if (phase === 'answer' && answers[playerId] !== undefined) {
+                hasAnswered = true;
+                const input = document.getElementById('answerInput');
+                const btn = document.getElementById('btnAnswer');
+                if (input) { input.value = answers[playerId]; input.disabled = true; }
+                if (btn) { btn.disabled = true; btn.textContent = '✅ Вариант отправлен!'; btn.classList.add('btn-green'); }
+            }
+            
+            // Если игрок уже поставил в фазе bet
+            if (phase === 'bet' && bets[playerId]) {
+                hasBet = true;
+                const betBtn = document.getElementById('btnBet');
+                if (betBtn) { betBtn.disabled = true; betBtn.textContent = '✅ Ставка принята!'; betBtn.classList.add('btn-green'); }
+                document.getElementById('betAmount').textContent = bets[playerId];
+            }
+        })
+        .catch(err => {
+            console.error('Ошибка проверки состояния:', err);
         });
 }
 
-setInterval(checkState, 2000);
+// ===== ЗАПУСК =====
+showScreen('introScreen');
+updateBalance();
+updateRoundInfo();
 checkState();
+setInterval(checkState, 1500);
+
+console.log('🎯 Кто ближе? - Игрок загружен');
+console.log('📋 Комната:', roomCode);
+console.log('👤 Игрок:', playerId);
 </script>
 </body>
 </html>

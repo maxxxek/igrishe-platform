@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Правда или Действие — ТВ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a14; --text: #fff; --accent: #7c3aed; --accent2: #f472b6;
+            --green: #22c55e; --red: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Rubik', sans-serif; background: var(--bg);
+            color: var(--text); min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .container { width: 100%; max-width: 800px; }
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 30px; margin: 15px 0;
+            text-align: center;
+        }
+        .title { font-size: 36px; font-weight: 900; margin-bottom: 5px; }
+        .subtitle { font-size: 16px; opacity: 0.5; margin-bottom: 20px; }
+        .round { font-size: 14px; opacity: 0.4; margin-bottom: 10px; }
+        
+        .player-name {
+            font-size: 48px; font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+        .vote-box { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+        .vote-card {
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 30px 40px; font-size: 20px; font-weight: 800;
+        }
+        .vote-count { font-size: 48px; font-weight: 900; margin-top: 10px; }
+        .task-text {
+            font-size: 32px; font-weight: 800; padding: 30px;
+            background: rgba(255,255,255,0.05); border-radius: 20px;
+            margin: 20px 0; line-height: 1.4;
+        }
+        
+        .players-status { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 15px 0; }
+        .player-chip {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); padding: 8px 16px;
+            border-radius: 20px; font-weight: 600; font-size: 14px;
+        }
+        .player-chip.voted { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); }
+        .player-chip.selected { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot.green { background: var(--green); }
+        .dot.purple { background: var(--accent); }
+        .dot.gray { background: rgba(255,255,255,0.2); }
+
+        .scores-list { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+        .score-card {
+            background: rgba(255,255,255,0.05); padding: 10px 18px;
+            border-radius: 12px; text-align: center; font-weight: 700; font-size: 14px;
+        }
+        .score-card.top { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3); }
+
+        .btn {
+            padding: 14px 40px; font-family: 'Rubik', sans-serif;
+            font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
+            cursor: pointer; color: white; margin: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            transition: 0.3s;
+        }
+        .btn:hover { transform: scale(1.03); }
+        .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ГОЛОСОВАНИЕ -->
+    <div class="card" id="screenVoting">
+        <div class="title">🔥 Правда или Действие</div>
+        <div class="round" id="roundInfo">Раунд 1/5</div>
+        <div class="subtitle">Выбран:</div>
+        <div class="player-name" id="currentPlayer">...</div>
+        <div class="subtitle">Голосуйте!</div>
+        <div class="vote-box">
+            <div class="vote-card">
+                🗣 Правда
+                <div class="vote-count" id="truthCount">0</div>
+            </div>
+            <div class="vote-card">
+                💥 Действие
+                <div class="vote-count" id="dareCount">0</div>
+            </div>
+        </div>
+        <div class="players-status" id="votingStatus"></div>
+    </div>
+
+    <!-- ЗАДАНИЕ -->
+    <div class="card hidden" id="screenTask">
+        <div class="title" id="taskTypeTitle">Задание</div>
+        <div class="player-name" id="taskPlayer"></div>
+        <div class="task-text" id="taskText">...</div>
+        <div class="subtitle">Ожидаем выполнения...</div>
+        <div class="players-status" id="taskStatus"></div>
+    </div>
+
+    <!-- РЕЗУЛЬТАТЫ -->
+    <div class="card hidden" id="screenScores">
+        <div class="title">🏆 Результаты</div>
+        <div class="scores-list" id="finalScores"></div>
+        <button class="btn" onclick="playAgain()">🔄 Сыграть ещё</button>
+    </div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
+let updateInterval = null;
+
+function updateScreen() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            
+            document.getElementById('roundInfo').textContent = 
+                `Раунд ${(data.round||0)+1}/${data.total_rounds||5}`;
+            
+            if (data.state === 'voting') {
+                showScreen('screenVoting');
+                document.getElementById('currentPlayer').textContent = 
+                    data.current_player_name || '...';
+                
+                const votes = data.votes || {};
+                document.getElementById('truthCount').textContent = 
+                    Object.values(votes).filter(v => v === 'truth').length;
+                document.getElementById('dareCount').textContent = 
+                    Object.values(votes).filter(v => v === 'dare').length;
+                
+                document.getElementById('votingStatus').innerHTML = 
+                    Object.entries(data.players||{}).map(([id, p]) => {
+                        const isSelected = id === data.current_player_id;
+                        const hasVoted = votes[id] !== undefined;
+                        return `<div class="player-chip ${isSelected?'selected':hasVoted?'voted':''}">
+                            <div class="dot ${isSelected?'purple':hasVoted?'green':'gray'}"></div>
+                            ${p.name} ${isSelected?'🎯':hasVoted?'✅':'⏳'}
+                        </div>`;
+                    }).join('');
+                    
+            } else if (data.state === 'task' && data.show_task) {
+                showScreen('screenTask');
+                document.getElementById('taskPlayer').textContent = 
+                    data.current_player_name || '';
+                document.getElementById('taskText').textContent = 
+                    (data.task_type === 'truth' ? '🗣 ПРАВДА: ' : '💥 ДЕЙСТВИЕ: ') + 
+                    (data.current_task || '');
+                document.getElementById('taskTypeTitle').textContent = 
+                    data.task_type === 'truth' ? '🗣 Правда' : '💥 Действие';
+                
+                document.getElementById('taskStatus').innerHTML = 
+                    Object.entries(data.players||{}).map(([id, p]) => {
+                        const isSelected = id === data.current_player_id;
+                        return `<div class="player-chip ${isSelected?'selected':''}">
+                            <div class="dot ${isSelected?'purple':'gray'}"></div>
+                            ${p.name} ${isSelected?'🎯':'👀'}
+                        </div>`;
+                    }).join('');
+                    
+            } else if (data.state === 'finished') {
+                showScreen('screenScores');
+                const scores = data.scores || {};
+                const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+                document.getElementById('finalScores').innerHTML = sorted
+                    .map(([id, s], i) => {
+                        const medals = ['🥇','🥈','🥉'];
+                        const p = data.players?.[id];
+                        return `<div class="score-card ${i===0?'top':''}">
+                            ${medals[i]||'🏅'} ${p?.name||'Игрок'}: ${s}
+                        </div>`;
+                    }).join('');
+            }
+        });
+}
+
+function showScreen(id) {
+    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function playAgain() {
+    fetch('/api/reset', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:roomCode})})
+        .then(() => window.location.href = '/tv');
+}
+
+updateScreen();
+updateInterval = setInterval(updateScreen, 1500);
+</script>
+</body>
+</html>

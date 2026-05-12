@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Мафия — ТВ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0a0a14; --text: #fff; --accent: #7c3aed; --red: #ef4444; --green: #22c55e; --gold: #f59e0b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Rubik', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 800px; }
+        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 30px; text-align: center; }
+        .title { font-size: 32px; font-weight: 900; margin-bottom: 5px; }
+        .phase { font-size: 18px; opacity: 0.5; margin-bottom: 20px; }
+        .players-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        .player-card {
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 15px 20px; text-align: center; min-width: 100px;
+        }
+        .player-card.alive { border-color: var(--green); }
+        .player-card.dead { opacity: 0.3; border-color: var(--red); text-decoration: line-through; }
+        .player-icon { font-size: 36px; display: block; margin-bottom: 5px; }
+        .player-name { font-weight: 700; font-size: 14px; }
+        .event { font-size: 20px; margin: 15px 0; color: var(--gold); }
+        .btn {
+            padding: 14px 40px; font-family: 'Rubik', sans-serif; font-weight: 800; font-size: 18px;
+            border: none; border-radius: 30px; cursor: pointer; color: white; margin: 8px;
+            background: linear-gradient(135deg, var(--accent), #a855f7); transition: 0.3s;
+        }
+        .btn:hover { transform: scale(1.03); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="title">🕵️ Мафия</div>
+        <div class="phase" id="phaseDisplay">Ночь</div>
+        <div class="players-grid" id="playersGrid"></div>
+        <div class="event" id="eventText"></div>
+        <div class="scores-list" id="scoresDisplay"></div>
+    </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
+
+function updateScreen() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            
+            document.getElementById('phaseDisplay').textContent = 
+                data.mafia_phase === 'night' ? '🌙 Ночь' : 
+                data.mafia_phase === 'day' ? '☀️ День' : 
+                data.mafia_phase === 'voting' ? '🗳 Голосование' : '🏁 Финал';
+            
+            const players = data.players || {};
+            document.getElementById('playersGrid').innerHTML = Object.entries(players).map(([id, p]) => `
+                <div class="player-card ${p.alive ? 'alive' : 'dead'}">
+                    <span class="player-icon">${p.alive ? '🙂' : '💀'}</span>
+                    <div class="player-name">${p.name}</div>
+                </div>
+            `).join('');
+            
+            if (data.mafia_killed_tonight) {
+                const killed = players[data.mafia_killed_tonight];
+                document.getElementById('eventText').textContent = 
+                    killed ? `💀 ${killed.name} был убит этой ночью` : '';
+            }
+            
+            if (data.state === 'finished') {
+                document.getElementById('eventText').textContent = 
+                    `🏁 Игра окончена! Победили: ${data.mafia_winner || '?'}`;
+            }
+        });
+}
+
+setInterval(updateScreen, 2000);
+updateScreen();
+</script>
+</body>
+</html>
