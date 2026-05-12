@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎯 Кто ближе? — Игрок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a14; font-family: 'Rubik', sans-serif;
+            color: white; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 30px 20px; max-width: 380px; width: 100%;
+            text-align: center;
+        }
+        .title { font-size: 22px; font-weight: 900; margin-bottom: 15px; }
+        .question { font-size: 18px; margin-bottom: 20px; opacity: 0.9; }
+        .hint { font-size: 14px; opacity: 0.5; margin-bottom: 20px; }
+
+        .bet-control { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 20px 0; }
+        .bet-btn {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05); color: white;
+            font-size: 24px; cursor: pointer;
+        }
+        .bet-btn:active { transform: scale(0.9); }
+        .bet-value { font-size: 40px; font-weight: 900; color: #f59e0b; }
+
+        .input-number {
+            width: 100%; padding: 16px; font-size: 28px; text-align: center;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 16px; color: white; font-family: 'Rubik', sans-serif;
+            font-weight: 700; outline: none; margin: 15px 0;
+        }
+        .input-number:focus { border-color: #f59e0b; }
+
+        .btn {
+            width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
+            font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
+            cursor: pointer; color: white; margin-top: 10px; transition: 0.3s;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+
+        .result { font-size: 40px; margin: 15px 0; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="screen">
+    <!-- ЭКРАН 1: ПРАВИЛА + ГОТОВНОСТЬ -->
+    <div id="introScreen">
+        <div class="title">🎯 Кто ближе?</div>
+        <div class="question">Прочитай правила на ТВ</div>
+        <button class="btn btn-purple" id="btnReady" onclick="setReady()">✅ Я готов!</button>
+    </div>
+
+    <!-- ЭКРАН 2: СТАВКА -->
+    <div id="betScreen" class="hidden">
+        <div class="title">💰 Твоя ставка</div>
+        <div class="question" id="qText"></div>
+        <div class="hint" id="qHint"></div>
+        <div class="bet-control">
+            <button class="bet-btn" onclick="changeBet(-50)">−</button>
+            <div class="bet-value" id="betAmount">100</div>
+            <button class="bet-btn" onclick="changeBet(+50)">+</button>
+        </div>
+        <button class="btn" onclick="placeBet()">✅ Ставка</button>
+    </div>
+
+    <!-- ЭКРАН 3: ОТВЕТ -->
+    <div id="answerScreen" class="hidden">
+        <div class="title">📝 Твой ответ</div>
+        <input type="number" class="input-number" id="answerInput" placeholder="Введи число">
+        <button class="btn btn-purple" onclick="submitAnswer()">📝 Отправить</button>
+    </div>
+
+    <!-- ЭКРАН 4: ЖДЁМ РЕЗУЛЬТАТА -->
+    <div id="waitScreen" class="hidden">
+        <div class="title">⏳ Ожидание</div>
+        <div class="result">📺</div>
+        <div>Смотри на ТВ!</div>
+    </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const roomCode = params.get('code') || '';
+const playerId = params.get('player') || '';
+let bet = 100;
+
+// ===== ИНТРО =====
+function setReady() {
+    fetch('/api/pari/ready', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, player_id: playerId})
+    }).then(() => {
+        document.getElementById('btnReady').textContent = '✅ Ожидание...';
+        document.getElementById('btnReady').disabled = true;
+    });
+}
+
+// ===== СТАВКА =====
+function changeBet(amount) {
+    bet = Math.max(50, Math.min(500, bet + amount));
+    document.getElementById('betAmount').textContent = bet;
+}
+
+function placeBet() {
+    fetch('/api/pari/bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, player_id: playerId, bet: bet})
+    }).then(() => {
+        document.getElementById('betScreen').classList.add('hidden');
+        document.getElementById('answerScreen').classList.remove('hidden');
+    });
+}
+
+// ===== ОТВЕТ =====
+function submitAnswer() {
+    const answer = parseInt(document.getElementById('answerInput').value);
+    if (!answer && answer !== 0) return;
+    
+    fetch('/api/pari/answer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode, player_id: playerId, answer: answer})
+    }).then(() => {
+        document.getElementById('answerScreen').classList.add('hidden');
+        document.getElementById('waitScreen').classList.remove('hidden');
+    });
+}
+
+// ===== АВТООБНОВЛЕНИЕ =====
+function checkState() {
+    fetch('/api/state/' + roomCode)
+        .then(r => r.json())
+        .then(data => {
+            const q = data.pari_question || data.current_question;
+            if (q) {
+                document.getElementById('qText').textContent = q.question || q.text;
+                document.getElementById('qHint').textContent = 'Подсказка: ' + (q.hint || '');
+            }
+            
+            // Переключение экранов по фазе
+            if (data.pari_phase === 'bet') {
+                document.getElementById('introScreen').classList.add('hidden');
+                document.getElementById('betScreen').classList.remove('hidden');
+                document.getElementById('answerScreen').classList.add('hidden');
+                document.getElementById('waitScreen').classList.add('hidden');
+            } else if (data.pari_phase === 'answer') {
+                document.getElementById('introScreen').classList.add('hidden');
+                document.getElementById('betScreen').classList.add('hidden');
+                document.getElementById('answerScreen').classList.remove('hidden');
+                document.getElementById('waitScreen').classList.add('hidden');
+            } else if (data.pari_phase === 'result') {
+                document.getElementById('introScreen').classList.add('hidden');
+                document.getElementById('betScreen').classList.add('hidden');
+                document.getElementById('answerScreen').classList.add('hidden');
+                document.getElementById('waitScreen').classList.remove('hidden');
+            }
+        });
+}
+
+setInterval(checkState, 2000);
+checkState();
+</script>
+</body>
+</html>

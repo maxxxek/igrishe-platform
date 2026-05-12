@@ -7,292 +7,362 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f0f1a;
+            --bg: #0a0a14;
             --card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.06);
             --text: #fff;
             --gold: #f59e0b;
-            --accent: #7c3aed;
+            --green: #22c55e;
+            --purple: #7c3aed;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg); font-family: 'Rubik', sans-serif;
             color: var(--text); min-height: 100vh;
-            display: flex; justify-content: center; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
         }
-        .layout {
-            display: flex; gap: 20px; max-width: 1200px; width: 100%;
-            align-items: flex-start;
-        }
-        
-        /* РУЛЕТКА */
-        .roulette-panel {
-            flex: 3; background: var(--card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 24px; padding: 30px;
+        .container { width: 100%; max-width: 900px; }
+
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 24px; padding: 30px; margin: 15px 0;
             text-align: center;
+            animation: fadeIn 0.5s ease;
         }
-        .question-text {
-            font-size: 28px; font-weight: 800; margin-bottom: 10px;
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .title { font-size: 32px; font-weight: 900; margin-bottom: 5px; }
+        .subtitle { font-size: 16px; opacity: 0.5; margin-bottom: 20px; }
+
+        /* ИГРОКИ ВНИЗУ */
+        .players-bar {
+            display: flex; gap: 10px; justify-content: center;
+            flex-wrap: wrap; margin-top: 20px;
         }
-        .hint-text {
-            font-size: 16px; opacity: 0.5; margin-bottom: 30px;
-        }
-        
-        /* БАРАБАН */
-        .wheel-container {
-            position: relative; width: 400px; height: 400px;
-            margin: 0 auto 30px;
-        }
-        .wheel {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: conic-gradient(
-                #e94560 0deg 60deg, #f59e0b 60deg 120deg,
-                #22c55e 120deg 180deg, #3b82f6 180deg 240deg,
-                #a855f7 240deg 300deg, #ec4899 300deg 360deg
-            );
-            position: relative;
-            animation: spin 0.5s ease-out;
-            box-shadow: 0 0 60px rgba(245,158,11,0.3), inset 0 0 30px rgba(0,0,0,0.3);
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(var(--spin-deg, 720deg)); }
-        }
-        .wheel-center {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 120px; height: 120px; border-radius: 50%;
-            background: var(--bg); border: 3px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 36px; font-weight: 900;
-        }
-        .wheel-pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid white;
-            z-index: 10;
-        }
-        .wheel-segment {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-        }
-        
-        /* ФАЗЫ */
-        .phase-badge {
-            display: inline-block; padding: 8px 20px; border-radius: 20px;
-            font-weight: 800; font-size: 14px; margin-bottom: 20px;
-        }
-        .phase-bet { background: rgba(245,158,11,0.2); color: #f59e0b; }
-        .phase-answer { background: rgba(124,58,237,0.2); color: #a855f7; }
-        .phase-result { background: rgba(34,197,94,0.2); color: #22c55e; }
-        
-        /* СТАВКИ (правая панель) */
-        .bet-panel {
-            flex: 1; min-width: 250px;
-            background: var(--card); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 24px; padding: 20px;
-        }
-        .bet-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; }
-        .player-row {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px; border-radius: 12px;
-            background: rgba(255,255,255,0.02); margin-bottom: 8px;
+        .player-chip {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); padding: 10px 18px;
+            border-radius: 25px; font-weight: 600; font-size: 14px;
             transition: 0.3s;
         }
-        .player-row.bet-placed { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
-        .player-color {
-            width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+        .player-chip.ready { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.3); }
+        .player-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* ПРОГРЕСС-БАР */
+        .progress-wrapper {
+            position: relative; height: 80px; margin: 30px 0;
+            background: rgba(255,255,255,0.03); border-radius: 40px;
+            overflow: visible;
         }
-        .player-name { flex: 1; font-weight: 600; font-size: 14px; }
-        .player-bet {
-            font-weight: 800; font-size: 14px;
-            padding: 4px 10px; border-radius: 12px;
-            background: rgba(255,255,255,0.05);
+        .progress-track {
+            position: absolute; top: 50%; left: 5%; right: 5%;
+            height: 6px; background: rgba(255,255,255,0.08);
+            transform: translateY(-50%); border-radius: 3px;
         }
-        .player-answer {
-            font-weight: 800; font-size: 16px; color: #f59e0b;
+        .progress-marker {
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 3px solid white; z-index: 2; cursor: pointer;
+            transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
-        /* БАНК */
-        .bank-display {
-            text-align: center; margin: 20px 0;
-            font-size: 36px; font-weight: 900; color: var(--gold);
+        .progress-marker .label {
+            position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+            font-size: 11px; font-weight: 700; white-space: nowrap;
+            opacity: 0; transition: 0.3s;
         }
-        
+        .progress-marker.revealed .label { opacity: 1; }
+        .correct-flag {
+            position: absolute; top: -35px; transform: translateX(-50%);
+            font-size: 20px; opacity: 0; transition: 0.5s;
+        }
+        .correct-flag.show { opacity: 1; }
+        .correct-marker {
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--green); border: 4px solid white;
+            z-index: 3; opacity: 0; transition: opacity 0.5s;
+            box-shadow: 0 0 30px rgba(34,197,94,0.6);
+        }
+        .correct-marker.show { opacity: 1; }
+
+        /* ТАЙМЕР */
+        .timer {
+            font-size: 48px; font-weight: 900; color: var(--gold);
+            margin: 15px 0;
+        }
+        .timer.urgent { color: #ef4444; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        .question-text {
+            font-size: 28px; font-weight: 800; margin: 15px 0; line-height: 1.4;
+        }
+        .question-text .typing { border-right: 3px solid var(--gold); animation: blink 0.7s infinite; }
+        @keyframes blink { 0%,100%{border-color:transparent;} 50%{border-color:var(--gold);} }
+
         .btn {
-            padding: 12px 30px; font-family: 'Rubik', sans-serif;
+            padding: 14px 40px; font-family: 'Rubik', sans-serif;
             font-weight: 800; font-size: 18px; border: none; border-radius: 30px;
-            cursor: pointer; color: white; margin: 5px; transition: 0.3s;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            cursor: pointer; color: white; margin: 8px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            transition: 0.3s;
         }
         .btn:hover { transform: scale(1.03); }
-        
-        .answer-grid {
-            display: flex; gap: 15px; justify-content: center;
-            flex-wrap: wrap; margin: 20px 0;
-        }
-        .answer-card {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px; padding: 20px 15px; text-align: center;
-            min-width: 120px;
-        }
-        .answer-card.closest {
-            border-color: var(--gold); background: rgba(245,158,11,0.1);
-            box-shadow: 0 0 20px rgba(245,158,11,0.3);
-        }
-        .answer-value { font-size: 28px; font-weight: 900; }
-        .answer-name { font-size: 12px; opacity: 0.6; margin-top: 5px; }
-        .answer-diff { font-size: 14px; font-weight: 700; margin-top: 5px; }
-        .answer-diff.win { color: #22c55e; }
-        .answer-diff.lose { color: #ef4444; }
+        .btn-purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
+        .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .winner-banner { font-size: 36px; font-weight: 900; color: var(--green); margin: 15px 0; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-<div class="layout">
+<div class="container">
 
-    <!-- РУЛЕТКА -->
-    <div class="roulette-panel" id="roulettePanel">
-        <!-- ФАЗА: ВОПРОС -->
-        <div id="phaseQuestion">
-            <div class="phase-badge phase-bet">🎯 Вопрос</div>
-            <div class="question-text" id="qText">Загрузка...</div>
-            <div class="hint-text" id="qHint"></div>
-            <div class="wheel-container">
-                <div class="wheel-pointer"></div>
-                <div class="wheel" id="wheel" style="--spin-deg: 0deg;">
-                    <div class="wheel-center">🎯</div>
-                </div>
-            </div>
-            <button class="btn" onclick="startBetPhase()">💰 Делайте ставки!</button>
+    <!-- ЭКРАН 1: ПРАВИЛА + ГОТОВНОСТЬ -->
+    <div class="card" id="screenIntro">
+        <div class="title">🎯 Кто ближе?</div>
+        <div class="subtitle">Игра на интуицию и удачу!</div>
+        <div style="font-size:18px;opacity:0.7;line-height:1.6;margin:20px 0;">
+            📖 <b>Правила:</b><br>
+            • Ведущий задаёт вопрос с числовым ответом<br>
+            • Ты делаешь ставку (50-500🪙)<br>
+            • Потом пишешь свою версию числа<br>
+            • Кто ближе всех — забирает банк!
         </div>
-        
-        <!-- ФАЗА: СТАВКИ -->
-        <div id="phaseBet" class="hidden">
-            <div class="phase-badge phase-bet">💰 Ставки</div>
-            <div class="bank-display">🏦 Банк: <span id="bankTotal">0</span> 🪙</div>
-            <div class="hint-text">Игроки делают ставки на телефонах</div>
-            <div class="answer-grid" id="betGrid"></div>
-            <button class="btn" onclick="startAnswerPhase()">📝 Время ответов!</button>
-        </div>
-        
-        <!-- ФАЗА: ОТВЕТЫ -->
-        <div id="phaseAnswer" class="hidden">
-            <div class="phase-badge phase-answer">📝 Ответы</div>
-            <div class="question-text" id="qText2"></div>
-            <div class="hint-text">Все пишут свои числа...</div>
-            <div class="answer-grid" id="answerGrid"></div>
-            <button class="btn" onclick="revealResults()">🏆 Показать результат</button>
-        </div>
-        
-        <!-- ФАЗА: РЕЗУЛЬТАТ -->
-        <div id="phaseResult" class="hidden">
-            <div class="phase-badge phase-result">🏆 Результат</div>
-            <div class="question-text">Правильный ответ: <span id="correctAnswer" style="color:#f59e0b;"></span></div>
-            <div class="answer-grid" id="resultGrid"></div>
-            <div class="bank-display">🏆 Победитель: <span id="winnerName" style="color:#22c55e;"></span></div>
+        <div style="font-size:24px;font-weight:800;margin:20px 0;">Все готовы?</div>
+        <div class="players-bar" id="introPlayers"></div>
+        <button class="btn" id="btnStartGame" disabled onclick="startGame()">🚀 Начать игру</button>
+    </div>
 
-            <!-- КНОПКИ ПОСЛЕ ИГРЫ -->
-            <div style="margin-top:20px;">
-                <button class="btn" onclick="nextRound()">➡️ Следующий раунд</button>
-                <br>
-                <button class="btn" style="background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="playAgainSame()">🔄 Сыграть ещё (тот же состав)</button>
-                <br>
-                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="exitToMenu()">🚪 Выйти в меню</button>
-            </div>
-        </div>
+    <!-- ЭКРАН 2: ВОПРОС -->
+    <div class="card hidden" id="screenQuestion">
+        <div class="title">📝 Вопрос</div>
+        <div class="question-text" id="qText"><span class="typing"></span></div>
+        <div style="opacity:0.5;" id="qHint"></div>
+        <div class="timer" id="qTimer">1:00</div>
+        <div class="players-bar" id="qPlayers"></div>
+        <button class="btn" id="btnNextToBet" onclick="goToBet()">💰 К ставкам!</button>
+    </div>
 
-    <!-- ПАНЕЛЬ СТАВОК -->
-    <div class="bet-panel" id="betPanel">
-        <div class="bet-title">👥 Игроки</div>
-        <div id="playersList"></div>
+    <!-- ЭКРАН 3: СТАВКИ -->
+    <div class="card hidden" id="screenBet">
+        <div class="title">💰 Ставки</div>
+        <div class="question-text" id="betQText"></div>
+        <div class="timer" id="betTimer">2:00</div>
+        <div class="progress-wrapper" id="betProgress">
+            <div class="progress-track"></div>
+        </div>
+        <div class="players-bar" id="betPlayers"></div>
+        <div style="font-size:20px;margin:10px 0;">🏦 Банк: <b id="bankTotal" style="color:var(--gold);">0</b> 🪙</div>
+        <button class="btn btn-purple" id="btnReveal" onclick="revealAnswer()">🏆 Вскрыть ответ!</button>
+    </div>
+
+    <!-- ЭКРАН 4: РЕЗУЛЬТАТ -->
+    <div class="card hidden" id="screenResult">
+        <div class="title">🏆 Результат</div>
+        <div style="font-size:20px;margin:10px 0;">Правильный ответ: <b id="correctAnswer" style="color:var(--green);"></b></div>
+        <div class="progress-wrapper" id="resultProgress">
+            <div class="progress-track"></div>
+            <div class="correct-marker" id="correctMarker" style="left:50%;"></div>
+            <div class="correct-flag" id="correctFlag" style="left:50%;">✅</div>
+        </div>
+        <div class="winner-banner" id="winnerBanner"></div>
+        <button class="btn" onclick="nextRound()">➡️ Следующий раунд</button>
+        <button class="btn btn-outline" onclick="playAgain()">🔄 Сыграть ещё</button>
     </div>
 
 </div>
 
 <script>
-let roomCode = 'XXXX';
-let currentQuestion = null;
+let roomCode = new URLSearchParams(window.location.search).get('code') || '';
 let players = {};
-let playerColors = ['#e94560', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#f97316'];
+let currentQuestion = null;
+let timers = {};
+const colors = ['#e94560','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316'];
+let phase = 'intro';
 
-// ЗАГРУЗКА ВОПРОСА
+function showScreen(screen) {
+    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(screen).classList.remove('hidden');
+    phase = screen.replace('screen','');
+}
+
+// ЗВУКИ
+function playSound(name) {
+    try { new Audio('/static/sounds/' + name + '.mp3').play().catch(() => {}); } catch(e) {}
+}
+
+// ========== ЭКРАН 1: ИНТРО ==========
+function loadIntro() {
+    showScreen('screenIntro');
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        players = data.players || {};
+        updateIntroPlayers();
+    });
+}
+
+function updateIntroPlayers() {
+    document.getElementById('introPlayers').innerHTML = Object.entries(players).map(([id, p], i) => `
+        <div class="player-chip ${p.ready ? 'ready' : ''}">
+            <div class="player-dot" style="background:${colors[i%8]}"></div>
+            ${p.name}: ${p.ready ? '✅ Готов' : '⏳ Читает...'}
+        </div>`).join('');
+    const allReady = Object.values(players).length > 0 && Object.values(players).every(p => p.ready);
+    document.getElementById('btnStartGame').disabled = !allReady;
+}
+
+function startGame() {
+    playSound('fon');
+    fetch('/api/start', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(() => loadQuestion());
+}
+
+// ========== ЭКРАН 2: ВОПРОС ==========
 function loadQuestion() {
+    showScreen('screenQuestion');
     fetch('/api/pari/question?code=' + roomCode)
         .then(r => r.json())
         .then(q => {
             currentQuestion = q;
-            document.getElementById('qText').textContent = q.question;
-            document.getElementById('qText2').textContent = q.question;
-            document.getElementById('qHint').textContent = 'Подсказка: ' + (q.hint || 'Думайте сами!');
-            document.getElementById('phaseQuestion').classList.remove('hidden');
-            document.getElementById('phaseBet').classList.add('hidden');
-            document.getElementById('phaseAnswer').classList.add('hidden');
-            document.getElementById('phaseResult').classList.add('hidden');
-            
-            // Крутим рулетку
-            const wheel = document.getElementById('wheel');
-            wheel.style.setProperty('--spin-deg', (360 + Math.random() * 720) + 'deg');
-            wheel.style.animation = 'none';
-            wheel.offsetHeight;
-            wheel.style.animation = 'spin 0.5s ease-out';
+            // Эффект печати
+            typeText('qText', q.question, () => {
+                document.getElementById('qHint').textContent = 'Подсказка: ' + (q.hint || 'Думайте!');
+            });
+            startTimer('qTimer', 60, goToBet);
         });
 }
 
-// СТАВКИ
-function startBetPhase() {
-    document.getElementById('phaseQuestion').classList.add('hidden');
-    document.getElementById('phaseBet').classList.remove('hidden');
+function typeText(elId, text, callback) {
+    const el = document.getElementById(elId);
+    el.innerHTML = '';
+    let i = 0;
+    const interval = setInterval(() => {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+            clearInterval(interval);
+            el.innerHTML = text;
+            if (callback) callback();
+        }
+    }, 50);
 }
 
-// ОТВЕТЫ
-function startAnswerPhase() {
-    document.getElementById('phaseBet').classList.add('hidden');
-    document.getElementById('phaseAnswer').classList.remove('hidden');
+function goToBet() {
+    clearTimers();
+    playSound('vibor');
+    loadBetScreen();
 }
 
-// РЕЗУЛЬТАТ
-function revealResults() {
-    document.getElementById('phaseAnswer').classList.add('hidden');
-    document.getElementById('phaseResult').classList.remove('hidden');
-    
+// ========== ЭКРАН 3: СТАВКИ ==========
+function loadBetScreen() {
+    showScreen('screenBet');
+    document.getElementById('betQText').textContent = currentQuestion?.question || '';
+    startTimer('betTimer', 120, revealAnswer);
+    updateBetScreen();
+}
+
+function updateBetScreen() {
+    fetch('/api/state/' + roomCode).then(r => r.json()).then(data => {
+        players = data.players || {};
+        const bets = data.pari_bets || {};
+        const bank = Object.values(bets).reduce((s, b) => s + (b || 0), 0);
+        document.getElementById('bankTotal').textContent = bank;
+        
+        document.getElementById('betPlayers').innerHTML = Object.entries(players).map(([id, p], i) => `
+            <div class="player-chip ${bets[id] ? 'ready' : ''}">
+                <div class="player-dot" style="background:${colors[i%8]}"></div>
+                ${p.name}: ${bets[id] ? bets[id] + '🪙' : '...'}
+            </div>`).join('');
+    });
+}
+
+function revealAnswer() {
+    clearTimers();
+    playSound('winner');
+    loadResultScreen();
+}
+
+// ========== ЭКРАН 4: РЕЗУЛЬТАТ ==========
+function loadResultScreen() {
+    showScreen('screenResult');
     fetch('/api/pari/results?code=' + roomCode)
         .then(r => r.json())
         .then(data => {
             document.getElementById('correctAnswer').textContent = 
                 data.correct_answer + ' ' + (currentQuestion?.unit || '');
             
-            document.getElementById('resultGrid').innerHTML = data.answers.map((a, i) => `
-                <div class="answer-card ${i === 0 ? 'closest' : ''}">
-                    <div class="answer-value">${a.answer}</div>
-                    <div class="answer-name">${a.name}</div>
-                    <div class="answer-diff ${a.diff_percent <= 10 ? 'win' : 'lose'}">
-                        ${a.diff_percent <= 10 ? '✅' : '❌'} ${a.diff_percent}%
-                    </div>
-                </div>`).join('');
+            const answers = data.answers || [];
+            const correct = data.correct_answer;
+            const minVal = Math.min(...answers.map(a => a.answer)) * 0.9;
+            const maxVal = Math.max(...answers.map(a => a.answer)) * 1.1;
             
-            document.getElementById('winnerName').textContent = 
-                data.winner?.name || 'Никто';
+            // Расставляем маркеры игроков
+            const bar = document.getElementById('resultProgress');
+            bar.querySelectorAll('.progress-marker').forEach(m => m.remove());
+            answers.forEach((a, i) => {
+                const pos = ((a.answer - minVal) / (maxVal - minVal)) * 90 + 5;
+                const marker = document.createElement('div');
+                marker.className = 'progress-marker revealed';
+                marker.style.left = pos + '%';
+                marker.style.backgroundColor = colors[i % colors.length];
+                marker.style.top = (30 + (i % 3) * 20) + 'px';
+                marker.innerHTML = `<div class="label">${a.name}</div>`;
+                bar.appendChild(marker);
+            });
+            
+            // Правильный ответ
+            const correctPos = ((correct - minVal) / (maxVal - minVal)) * 90 + 5;
+            const cm = document.getElementById('correctMarker');
+            cm.style.left = correctPos + '%';
+            document.getElementById('correctFlag').style.left = correctPos + '%';
+            
+            // Анимация: бегунок бежит
+            setTimeout(() => {
+                cm.classList.add('show');
+                document.getElementById('correctFlag').classList.add('show');
+                playSound('approve');
+            }, 500);
+            
+            // Победитель
+            if (data.winner) {
+                document.getElementById('winnerBanner').textContent = 
+                    `🏆 ${data.winner.name} забирает банк! +${data.pot || 0}🪙`;
+            }
         });
 }
 
-// ОБНОВЛЕНИЕ ИГРОКОВ
-function updatePlayers() {
-    fetch('/api/state/' + roomCode)
-        .then(r => r.json())
-        .then(data => {
-            players = data.players || {};
-            const html = Object.entries(players).map(([id, p], i) => `
-                <div class="player-row ${p.bet ? 'bet-placed' : ''}">
-                    <div class="player-color" style="background:${playerColors[i % 8]}"></div>
-                    <div class="player-name">${p.name}</div>
-                    <div class="player-bet">${p.bet ? p.bet + '🪙' : '...'}</div>
-                </div>`).join('');
-            document.getElementById('playersList').innerHTML = html;
-            
-            // Обновляем банк
-            const bank = Object.values(players).reduce((sum, p) => sum + (p.bet || 0), 0);
-            document.getElementById('bankTotal').textContent = bank;
-        });
+// ========== ТАЙМЕРЫ ==========
+function startTimer(elId, seconds, callback) {
+    clearTimers();
+    let remaining = seconds;
+    const el = document.getElementById(elId);
+    updateTimerDisplay(el, remaining);
+    
+    timers[elId] = setInterval(() => {
+        remaining--;
+        updateTimerDisplay(el, remaining);
+        if (remaining <= 10) el.classList.add('urgent');
+        if (remaining <= 0) {
+            clearInterval(timers[elId]);
+            if (callback) callback();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay(el, sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function clearTimers() {
+    Object.values(timers).forEach(t => clearInterval(t));
+    timers = {};
 }
 
 function nextRound() {
@@ -303,57 +373,20 @@ function nextRound() {
     }).then(() => loadQuestion());
 }
 
-
-function playAgainSame() {
-    // Сбрасываем комнату
+function playAgain() {
     fetch('/api/reset', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({code: roomCode})
-    })
-    .then(() => {
-        // Скрываем всё, показываем выбор игры
-        document.getElementById('phaseResult').classList.add('hidden');
-        document.getElementById('phaseQuestion').classList.remove('hidden');
-        
-        // Загружаем новый вопрос
-        loadQuestion();
-    });
+    }).then(() => window.location.href = '/tv');
 }
 
-function exitToMenu() {
-    if (confirm('Выйти в меню? Все игроки отключатся.')) {
-        fetch('/api/reset', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({code: roomCode})
-        })
-        .then(() => {
-            window.location.href = '/tv';
-        });
-    }
-}
-
-// Запуск
-loadQuestion();
-setInterval(updatePlayers, 2000);
-
-function updateProfileUI() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
-    const avatarEl = document.getElementById('profileAvatar');
-    if (!avatarEl) return;
-    
-    if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
-        avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    } else if (equipped.avatar && equipped.avatar.length <= 4) {
-        avatarEl.textContent = equipped.avatar;
-    } else {
-        avatarEl.textContent = user.username ? user.username[0].toUpperCase() : '👤';
-    }
-}
-
+// Старт
+loadIntro();
+setInterval(() => {
+    if (phase === 'intro') updateIntroPlayers();
+    if (phase === 'bet') updateBetScreen();
+}, 2000);
 </script>
-
 </body>
 </html>
