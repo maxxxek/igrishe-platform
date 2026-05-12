@@ -525,7 +525,7 @@
     </div>
 
     <!-- ПЛАШКА ПРОФИЛЯ -->
-    <div class="profile-badge" onclick="toggleProfile()">
+    <div class="profile-badge" id="profileBadge">
         <div class="profile-avatar" id="profileAvatar">👤</div>
         <span class="profile-text" id="profileText">Войти</span>
         <span class="profile-arrow">▼</span>
@@ -653,17 +653,38 @@ async function createAndGo(mode) {
 
 
 function updateProfileUI() {
+    const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
     const avatarEl = document.getElementById('profileAvatar');
+    const textEl = document.getElementById('profileText');
+    const logoutBtn = document.getElementById('logoutButton');
+    const loginItem = document.querySelector('.profile-dropdown-item[onclick*="login"]');
+    const registerItem = document.querySelector('.profile-dropdown-item[onclick*="register"]');
+    
     if (!avatarEl) return;
     
+    // Аватар
     if (equipped.avatar && equipped.avatar.startsWith('/static/avatars/')) {
         avatarEl.innerHTML = `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     } else if (equipped.avatar && equipped.avatar.length <= 4) {
         avatarEl.textContent = equipped.avatar;
     } else {
         avatarEl.textContent = user.username ? user.username[0].toUpperCase() : '👤';
+    }
+    
+    if (token && user.username) {
+        // Авторизован
+        if (textEl) textEl.textContent = user.username;
+        if (logoutBtn) logoutBtn.style.display = 'flex';
+        if (loginItem) loginItem.style.display = 'none';
+        if (registerItem) registerItem.style.display = 'none';
+    } else {
+        // Гость
+        if (textEl) textEl.textContent = 'Войти';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (loginItem) loginItem.style.display = 'flex';
+        if (registerItem) registerItem.style.display = 'flex';
     }
 }
 

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ИГРИЩЕ — Кошелёк</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #ededed; font-family: 'Rubik', sans-serif; overflow-x: hidden; color: #111; }
+        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px; }
+
+        .nav {
+            width: 100%; height: 10vh; min-height: 60px;
+            background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.7);
+            backdrop-filter: blur(18px); border-radius: 0 0 3vh 3vh;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 3vw; position: sticky; top: 0; z-index: 9999;
+        }
+        .nav-logo {
+            width: 8vh; height: 8vh; min-width: 45px; min-height: 45px;
+            border-radius: 50%; background: white; display: flex; align-items: center;
+            justify-content: center; overflow: visible; border: 3px solid #e3e3e3;
+            margin-top: 4vh; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .nav-logo:hover { transform: scale(1.1); }
+        .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -2vh; }
+        .nav-title {
+            font-size: clamp(2.5vh, 4vw, 3.5vh); font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-back {
+            background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 3vh; padding: 1vh 3vw; font-weight: 700; cursor: pointer;
+            font-size: clamp(1.5vh, 2vw, 2vh); transition: 0.3s;
+        }
+        .nav-back:hover { background: rgba(255,255,255,0.9); }
+
+        .card {
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 3vh;
+            padding: 25px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .balance-big { text-align: center; }
+        .balance-icon { font-size: 8vh; }
+        .balance-amount { font-size: clamp(4vh, 8vw, 7vh); font-weight: 900; margin: 10px 0; }
+        .balance-label { opacity: 0.5; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .btn {
+            width: 100%; padding: 14px; font-family: 'Rubik', sans-serif;
+            font-weight: 800; font-size: 18px; border: none; border-radius: 50px;
+            cursor: pointer; color: white; margin-top: 10px; transition: 0.3s;
+            background: linear-gradient(135deg, #7c3aed, #f472b6);
+        }
+        .btn:hover { transform: scale(1.02); }
+        .btn-outline {
+            background: rgba(255,255,255,0.5); color: #2d1b69;
+            border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .history-icon { font-size: 4vh; margin-right: 12px; }
+        .history-info { flex: 1; }
+        .history-title { font-weight: 700; font-size: 16px; }
+        .history-date { font-size: 12px; opacity: 0.5; }
+        .history-amount { font-weight: 800; }
+        .history-amount.plus { color: #22c55e; }
+        .history-amount.minus { color: #ef4444; }
+
+        .section-title { font-weight: 800; font-size: 20px; margin: 20px 0 10px; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo" onclick="window.location.href='/'">
+            <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='🎮'">
+        </div>
+        <div class="nav-title">Кошелёк</div>
+        <button class="nav-back" onclick="window.location.href='/'">← Назад</button>
+    </nav>
+
+    <div class="container">
+
+        <div class="card balance-big">
+            <div class="balance-icon">🪙</div>
+            <div class="balance-amount" id="coinBalance">0</div>
+            <div class="balance-label">монет на счету</div>
+        </div>
+
+        <button class="btn" onclick="window.location.href='/frontend/shop.html'">🛍 В магазин</button>
+        <button class="btn btn-outline" onclick="window.location.href='/frontend/profile.html'">👤 Профиль</button>
+
+        <div class="section-title">📋 История операций</div>
+        <div class="card" id="historyList">
+            <div style="text-align:center;opacity:0.5;padding:20px;">Загрузка...</div>
+        </div>
+
+    </div>
+
+<script src="/frontend/js/wallet.js"></script>
+<script>
+// Загружаем баланс из WALLET
+WALLET.updateAllDisplays();
+document.getElementById('coinBalance').classList.add('coin-display');
+WALLET.updateAllDisplays();
+
+// История (заглушка)
+const history = [
+    { icon: '🎮', title: 'Победа в Квиз-Шоу', date: 'Сегодня', amount: '+50', plus: true },
+    { icon: '🎯', title: 'Участие в игре', date: 'Вчера', amount: '+10', plus: true },
+    { icon: '🛍', title: 'Аватар Панда', date: 'Вчера', amount: '-50', plus: false },
+    { icon: '🪙', title: 'Ежедневный бонус', date: '2 дня назад', amount: '+20', plus: true },
+];
+
+document.getElementById('historyList').innerHTML = history.length > 0
+    ? history.map(h => `
+        <div class="history-item">
+            <span class="history-icon">${h.icon}</span>
+            <div class="history-info">
+                <div class="history-title">${h.title}</div>
+                <div class="history-date">${h.date}</div>
+            </div>
+            <div class="history-amount ${h.plus ? 'plus' : 'minus'}">${h.amount} 🪙</div>
+        </div>`).join('')
+    : '<div style="text-align:center;opacity:0.5;padding:20px;">Нет операций</div>';
+</script>
+
+</body>
+</html>
