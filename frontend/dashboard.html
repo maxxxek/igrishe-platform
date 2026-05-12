@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ИГРИЩЕ — Панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #ededed; font-family: 'Rubik', sans-serif; color: #111; min-height: 100vh; }
+
+        .nav {
+            width: 100%; height: 10vh; min-height: 60px;
+            background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.7);
+            backdrop-filter: blur(18px); border-radius: 0 0 3vh 3vh;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 3vw; position: sticky; top: 0; z-index: 999;
+        }
+        .nav-logo {
+            width: 8vh; height: 8vh; border-radius: 50%; background: white;
+            display: flex; align-items: center; justify-content: center;
+            overflow: visible; border: 3px solid #e3e3e3; cursor: pointer;
+            margin-top: 4vh; transition: 0.3s;
+        }
+        .nav-logo:hover { transform: scale(1.1); }
+        .nav-logo img { width: 130%; height: 130%; object-fit: contain; margin-top: -2vh; }
+        .nav-title { font-weight: 800; font-size: 20px; }
+        .nav-back {
+            background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 3vh; padding: 1vh 3vw; font-weight: 700; cursor: pointer;
+        }
+
+        .layout {
+            display: flex; gap: 20px; max-width: 900px; margin: 20px auto;
+            padding: 0 15px; justify-content: center;
+        }
+
+        /* БОКОВОЕ МЕНЮ */
+        .side-menu {
+            width: 180px; flex-shrink: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 2vh;
+            padding: 20px 15px; position: sticky; top: 15vh; height: fit-content;
+        }
+        .side-menu-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 12px; border-radius: 14px; cursor: pointer;
+            font-weight: 700; font-size: 15px; transition: 0.2s; margin-bottom: 5px;
+            color: #333;
+        }
+        .side-menu-item:hover { background: rgba(255,255,255,0.8); }
+        .side-menu-item.active { background: rgba(124,58,237,0.1); color: #7c3aed; }
+
+        /* ЦЕНТРАЛЬНАЯ ЧАСТЬ */
+        .main-content {
+            flex: 1; max-width: 550px;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.7); border-radius: 3vh;
+            padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        /* ОБЩИЕ СТИЛИ */
+        .hidden { display: none !important; }
+        .btn {
+            width: 100%; padding: 14px; font-weight: 800; font-size: 18px;
+            border: none; border-radius: 50px; cursor: pointer; color: white;
+            margin-top: 10px; transition: 0.3s;
+            background: linear-gradient(135deg, #7c3aed, #f472b6);
+        }
+        .btn-outline {
+            background: rgba(255,255,255,0.5); color: #2d1b69;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .btn-danger { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+        .toast {
+            position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 12px 24px;
+            border-radius: 50px; font-weight: 600; font-size: 14px;
+            z-index: 11000; opacity: 0; transition: 0.4s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 700px) {
+            .layout { flex-direction: column; }
+            .side-menu {
+                width: 100%; display: flex; overflow-x: auto;
+                position: static; padding: 10px; gap: 5px;
+            }
+            .side-menu-item { white-space: nowrap; margin-bottom: 0; }
+            .main-content { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo" onclick="window.location.href='/'">
+            <img src="/static/icons/logo.png" alt="ИГРИЩЕ" onerror="this.innerHTML='🎮'">
+        </div>
+        <div class="nav-title" id="navTitle">Профиль</div>
+        <button class="nav-back" onclick="window.location.href='/'">← На главную</button>
+    </nav>
+
+    <div class="layout">
+        <!-- МЕНЮ -->
+        <div class="side-menu">
+            <div class="side-menu-item active" data-page="profile" onclick="switchPage('profile')">👤 Профиль</div>
+            <div class="side-menu-item" data-page="shop" onclick="switchPage('shop')">🛍 Магазин</div>
+            <div class="side-menu-item" data-page="wallet" onclick="switchPage('wallet')">💰 Кошелёк</div>
+            <div class="side-menu-item" onclick="logout()" style="color:#ef4444;">🚪 Выйти</div>
+        </div>
+
+        <!-- СОДЕРЖИМОЕ -->
+        <div class="main-content" id="mainContent">
+            <!-- Загружается через JS -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script src="/frontend/js/wallet.js"></script>
+<script>
+let currentPage = 'profile';
+
+function switchPage(page) {
+    currentPage = page;
+    document.querySelectorAll('.side-menu-item').forEach(item => item.classList.remove('active'));
+    document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+    document.getElementById('navTitle').textContent = 
+        page === 'profile' ? 'Профиль' : page === 'shop' ? 'Магазин' : 'Кошелёк';
+    renderPage(page);
+}
+
+function renderPage(page) {
+    const main = document.getElementById('mainContent');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const wallet = JSON.parse(localStorage.getItem('wallet') || '{}');
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+
+    if (page === 'profile') {
+        main.innerHTML = `
+            <div style="text-align:center;">
+                <div style="width:15vh;height:15vh;border-radius:50%;background:linear-gradient(135deg,#a53cff,#3fffd2);margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:6vh;color:white;font-weight:900;overflow:hidden;">
+                    ${equipped.avatar && equipped.avatar.startsWith('/static/avatars/') 
+                        ? `<img src="${equipped.avatar}" style="width:100%;height:100%;object-fit:cover;">` 
+                        : (equipped.avatar && equipped.avatar.length <= 4 ? equipped.avatar : (user.username?.[0] || '?'))}
+                </div>
+                <label style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:rgba(255,255,255,0.5);border:2px solid rgba(255,255,255,0.7);border-radius:40px;cursor:pointer;font-weight:700;margin:10px 0;">
+                    📷 Изменить фото
+                    <input type="file" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+                </label>
+                <div style="font-size:24px;font-weight:900;">${user.username || 'Гость'}</div>
+                <div style="color:#888;font-size:14px;">${user.email || ''}</div>
+                <div style="display:inline-block;background:linear-gradient(90deg,#ff3d2e,#cc39ff);color:white;padding:1vh 3vw;border-radius:999px;font-size:14px;font-weight:700;margin:10px 0;">Уровень ${user.level || 1}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;">
+                <div style="background:rgba(255,255,255,0.5);padding:15px;border-radius:14px;text-align:center;"><div style="font-size:24px;">🪙</div><div style="font-size:28px;font-weight:900;">${wallet.coins || 0}</div><div style="font-size:11px;opacity:0.5;">Монет</div></div>
+                <div style="background:rgba(255,255,255,0.5);padding:15px;border-radius:14px;text-align:center;"><div style="font-size:24px;">🏆</div><div style="font-size:28px;font-weight:900;">${user.games_played || 0}</div><div style="font-size:11px;opacity:0.5;">Игр</div></div>
+            </div>
+            <button class="btn" onclick="window.location.href='/'">🎮 Играть</button>
+            <button class="btn btn-outline" onclick="switchPage('shop')">🛍 Магазин</button>
+            <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>`;
+    } else if (page === 'wallet') {
+        main.innerHTML = `
+            <div style="text-align:center;">
+                <div style="font-size:10vh;">🪙</div>
+                <div style="font-size:6vh;font-weight:900;">${wallet.coins || 0}</div>
+                <div style="opacity:0.5;">монет</div>
+            </div>
+            <button class="btn" onclick="switchPage('shop')">🛍 В магазин</button>
+            <div style="font-weight:800;font-size:18px;margin-top:20px;">📋 История</div>
+            <div style="margin-top:10px;">Пока нет операций</div>`;
+    } else if (page === 'shop') {
+        main.innerHTML = `<div style="text-align:center;padding:40px;">🛍 Магазин загружается...</div>`;
+        loadShop();
+    }
+}
+
+function loadShop() {
+    const main = document.getElementById('mainContent');
+    const wallet = JSON.parse(localStorage.getItem('wallet') || '{}');
+    const equipped = JSON.parse(localStorage.getItem('equipped') || '{}');
+    const ownedItems = JSON.parse(localStorage.getItem('ownedItems') || '[]');
+    let coins = wallet.coins || 0;
+
+    const items = [
+        {id:1,icon:'🦊',name:'Лиса',cat:'avatar',price:50},
+        {id:2,icon:'🐼',name:'Панда',cat:'avatar',price:50},
+        {id:3,icon:'🦁',name:'Лев',cat:'avatar',price:80},
+        {id:4,icon:'🦄',name:'Единорог',cat:'avatar',price:100},
+        {id:5,icon:'⚡',name:'Буст x2',cat:'boost',price:30},
+        {id:6,icon:'⏱',name:'+10 сек',cat:'boost',price:20},
+    ];
+
+    main.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div>🪙 <b id="shopCoins">${coins}</b></div>
+            <div style="display:flex;gap:5px;">
+                <button class="btn" style="width:auto;padding:8px 16px;font-size:14px;" onclick="filterShop('all')">Все</button>
+                <button class="btn" style="width:auto;padding:8px 16px;font-size:14px;" onclick="filterShop('avatar')">Аватары</button>
+                <button class="btn" style="width:auto;padding:8px 16px;font-size:14px;" onclick="filterShop('boost')">Бустеры</button>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="shopGrid"></div>`;
+
+    window.shopItems = items;
+    window.shopCoins = () => JSON.parse(localStorage.getItem('wallet')||'{}').coins || 0;
+    renderShopItems(items);
+}
+
+function renderShopItems(items) {
+    const equipped = JSON.parse(localStorage.getItem('equipped')||'{}');
+    const owned = JSON.parse(localStorage.getItem('ownedItems')||'[]');
+    document.getElementById('shopGrid').innerHTML = items.map(item => {
+        const isOwned = owned.includes(item.id);
+        const isEq = equipped.avatar === item.icon;
+        return `<div style="background:rgba(255,255,255,0.5);padding:15px;border-radius:14px;text-align:center;cursor:pointer;" onclick="buy(${item.id})">
+            <div style="font-size:40px;">${item.icon}</div>
+            <div style="font-weight:700;">${item.name}</div>
+            <div style="font-size:14px;color:#7c3aed;">${isEq?'Надето':isOwned?'Надеть':'🪙'+item.price}</div>
+        </div>`;
+    }).join('');
+}
+
+function filterShop(cat) {
+    renderShopItems(cat==='all'?shopItems:shopItems.filter(i=>i.cat===cat));
+}
+
+function buy(id) {
+    const item = shopItems.find(i=>i.id===id);
+    if(!item)return;
+    const owned = JSON.parse(localStorage.getItem('ownedItems')||'[]');
+    if(owned.includes(id)){
+        const eq = JSON.parse(localStorage.getItem('equipped')||'{}');
+        eq.avatar = item.icon;
+        localStorage.setItem('equipped',JSON.stringify(eq));
+        renderShopItems(shopItems);
+        return;
+    }
+    if(WALLET.spendCoins(item.price)){
+        owned.push(id);
+        localStorage.setItem('ownedItems',JSON.stringify(owned));
+        document.getElementById('shopCoins').textContent = WALLET.getCoins();
+        renderShopItems(shopItems);
+        showToast(`Куплено: ${item.name}!`);
+    }else{showToast('Недостаточно монет');}
+}
+
+function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+async function uploadAvatar(input){
+    const file=input.files[0];
+    if(!file)return;
+    const user=JSON.parse(localStorage.getItem('user')||'{}');
+    const fd=new FormData();
+    fd.append('avatar',file);
+    fd.append('user_id',user.id||'guest');
+    try{
+        const r=await fetch('/api/upload-avatar',{method:'POST',body:fd});
+        const d=await r.json();
+        if(d.avatar_url){
+            const eq=JSON.parse(localStorage.getItem('equipped')||'{}');
+            eq.avatar=d.avatar_url;
+            localStorage.setItem('equipped',JSON.stringify(eq));
+            renderPage('profile');
+        }
+    }catch(e){}
+}
+
+function logout(){
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('wallet');
+    localStorage.removeItem('equipped');
+    window.location.href='/';
+}
+
+// Запуск
+renderPage('profile');
+</script>
+
+</body>
+</html>

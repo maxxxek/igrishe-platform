@@ -620,9 +620,9 @@ function goToPage(page) {
     const pages = {
         'login': '/frontend/login.html',
         'register': '/frontend/register.html',
-        'profile': '/frontend/profile.html',
-        'wallet': '/frontend/wallet.html',
-        'shop': '/frontend/shop.html'
+        'profile': '/frontend/dashboard.html?page=profile',
+        'wallet': '/frontend/dashboard.html?page=shop',
+        'shop': '/frontend/dashboard.html?page=wallet'
     };
     if (pages[page]) {
         window.location.href = pages[page];
