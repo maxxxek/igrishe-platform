@@ -11,7 +11,7 @@ class PariGame(BaseGame):
     def init_room(self, room):
         """Инициализация комнаты при создании"""
         all_questions = load_pari_questions()
-        count = min(3, len(all_questions))
+        count = min(8, len(all_questions))
         room.pari_questions = random.sample(all_questions, count) if all_questions else []
         room.pari_question_index = 0
         room.pari_phase = 'intro'
