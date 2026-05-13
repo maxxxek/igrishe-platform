@@ -406,8 +406,29 @@ function updateIntroPlayers() {
             
             const allReady = Object.values(players).length > 0 && readyPlayers.length === Object.values(players).length;
             document.getElementById('btnStartGame').disabled = !allReady;
-            document.getElementById('introStatus').textContent = allReady ? 'Все готовы!' : `Готовы: ${readyPlayers.length}/${Object.values(players).length}`;
+            document.getElementById('introStatus').textContent = allReady ? 'Все готовы! Можно начинать!' : `Готовы: ${readyPlayers.length}/${Object.values(players).length}`;
+            
+            // 🔥 Если все готовы и фаза intro - показываем кнопку для перехода к вопросу
+            if (allReady && data.pari_phase === 'intro') {
+                document.getElementById('btnStartGame').textContent = '🚀 Показать первый вопрос!';
+                document.getElementById('btnStartGame').onclick = showFirstQuestion;
+                document.getElementById('btnStartGame').disabled = false;
+            }
         });
+}
+
+// 🔥 Новая функция для показа первого вопроса
+function showFirstQuestion() {
+    // Переводим в фазу question
+    fetch('/api/pari/go-answer', {  // Используем go-answer как переход к вопросу
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: roomCode})
+    }).then(() => {
+        showScreen('screenQuestion');
+        updateRoundCounter();
+        loadQuestion();
+    });
 }
 
 function startGame() {
@@ -419,11 +440,12 @@ function startGame() {
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({code:roomCode})
     }).then(() => {
-        showScreen('screenQuestion');
-        updateRoundCounter();
-        loadQuestion();
+        // 🔥 Показываем интро с правилами и ждём готовности
+        showScreen('screenIntro');
+        updateIntroPlayers();
     });
 }
+
 
 // ===== ВОПРОС =====
 function loadQuestion() {
@@ -730,12 +752,21 @@ function showFinal() {
             showScreen('screenFinal');
             spawnConfetti();
             
-            // Определяем абсолютного победителя
-            const sortedWins = Object.entries(totalWins).sort((a, b) => b[1] - a[1]);
-            const topPlayer = sortedWins[0];
+            // Сортируем игроков по победам
+            const sortedPlayers = Object.entries(players).map(([pid, p]) => ({
+                id: pid,
+                name: p.name || 'Игрок',
+                wins: totalWins[pid] || 0,
+                earnings: totalEarnings[pid] || 0
+            })).sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.earnings - a.earnings;
+            });
             
-            if (topPlayer && players[topPlayer[0]]) {
-                document.getElementById('finalWinnerName').textContent = players[topPlayer[0]].name;
+            // Абсолютный победитель
+            const topPlayer = sortedPlayers[0];
+            if (topPlayer && topPlayer.wins > 0) {
+                document.getElementById('finalWinnerName').textContent = topPlayer.name;
             } else {
                 document.getElementById('finalWinnerName').textContent = 'Ничья!';
             }
@@ -744,15 +775,8 @@ function showFinal() {
             const tbody = document.getElementById('finalLeaderboardBody');
             tbody.innerHTML = '';
             
-            const sortedPlayers = Object.entries(players).sort((a, b) => {
-                const winsA = totalWins[a[0]] || 0;
-                const winsB = totalWins[b[0]] || 0;
-                return winsB - winsA;
-            });
-            
-            sortedPlayers.forEach(([pid, p], i) => {
+            sortedPlayers.forEach((p, i) => {
                 const rank = i + 1;
-                const wins = totalWins[pid] || 0;
                 
                 let rankEmoji = '';
                 let rankClass = '';
@@ -763,12 +787,25 @@ function showFinal() {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><span class="rank ${rankClass}">${rankEmoji || rank}</span></td>
-                    <td><div class="player-cell"><div class="player-dot" style="background:${colors[i % colors.length]};min-width:10px;"></div>${p.name}</div></td>
-                    <td>${wins} 🏆</td>
-                    <td class="coins-positive">+${earnings} 🪙</td>
+                    <td>
+                        <div class="player-cell">
+                            <div class="player-dot" style="background:${colors[i % colors.length]};min-width:10px;"></div>
+                            ${p.name}
+                        </div>
+                    </td>
+                    <td>${p.wins} 🏆</td>
+                    <td class="coins-positive">+${p.earnings.toLocaleString()} 🪙</td>
                 `;
                 tbody.appendChild(row);
             });
+            
+            // Если никто не выиграл
+            if (sortedPlayers.every(p => p.wins === 0)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" style="opacity:0.5;padding:20px;">Никто не выиграл ни одного раунда 😢</td>`;
+                tbody.innerHTML = '';
+                tbody.appendChild(row);
+            }
         });
 }
 

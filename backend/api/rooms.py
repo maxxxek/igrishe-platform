@@ -75,7 +75,18 @@ def handle_state(code):
     
     data = room.to_dict()
     
-    # Дополняем состояние через игру-плагин
+    # 🔥 Добавляем баланс игроков из БД
+    from storage.database import get_user_by_id
+    for pid in data.get('players', {}):
+        try:
+            user = get_user_by_id(int(pid))
+            if user:
+                data['players'][pid]['coins'] = user.get('coins', 0)
+            else:
+                data['players'][pid]['coins'] = 0
+        except:
+            data['players'][pid]['coins'] = 0
+    
     from games import GAMES
     game = GAMES.get(room.type)
     if game and hasattr(game, 'get_state'):

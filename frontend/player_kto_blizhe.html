@@ -271,6 +271,11 @@ let hasAnswered = false;
 let hasBet = false;
 let currentPhase = 'intro';
 let lastResultData = null;
+let totalWins = 0;        // Всего побед игрока
+let totalEarnings = 0;    // Всего заработано
+let roundsPlayed = 0;     // Сколько раундов сыграно
+let bestRank = Infinity;  // Лучшее место
+let totalDiff = 0;        // Сумма разниц для среднего
 
 // ===== БАЛАНС =====
 function updateBalance() {
@@ -433,6 +438,18 @@ function loadResult() {
             const isClosest = closest && closest.player_id === playerId;
             const myDiff = myAnswer ? Math.abs(myAnswer.answer - correctAnswer) : 0;
             
+            // 🔥 СОХРАНЯЕМ СТАТИСТИКУ
+            roundsPlayed++;
+            if (isWinner) {
+                totalWins++;
+                totalEarnings += winAmount;
+            }
+            if (myAnswer) {
+                totalDiff += myDiff;
+                const rank = [...answers].sort((a, b) => a.diff - b.diff).findIndex(a => a.player_id === playerId) + 1;
+                if (rank < bestRank) bestRank = rank;
+            }
+            
             let emoji, title, text, amount;
             
             if (isWinner) {
@@ -474,6 +491,7 @@ function loadResult() {
         });
 }
 
+
 // ===== ФИНАЛ =====
 function showFinalScreen() {
     const data = lastResultData || {};
@@ -488,15 +506,16 @@ function showFinalScreen() {
     
     showScreen('finalScreen');
     
-    if (isWinner) {
+    // 🔥 ОПРЕДЕЛЯЕМ ФИНАЛЬНЫЙ СТАТУС
+    if (totalWins > 0) {
         document.getElementById('finalEmoji').textContent = '🏆';
-        document.getElementById('finalTitle').textContent = 'Ты чемпион!';
-        document.getElementById('finalText').textContent = 'Ты выиграл последний раунд!';
-        document.getElementById('finalAmount').textContent = `+${winAmount} 🪙`;
+        document.getElementById('finalTitle').textContent = totalWins > 1 ? 'Ты чемпион!' : 'Победа!';
+        document.getElementById('finalText').textContent = `Выиграно раундов: ${totalWins} из ${roundsPlayed}`;
+        document.getElementById('finalAmount').textContent = `Заработано: +${totalEarnings.toLocaleString()} 🪙`;
     } else if (myAnswer) {
         document.getElementById('finalEmoji').textContent = '🎮';
         document.getElementById('finalTitle').textContent = 'Игра завершена!';
-        document.getElementById('finalText').textContent = 'Спасибо за игру!';
+        document.getElementById('finalText').textContent = 'В этот раз без побед, но ты был близок!';
         document.getElementById('finalAmount').textContent = '';
     } else {
         document.getElementById('finalEmoji').textContent = '🎮';
@@ -505,13 +524,56 @@ function showFinalScreen() {
         document.getElementById('finalAmount').textContent = '';
     }
     
-    // Статистика
+    // 🔥 ПОЛНАЯ СТАТИСТИКА
     let statsHTML = '';
     
-    if (myAnswer) {
-        const rank = [...answers].sort((a, b) => a.diff - b.diff).findIndex(a => a.player_id === playerId) + 1;
+    // Базовая информация
+    statsHTML += `
+        <div class="final-stat-row">
+            <span class="final-stat-label">📊 Раундов сыграно</span>
+            <span class="final-stat-value">${roundsPlayed}</span>
+        </div>
+        <div class="final-stat-row">
+            <span class="final-stat-label">🏆 Побед</span>
+            <span class="final-stat-value gold">${totalWins}</span>
+        </div>
+        <div class="final-stat-row">
+            <span class="final-stat-label">💰 Заработано</span>
+            <span class="final-stat-value gold">+${totalEarnings.toLocaleString()} 🪙</span>
+        </div>
+    `;
+    
+    // Если были ответы - показываем точность
+    if (roundsPlayed > 0 && totalDiff > 0) {
+        const avgDiff = Math.round(totalDiff / roundsPlayed);
+        statsHTML += `
+            <div class="final-stat-row">
+                <span class="final-stat-label">📏 Средняя разница</span>
+                <span class="final-stat-value">${avgDiff.toLocaleString()} ${unit}</span>
+            </div>
+        `;
+    }
+    
+    if (bestRank < Infinity) {
+        let rankEmoji = '';
+        if (bestRank === 1) rankEmoji = '🥇';
+        else if (bestRank === 2) rankEmoji = '🥈';
+        else if (bestRank === 3) rankEmoji = '🥉';
         
         statsHTML += `
+            <div class="final-stat-row">
+                <span class="final-stat-label">🏅 Лучшее место</span>
+                <span class="final-stat-value gold">${rankEmoji} #${bestRank}</span>
+            </div>
+        `;
+    }
+    
+    // Последний раунд
+    if (myAnswer) {
+        statsHTML += `
+            <div style="margin-top:15px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;opacity:0.5;text-align:center;">
+                Последний раунд:
+            </div>
             <div class="final-stat-row">
                 <span class="final-stat-label">🎯 Твой ответ</span>
                 <span class="final-stat-value">${myAnswer.answer.toLocaleString()} ${unit}</span>
@@ -524,24 +586,16 @@ function showFinalScreen() {
                 <span class="final-stat-label">📏 Разница</span>
                 <span class="final-stat-value">${myAnswer.diff.toLocaleString()} ${unit}</span>
             </div>
-            <div class="final-stat-row">
-                <span class="final-stat-label">🏅 Место в раунде</span>
-                <span class="final-stat-value gold">#${rank}</span>
-            </div>
         `;
     }
     
     if (isWinner) {
         statsHTML += `
             <div class="final-stat-row">
-                <span class="final-stat-label">💰 Выигрыш</span>
+                <span class="final-stat-label">💰 Последний выигрыш</span>
                 <span class="final-stat-value gold">+${winAmount} 🪙</span>
             </div>
         `;
-    }
-    
-    if (!statsHTML) {
-        statsHTML = '<div style="text-align:center;opacity:0.5;">Нет данных</div>';
     }
     
     document.getElementById('finalStats').innerHTML = statsHTML;
@@ -586,41 +640,62 @@ function checkState() {
         .then(data => {
             if (data.error) return;
             
-            // Обновляем баланс
             updateBalance();
             updateRoundInfo();
             
-            // Проверяем завершение игры
+            // 🔥 Если игра завершена
             if (data.state === 'finished') {
                 showFinalScreen();
                 return;
             }
             
             const q = data.pari_question;
-            const phase = data.pari_phase || 'intro';
+            const phase = data.pari_phase || 'lobby';
             const answers = data.pari_answers || {};
             const bets = data.pari_bets || {};
+            const state = data.state || 'lobby';
             
-            // Обновляем вопросы
+            // 🔥 Если комната в лобби (ТВ ещё не нажал начать)
+            if (state === 'lobby') {
+                if (currentPhase !== 'lobby') {
+                    currentPhase = 'lobby';
+                    showScreen('introScreen');
+                    // Меняем текст на ожидание
+                    document.querySelector('#introScreen .question').textContent = 'Ожидаем запуска игры на ТВ...';
+                    document.getElementById('btnReady').classList.add('hidden');
+                }
+                return;
+            }
+            
+            // 🔥 Если фаза intro (ТВ запустил, показываем правила)
+            if (phase === 'intro' && state === 'playing') {
+                if (currentPhase !== 'intro') {
+                    currentPhase = 'intro';
+                    showScreen('introScreen');
+                    document.querySelector('#introScreen .question').textContent = 'Прочитай правила на ТВ и нажми готовность';
+                    document.getElementById('btnReady').classList.remove('hidden');
+                    document.getElementById('btnReady').disabled = false;
+                    document.getElementById('btnReadyText').textContent = '✅ Я готов!';
+                    document.getElementById('btnReady').classList.remove('btn-green');
+                    document.getElementById('btnReady').classList.add('btn-purple');
+                }
+                return;
+            }
+            
+            // Остальные фазы...
             if (q) {
                 const qText = q.question || '';
                 document.getElementById('qTextQuestion').textContent = qText;
                 document.getElementById('qTextAnswer').textContent = qText;
             }
             
-            // Переключение фаз
             if (phase !== currentPhase) {
                 currentPhase = phase;
                 
                 switch(phase) {
-                    case 'intro':
-                        showScreen('introScreen');
-                        break;
-                    
                     case 'question':
                         showScreen('questionScreen');
                         break;
-                    
                     case 'answer':
                         hasAnswered = false;
                         showScreen('answerScreen');
@@ -629,11 +704,9 @@ function checkState() {
                         if (input) { input.value = ''; input.disabled = false; }
                         if (btn) { btn.disabled = false; btn.textContent = '📝 Отправить вариант'; btn.classList.remove('btn-green'); }
                         break;
-                    
                     case 'show_answers':
                         showScreen('showAnswersScreen');
                         break;
-                    
                     case 'bet':
                         hasBet = false;
                         selectedTarget = null;
@@ -643,18 +716,14 @@ function checkState() {
                         if (betBtn) { betBtn.disabled = true; betBtn.textContent = `💰 Выбери вариант и поставь ${bet} 🪙`; betBtn.classList.remove('btn-green'); }
                         document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('selected'));
                         break;
-                    
                     case 'result':
                         showScreen('waitResultScreen');
                         loadResult();
                         break;
-                    
-                    default:
-                        showScreen('questionScreen');
                 }
             }
             
-            // Если игрок уже ответил в фазе answer
+            // Если игрок уже ответил
             if (phase === 'answer' && answers[playerId] !== undefined) {
                 hasAnswered = true;
                 const input = document.getElementById('answerInput');
@@ -663,7 +732,7 @@ function checkState() {
                 if (btn) { btn.disabled = true; btn.textContent = '✅ Вариант отправлен!'; btn.classList.add('btn-green'); }
             }
             
-            // Если игрок уже поставил в фазе bet
+            // Если игрок уже поставил
             if (phase === 'bet' && bets[playerId]) {
                 hasBet = true;
                 const betBtn = document.getElementById('btnBet');
@@ -671,9 +740,7 @@ function checkState() {
                 document.getElementById('betAmount').textContent = bets[playerId];
             }
         })
-        .catch(err => {
-            console.error('Ошибка проверки состояния:', err);
-        });
+        .catch(err => console.error('Ошибка:', err));
 }
 
 // ===== ЗАПУСК =====

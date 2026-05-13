@@ -11,7 +11,7 @@ class PariGame(BaseGame):
     def init_room(self, room):
         """Инициализация комнаты при создании"""
         all_questions = load_pari_questions()
-        count = min(8, len(all_questions))
+        count = min(3, len(all_questions))
         room.pari_questions = random.sample(all_questions, count) if all_questions else []
         room.pari_question_index = 0
         room.pari_phase = 'intro'
@@ -122,13 +122,16 @@ class PariGame(BaseGame):
         return None
     
     def _start(self, room):
-        """Начинает игру"""
-        room.pari_phase = 'question'
-        room.state = 'playing'
-        room.pari_answers = {}
-        room.pari_bets = {}
-        room.pari_bet_targets = {}
-        return {'ok': True, 'game_type': self.type}
+            """Начинает игру - показывает правила"""
+            room.pari_phase = 'intro'  # 🔥 Было 'question', теперь 'intro'
+            room.state = 'playing'     # 🔥 Меняем на playing
+            room.pari_answers = {}
+            room.pari_bets = {}
+            room.pari_bet_targets = {}
+            room.pari_ready = set()
+            for p in room.players.values():
+                p['ready'] = False
+            return {'ok': True, 'game_type': self.type}
     
     def _ready(self, room, player_id):
         """Игрок прочитал правила"""
@@ -137,7 +140,7 @@ class PariGame(BaseGame):
                 room.pari_ready = set()
             room.pari_ready.add(player_id)
             room.players[player_id]['ready'] = True
-            
+
             all_ready = len(room.pari_ready) == len(room.players)
             return {'ok': True, 'all_ready': all_ready}
         return {'ok': False, 'error': 'Игрок не найден'}
