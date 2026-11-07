@@ -31,10 +31,14 @@ class TruthDareGame(BaseGame):
         return {'ok': True, 'game_type': self.type}
     
     def _vote(self, room, player_id, vote):
-        cp_id = room.player_order[room.current_player_index]
+        if room.state != 'voting' or not room.player_order:
+            return {'error': 'Голосование недоступно'}
+        cp_id = room.player_order[room.current_player_index % len(room.player_order)]
         if player_id == cp_id:
             return {'error': 'Ты выбранный игрок'}
         
+        if player_id not in room.players or vote not in ('truth', 'dare') or player_id in room.votes:
+            return {'error': 'Недопустимый голос'}
         room.votes[player_id] = vote
         total_voters = len(room.players) - 1
         
@@ -60,7 +64,9 @@ class TruthDareGame(BaseGame):
         return {'ok': True}
     
     def _task_done(self, room, player_id):
-        cp_id = room.player_order[room.current_player_index]
+        if room.state != 'task' or not room.player_order:
+            return {'error': 'Задание недоступно'}
+        cp_id = room.player_order[room.current_player_index % len(room.player_order)]
         if player_id != cp_id:
             return {'error': 'Не твой ход'}
         
