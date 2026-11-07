@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import PORT, HOST, STATIC_DIR, DEBUG
-from storage.database import init_db, add_table_columns
+from storage.database import init_db, add_table_columns, init_extra_tables
 from api.rooms import (
     handle_create, handle_join, handle_state,
     handle_reset, handle_games_list
@@ -132,7 +132,14 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
     # ========== POST ==========
     def do_POST(self):
         length = int(self.headers.get('Content-Length', 0))
-        body = json.loads(self.rfile.read(length)) if length > 0 else {}
+        if length < 0 or length > 1048576:
+            return self._json({'error': 'Недопустимый размер запроса'}, 413)
+        try:
+            body = json.loads(self.rfile.read(length)) if length > 0 else {}
+            if not isinstance(body, dict):
+                return self._json({'error': 'Ожидается JSON-объект'}, 400)
+        except (ValueError, UnicodeDecodeError):
+            return self._json({'error': 'Некорректный JSON'}, 400)
 
         # Общие API
         if self.path == '/api/join':
@@ -163,10 +170,10 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
 
         # Синхронизация
         elif self.path == '/api/user/sync':
-            self._handle_user_sync(body)
+            self._json({'error': 'Синхронизация требует авторизации'}, 403)
             return
         elif self.path == '/api/wallet/sync':
-            self._handle_wallet_sync(body)
+            self._json({'error': 'Начисление монет через клиент запрещено'}, 403)
             return
 
         # 🔥 ИГРОВЫЕ ДЕЙСТВИЯ
@@ -318,6 +325,7 @@ class GameServer(http.server.SimpleHTTPRequestHandler):
 def main():
     init_db()
     add_table_columns()
+    init_extra_tables()
     print('=' * 60)
     print('🎮  И Г Р И Щ Е  —  Платформа v3.0 (игры-плагины)')
     print('=' * 60)
