@@ -223,8 +223,7 @@ def add_table_columns():
     conn.commit()
     conn.close()
 
-    
-def init_db():
+ def init_extra_tables():
     conn = get_db()
     cursor = conn.cursor()
     

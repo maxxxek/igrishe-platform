@@ -30,6 +30,8 @@ class QuizGame(BaseGame):
         return {'ok': True, 'game_type': self.type}
     
     def _answer(self, room, player_id, answer):
+        if room.state != 'playing' or player_id not in room.players:
+            return {'error': 'Ответ недоступен'}
         if player_id in room.answers:
             return {'error': 'Уже ответил'}
         
@@ -48,6 +50,8 @@ class QuizGame(BaseGame):
         return {'error': 'Неверный вопрос'}
     
     def _next(self, room):
+        if room.state != 'playing':
+            return {'error': 'Игра не запущена'}
         room.current_question += 1
         room.answers = {}
         room.question_start_time = time.time()

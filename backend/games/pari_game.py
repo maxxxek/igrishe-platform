@@ -72,7 +72,7 @@ class PariGame(BaseGame):
             q = qs[idx]
             data['pari_question'] = {
                 'question': q['question'],
-                'answer': q['answer'],  # Правильный ответ (секретный пока)
+                'answer': q['answer'] if room.pari_phase == 'result' else None,
                 'unit': q.get('unit', ''),
                 'round': idx + 1,
                 'total': len(qs)
@@ -149,6 +149,14 @@ class PariGame(BaseGame):
         """Игрок даёт свой вариант числа"""
         if not hasattr(room, 'pari_answers'):
             room.pari_answers = {}
+        if room.pari_phase != 'answer' or player_id not in room.players:
+            return {'error': 'Ответ сейчас недоступен'}
+        try:
+            answer = float(answer)
+        except (TypeError, ValueError):
+            return {'error': 'Ответ должен быть числом'}
+        if player_id in room.pari_answers:
+            return {'error': 'Ответ уже отправлен'}
         room.pari_answers[player_id] = answer
         
         all_done = self._check_all_answers(room)
@@ -161,6 +169,12 @@ class PariGame(BaseGame):
         if not hasattr(room, 'pari_bet_targets'):
             room.pari_bet_targets = {}
         
+        if room.pari_phase != 'bet' or player_id not in room.players or target not in room.players:
+            return {'error': 'Недопустимая ставка'}
+        if player_id in room.pari_bets:
+            return {'error': 'Ставка уже сделана'}
+        if type(bet) is not int or not 1 <= bet <= 1000:
+            return {'error': 'Ставка должна быть от 1 до 1000'}
         room.pari_bets[player_id] = bet
         room.pari_bet_targets[player_id] = target  # На какой ответ поставил
         
